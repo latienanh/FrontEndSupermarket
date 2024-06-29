@@ -6,29 +6,33 @@ import {
 } from '~/application/model/modelRequest/UserModelRequest';
 import { ResponseBase } from '~/application/model/modelResponse/ModelResponeseBase';
 import {
-    GetAllResponseFailure,
-    GetAllResponseSuccess,
+    GetAllUserResponseFailure,
+    GetAllUserResponseSuccess,
     GetUserByIdResponseFailure,
     GetUserByIdResponseSuccess,
 } from '~/application/model/modelResponse/UserModelResponse';
 import { apiUser } from '~/infrastructure/api/userApi';
-
+import { RootState } from '../rootState';
+import { createAxios } from '~/infrastructure/api/axiosJwt';
 export const UserService = {
-    fetchGetAll: createAsyncThunk('user/fetchGetAll', async (_, thunkAPI) => {
-        const { rejectWithValue } = thunkAPI;
+    fetchGetAll: createAsyncThunk<any, void, { state: RootState }>('user/fetchGetAll', async (_, thunkAPI) => {
+        const { rejectWithValue, dispatch, getState } = thunkAPI;
         try {
-            const response = await apiUser.getAll();
+            const axiosJwt = createAxios(dispatch, getState);
+            const response = await apiUser.getAll(axiosJwt);
             return response;
         } catch (err: any) {
-            if (err.response.data) {
+            if (err.response && err.response.data) {
                 return rejectWithValue(err.response.data);
             }
+            return rejectWithValue(err);
         }
     }),
     fetchGetById: createAsyncThunk('user/fetchGetById', async (id: string, thunkAPI) => {
-        const { rejectWithValue } = thunkAPI;
+        const { rejectWithValue, dispatch, getState } = thunkAPI;
         try {
-            const response = await apiUser.getUserById(id);
+            const axiosJwt = createAxios(dispatch, getState);
+            const response = await apiUser.getUserById(axiosJwt, id);
             return response;
         } catch (err: any) {
             if (err.response.data) {
@@ -37,9 +41,10 @@ export const UserService = {
         }
     }),
     fetchCreate: createAsyncThunk('user/fetchCreateUser', async (model: UserCreateRequest, thunkAPI) => {
-        const { rejectWithValue } = thunkAPI;
+        const { rejectWithValue, dispatch, getState } = thunkAPI;
         try {
-            const response = await apiUser.createUser(model);
+            const axiosJwt = createAxios(dispatch, getState);
+            const response = await apiUser.createUser(axiosJwt, model);
             return response;
         } catch (err: any) {
             if (err.response.data) {
@@ -48,9 +53,10 @@ export const UserService = {
         }
     }),
     fetchDelete: createAsyncThunk('user/fetchDeleteUser', async (id: string, thunkAPI) => {
-        const { rejectWithValue } = thunkAPI;
+        const { rejectWithValue, dispatch, getState } = thunkAPI;
         try {
-            const response = await apiUser.deleteUser(id);
+            const axiosJwt = createAxios(dispatch, getState);
+            const response = await apiUser.deleteUser(axiosJwt, id);
             return response;
         } catch (err: any) {
             if (err.response.data) {
@@ -59,11 +65,12 @@ export const UserService = {
         }
     }),
     fetchUpdate: createAsyncThunk(
-        'auth/fetchUpdateUser',
+        'user/fetchUpdateUser',
         async (payload: { id: string; model: UserUpdateRequest }, thunkAPI) => {
-            const { rejectWithValue } = thunkAPI;
+            const { rejectWithValue, dispatch, getState } = thunkAPI;
             try {
-                const response = await apiUser.updateUser(payload.id, payload.model);
+                const axiosJwt = createAxios(dispatch, getState);
+                const response = await apiUser.updateUser(axiosJwt, payload.id, payload.model);
                 return response;
             } catch (err: any) {
                 if (err.response.data) {
@@ -75,9 +82,10 @@ export const UserService = {
     fetchEdit: createAsyncThunk(
         'auth/fetchEditUser',
         async (payload: { id: string; model: UserEditRequest }, thunkAPI) => {
-            const { rejectWithValue } = thunkAPI;
+            const { rejectWithValue, dispatch, getState } = thunkAPI;
             try {
-                const response = await apiUser.editUser(payload.id, payload.model);
+                const axiosJwt = createAxios(dispatch, getState);
+                const response = await apiUser.editUser(axiosJwt, payload.id, payload.model);
                 return response;
             } catch (err: any) {
                 if (err.response.data) {
@@ -88,8 +96,8 @@ export const UserService = {
     ),
 };
 export interface getAllState {
-    DataSuccess: GetAllResponseSuccess | null;
-    DataFailure: GetAllResponseFailure | null;
+    DataSuccess: GetAllUserResponseSuccess | null;
+    DataFailure: GetAllUserResponseFailure | null;
 }
 export interface GetUserById {
     DataSuccess: GetUserByIdResponseSuccess | null;
@@ -134,14 +142,14 @@ export const Users = createSlice({
                 state.isError = false;
             })
             .addCase(UserService.fetchGetAll.fulfilled, (state, action) => {
-                state.dataGetAllUsers.DataSuccess = action.payload as unknown as GetAllResponseSuccess;
+                state.dataGetAllUsers.DataSuccess = action.payload as unknown as GetAllUserResponseSuccess;
                 state.isLoading = false;
                 state.isError = false;
             })
             .addCase(UserService.fetchGetAll.rejected, (state, action) => {
-                state.dataGetAllUsers.DataFailure = action.payload as GetAllResponseFailure;
                 state.isLoading = false;
                 state.isError = true;
+                state.dataGetAllUsers.DataFailure = action.payload as GetAllUserResponseFailure;
             })
             .addCase(UserService.fetchCreate.pending, (state) => {
                 state.isLoading = true;

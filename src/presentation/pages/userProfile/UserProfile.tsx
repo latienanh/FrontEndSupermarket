@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
 import { ErrorUserEdit } from '~/application/model/modelErrorRequest/ErrorEntity';
+import { AccessToken } from '~/application/model/modelRequest/AuthModelRequest';
 import { UserEditRequest } from '~/application/model/modelRequest/UserModelRequest';
 import { AppDispatch, RootState } from '~/application/redux/rootState';
 import { UserService } from '~/application/redux/slide/UserSlide';
@@ -15,27 +16,37 @@ import { validateEmail, validateNumberPhone } from '~/presentation/utils';
 const IMAGE_URL = process.env.REACT_APP_IMG_URL;
 const UserProfile = () => {
     const [hasEditDataChanged, setHasEditDataChanged] = useState(false);
-    const userData: User | null = useSelector((state: RootState) => state.auth.login.DataSuccess?.data.user);
     const token: string = useSelector((state: RootState) => state.auth.login.DataSuccess?.data.accessToken);
-
-    // const decodeToken = jwtDecode(token);
-    // console.log(decodeToken);
-
+    const userServices = useSelector((state: RootState) => state.user);
+    const decodeToken: AccessToken = jwtDecode(token);
     const navigate = useNavigate();
     const [user, setUser] = useState<UserEditRequest>({
-        email: userData?.email || '',
-        phoneNumber: userData?.phoneNumber || '',
-        firstName: userData?.firstName || '',
-        lastName: userData?.lastName || '',
+        email: '',
+        phoneNumber: '',
+        firstName: '',
+        lastName: '',
         avatar: null,
     });
+
     const [errors, setErrors] = useState<ErrorUserEdit | null>(null);
     const dispatch = useDispatch<AppDispatch>();
-    const usereditData = useSelector((state: RootState) => state.user);
+
     const handleError = (errorMessage: string | null, input: string) => {
         setErrors((prevState) => ({ ...prevState, [input]: errorMessage }));
     };
-
+    useEffect(() => {
+        dispatch(UserService.fetchGetById(decodeToken.UserId));
+    }, []);
+    useEffect(() => {
+        setUser((prevState) => ({
+            ...prevState,
+            email: userServices.dataGetUserById.DataSuccess?.data.email || '',
+            phoneNumber: userServices.dataGetUserById.DataSuccess?.data.phoneNumber || '',
+            firstName: userServices.dataGetUserById.DataSuccess?.data.firstName || '',
+            lastName: userServices.dataGetUserById.DataSuccess?.data.lastName || '',
+            avatar: null,
+        }));
+    }, [userServices.dataGetUserById.DataSuccess]);
     const validate = () => {
         let isValid = true;
         if (!user?.firstName) {
@@ -72,9 +83,9 @@ const UserProfile = () => {
     };
     const regisiter = async () => {
         try {
-            if (userData?.id) {
+            if (decodeToken.UserId) {
                 const payload: { id: string; model: UserEditRequest } = {
-                    id: userData?.id,
+                    id: decodeToken.UserId,
                     model: user,
                 };
                 dispatch(UserService.fetchEdit(payload));
@@ -87,20 +98,19 @@ const UserProfile = () => {
         }
     };
     useEffect(() => {
-        if (!usereditData.isLoading) {
-            if (!usereditData.isError && usereditData.dataEdit) {
+        if (!userServices.isLoading) {
+            if (!userServices.isError && userServices.dataEdit) {
                 if (hasEditDataChanged) {
-                    toast.success(usereditData.dataEdit.message);
+                    toast.success(userServices.dataEdit.message);
                     navigate(URL_APP.Home);
                 }
-            } else if (usereditData.isError && usereditData.dataEdit) {
-                toast.error(usereditData.dataEdit.message);
+            } else if (userServices.isError && userServices.dataEdit) {
+                toast.error(userServices.dataEdit.message);
             }
         }
-    }, [usereditData.dataEdit]);
+    }, [userServices.dataEdit]);
     const handleChangeEmail = (event: ChangeEvent<HTMLInputElement>) => {
         const value = event.target.value;
-        console.log(value);
         handleError('', 'email');
         setUser((prevState) => ({ ...prevState, email: value }));
     };
@@ -143,22 +153,43 @@ const UserProfile = () => {
                         <div className="card card-static-2 pt-4 mb-30">
                             <div className="card-body-table">
                                 <div className="shopowner-content-left text-center pd-20">
-                                    <img src={`${IMAGE_URL}${userData?.image}`} className="shop_img mb-3" alt="" />
+                                    <img
+                                        src={`${IMAGE_URL}${userServices.dataGetUserById.DataSuccess?.data.image}`}
+                                        className="shop_img mb-3"
+                                        alt=""
+                                    />
 
                                     <div className="shopowner-dt-left">
-                                        <h4>{userData?.fullName}</h4>
+                                        <h4>{userServices.dataGetUserById.DataSuccess?.data.fullName}</h4>
                                         <span>
-                                            {userData?.roles.map((item: Role, index) => {
-                                                return `${item.name}  ${
-                                                    index == userData?.roles.length - 1 ? ' ' : ' , '
-                                                }`;
-                                            })}
+                                            {userServices.dataGetUserById.DataSuccess?.data?.roles.map(
+                                                (item: Role, index) => {
+                                                    if (userServices.dataGetUserById.DataSuccess?.data?.roles.length)
+                                                        return `${item.name} ${
+                                                            index ==
+                                                            userServices.dataGetUserById.DataSuccess?.data?.roles
+                                                                .length -
+                                                                1
+                                                                ? ' '
+                                                                : ' , '
+                                                        }`;
+                                                },
+                                            )}
                                         </span>
                                     </div>
                                     <div className="shopowner-dts">
-                                        <UserInfoItem title="Username" content={userData?.userName} />
-                                        <UserInfoItem title="Phone" content={userData?.phoneNumber} />
-                                        <UserInfoItem title="Email" content={userData?.email} />
+                                        <UserInfoItem
+                                            title="Username"
+                                            content={userServices.dataGetUserById.DataSuccess?.data.userName}
+                                        />
+                                        <UserInfoItem
+                                            title="Phone"
+                                            content={userServices.dataGetUserById.DataSuccess?.data.phoneNumber}
+                                        />
+                                        <UserInfoItem
+                                            title="Email"
+                                            content={userServices.dataGetUserById.DataSuccess?.data.email}
+                                        />
                                     </div>
                                 </div>
                             </div>

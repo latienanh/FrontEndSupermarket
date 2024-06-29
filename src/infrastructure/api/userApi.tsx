@@ -1,23 +1,19 @@
-import User from '~/domain/entities/supermarketEntities/User';
-import axiosClient from './axiosClient';
 import {
     UserCreateRequest,
     UserEditRequest,
     UserUpdateRequest,
 } from '~/application/model/modelRequest/UserModelRequest';
-import axios from 'axios';
-const API_URL = process.env.REACT_APP_API_URL;
 
 const apiUser = {
-    getAll: async () => {
-        const res = await axiosClient.get(`/User`);
+    getAll: async (axiosJWT: any) => {
+        const res = await axiosJWT.get(`/User`);
         return res;
     },
-    getUserById: async (id: string) => {
-        const res = await axiosClient.get(`/User/${id}`);
+    getUserById: async (axiosJWT: any, id: string) => {
+        const res = await axiosJWT.get(`/User/${id}`);
         return res;
     },
-    createUser: async (model: UserCreateRequest) => {
+    createUser: async (axiosJWT: any, model: UserCreateRequest) => {
         const formData = new FormData();
         formData.append('UserName', model.userName);
         formData.append('Password', model.password);
@@ -32,18 +28,18 @@ const apiUser = {
         for (let a = 0; a < model.roles.length; a++) {
             formData.append(`Roles[${a}]`, model.roles[a]);
         }
-        const res = await axiosClient.post(`/User`, formData, {
+        const res = await axiosJWT.post(`/User`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
         });
         return res;
     },
-    deleteUser: async (id: string) => {
-        const res = await axiosClient.delete(`/User/${id}`);
+    deleteUser: async (axiosJWT: any, id: string) => {
+        const res = await axiosJWT.delete(`/User/${id}`);
         return res;
     },
-    updateUser: async (id: string, model: UserUpdateRequest) => {
+    updateUser: async (axiosJWT: any, id: string, model: UserUpdateRequest) => {
         const formData = new FormData();
         formData.append('FirstName', model.firstName);
         formData.append('LastName', model.lastName);
@@ -57,14 +53,14 @@ const apiUser = {
                 formData.append(`Roles[${a}]`, model.roles[a]);
             }
         }
-        const res = await axiosClient.put(`/User/${id}`, formData, {
+        const res = await axiosJWT.put(`/User/${id}`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
         });
         return res;
     },
-    editUser: async (id: string, model: UserEditRequest) => {
+    editUser: async (axiosJWT: any, id: string, model: UserEditRequest) => {
         const formData = new FormData();
         formData.append('FirstName', model.firstName);
         formData.append('LastName', model.lastName);
@@ -74,7 +70,7 @@ const apiUser = {
         }
         formData.append('PhoneNumber', model.phoneNumber);
 
-        const res = await axiosClient.put(`/User/${id}`, formData, {
+        const res = await axiosJWT.put(`/User/${id}`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },

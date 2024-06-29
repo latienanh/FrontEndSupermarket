@@ -48,7 +48,6 @@ function UpdateUser() {
                 ? Object.values(userState.dataGetUserById.DataSuccess.data.roles).map((role) => role.id)
                 : [],
         }));
-        console.log(userUpdate);
     }, [userState.dataGetUserById]);
 
     const handleError = (errorMessage: string | null, input: string) => {

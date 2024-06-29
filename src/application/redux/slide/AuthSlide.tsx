@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { LoginRequest, SignupRequest } from '~/application/model/modelRequest/AuthModelRequest';
+import { LoginRequest, RefreshToken, SignupRequest } from '~/application/model/modelRequest/AuthModelRequest';
 import {
     LogOutResponseFailure,
     LogOutResponseSuccess,
@@ -9,6 +9,7 @@ import {
     SignUpResponseSuccess,
 } from '~/application/model/modelResponse/AuthModelResponse';
 import { apiAuth } from '~/infrastructure/api/authApi';
+import { createAxios } from '~/infrastructure/api/axiosJwt';
 
 export const fetchLogin = createAsyncThunk('auth/fetchLogin', async (model: LoginRequest, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
@@ -22,9 +23,10 @@ export const fetchLogin = createAsyncThunk('auth/fetchLogin', async (model: Logi
     }
 });
 export const fetchLogOut = createAsyncThunk('auth/fetchLogOut', async (_, thunkAPI) => {
-    const { rejectWithValue } = thunkAPI;
+    const { rejectWithValue, dispatch, getState } = thunkAPI;
     try {
-        const response = await apiAuth.logout();
+        const axiosJwt = createAxios(dispatch, getState);
+        const response = await apiAuth.logout(axiosJwt);
         return response;
     } catch (err: any) {
         if (err.response.data) {
@@ -43,7 +45,17 @@ export const fetchSigup = createAsyncThunk('auth/fetchSigup', async (model: Sign
         }
     }
 });
-
+export const fetchRefreshToken = createAsyncThunk('auth/fetchRefresh', async (model: RefreshToken, thunkAPI) => {
+    const { rejectWithValue } = thunkAPI;
+    try {
+        const response = await apiAuth.refreshToken(model);
+        return response;
+    } catch (err: any) {
+        if (err.response.data) {
+            return rejectWithValue(err.response.data);
+        }
+    }
+});
 export interface SignupState {
     DataSuccess: SignUpResponseSuccess | null;
     isLoading: boolean;
@@ -87,6 +99,10 @@ export const Auth = createSlice({
         login: initialLoginState,
         signUp: initialSigupState,
         logout: initialLogout,
+        refresh: {
+            isLoading: false,
+            isError: false,
+        },
     },
     reducers: {},
     extraReducers: (builder) => {
@@ -140,6 +156,19 @@ export const Auth = createSlice({
                 state.logout.isLoading = false;
                 state.logout.isError = true;
                 state.logout.DataFailure = action.payload as LogOutResponseFailure;
+            })
+            .addCase(fetchRefreshToken.pending, (state) => {
+                // state.refresh.isLoading = true;
+            })
+            .addCase(fetchRefreshToken.fulfilled, (state, action) => {
+                state.login.DataSuccess = action.payload;
+                // state.refresh.isLoading = false;
+                // state.refresh.isError = false;
+            })
+            .addCase(fetchRefreshToken.rejected, (state, action) => {
+                state.login.DataSuccess = null;
+                // state.refresh.isLoading = false;
+                // state.refresh.isError = true;
             });
     },
 });

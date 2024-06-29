@@ -15,22 +15,24 @@ const SaveButton = styled(Box)<SaveButtonProps>(({ theme, backgroundColor, hover
 }));
 
 const ButtonCustome = (props: ButtonProps) => {
-    const { Title, onClick, BackgroundColor, HoverColor, Icon } = props;
+    const { Title, onClick, BackgroundColor, HoverColor, Icon, style } = props;
     return (
         <>
-            <SaveButton
-                component="button"
-                className="save-btn"
-                onClick={onClick}
-                backgroundColor={BackgroundColor}
-                hoverColor={HoverColor}
-            >
-                {Icon && <i className={Icon} />}
-                {/* fa-solid fa-plus
+            <div className={style ? style : ''}>
+                <SaveButton
+                    component="button"
+                    className="save-btn"
+                    onClick={onClick}
+                    backgroundColor={BackgroundColor}
+                    hoverColor={HoverColor}
+                >
+                    {Icon && <i className={Icon} />}
+                    {/* fa-solid fa-plus
                fa-solid fa-pen-to-square */}
 
-                <span className="m-3">{Title}</span>
-            </SaveButton>
+                    <span className="m-3">{Title}</span>
+                </SaveButton>
+            </div>
         </>
     );
 };

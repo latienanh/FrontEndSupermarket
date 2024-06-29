@@ -12,8 +12,17 @@ type SignupRequest = {
     phoneNumber: string;
     confilmPassword: string;
 };
-type RefershToken = {
+type RefreshToken = {
     accessToken: string;
-    refershToken: string;
+    refreshToken: string;
 };
-export { LoginRequest, SignupRequest };
+type AccessToken = {
+    UserId: string;
+    'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress': string;
+    jti: string;
+    'http://schemas.microsoft.com/ws/2008/06/identity/claims/role': string[];
+    exp: number;
+    iss: string;
+    aud: string;
+};
+export { LoginRequest, SignupRequest, RefreshToken, AccessToken };

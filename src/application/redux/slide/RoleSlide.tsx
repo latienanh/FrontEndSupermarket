@@ -3,12 +3,14 @@ import {
     GetAllRoleResponseFailure,
     GetAllRoleResponseSuccess,
 } from '~/application/model/modelResponse/RoleModelResponse';
+import { createAxios } from '~/infrastructure/api/axiosJwt';
 import { apiRole } from '~/infrastructure/api/roleApi';
 
 export const fetchAllRole = createAsyncThunk('role/fetchAllRole', async (_, thunkAPI) => {
-    const { rejectWithValue } = thunkAPI;
+    const { rejectWithValue, dispatch, getState } = thunkAPI;
     try {
-        const response = await apiRole.getAll();
+        const axiosJwt = createAxios(dispatch, getState);
+        const response = await apiRole.getAll(axiosJwt);
         return response;
     } catch (err: any) {
         if (err.response.data) {

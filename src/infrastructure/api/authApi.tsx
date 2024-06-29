@@ -1,8 +1,7 @@
 import { isRejectedWithValue } from '@reduxjs/toolkit';
 import axios from 'axios';
-import { LoginRequest, SignupRequest } from '~/application/model/modelRequest/AuthModelRequest';
+import { LoginRequest, RefreshToken, SignupRequest } from '~/application/model/modelRequest/AuthModelRequest';
 import { LoginResponseSuccess } from '~/application/model/modelResponse/AuthModelResponse';
-import axiosClient from './axiosClient';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -39,29 +38,17 @@ const apiAuth = {
         console.log(res.data);
         return res.data;
     },
-    refershToken: async (model: SignupRequest) => {
-        const formData = new FormData();
-        formData.append('UserName', model.userName);
-        formData.append('Password', model.password);
-        formData.append('FirstName', model.firstName);
-        formData.append('LastName', model.lastName);
-        formData.append('Email', model.email);
-        if (model.avatar) {
-            formData.append('Avatar', model.avatar);
-        }
-        formData.append('PhoneNumber', model.phoneNumber);
-        formData.append('ConfirmPassword', model.confilmPassword);
-
-        const res = await axios.post(`${API_URL}/Auth/SignUp`, formData, {
+    refreshToken: async (model: RefreshToken) => {
+        const jsonData = JSON.stringify(model);
+        const res = await axios.post(`${API_URL}/Auth/Refresh`, jsonData, {
             headers: {
-                'Content-Type': 'multipart/form-data',
+                'Content-Type': 'application/json',
             },
         });
-        console.log(res.data);
         return res.data;
     },
-    logout: async () => {
-        const res = await axiosClient.post(`/Auth/Logout`);
+    logout: async (axiosJWT: any) => {
+        const res = await axiosJWT.post(`/Auth/Logout`);
         return res;
     },
 };

@@ -16,6 +16,7 @@ type ButtonProps = {
     BackgroundColor?: string;
     HoverColor?: string;
     Icon?: string;
+    style?: string;
 };
 
 type InputImageProps = {

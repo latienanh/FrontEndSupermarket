@@ -3,6 +3,14 @@ import AuthReducer from './slide/AuthSlide';
 import CategoryReducer from './slide/CategorySlide';
 import UserReducer from './slide/UserSlide';
 import RoleReducer from './slide/RoleSlide';
+import MemberShipTypeReducer from './slide/MemberShipTypeSlide';
+import CustomerReducer from './slide/CustomerSlide';
+import AttributeReducer from './slide/AttributeSlide';
+import EmployeeReducer from './slide/EmployeeSlide';
+import SupplierReducer from './slide/SupplierSlide';
+import ProductReducer from './slide/ProductSlide';
+import SaleSlide from './slide/SaleSlide';
+import ImportGoodsSlide from './slide/ImportGoodsSlide';
 import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 const persistConfig = {
@@ -15,6 +23,14 @@ const rootReducer = combineReducers({
     auth: AuthReducer,
     user: UserReducer,
     role: RoleReducer,
+    memberShipType: MemberShipTypeReducer,
+    customer: CustomerReducer,
+    attribute: AttributeReducer,
+    supplier: SupplierReducer,
+    employee: EmployeeReducer,
+    product: ProductReducer,
+    sale: SaleSlide,
+    importGoods: ImportGoodsSlide,
 });
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 export const store = configureStore({

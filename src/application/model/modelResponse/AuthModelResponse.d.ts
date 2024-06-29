@@ -14,10 +14,7 @@ export interface LoginResponseSuccess extends ResponseBase {
 }
 export interface DataSignUp {
     accessToken: string;
-    expirationAT: string;
     refreshToken: string;
-    expirationRT: string;
-    user: User;
 }
 export interface SignUpResponseSuccess extends ResponseBase {}
 export interface LoginResponseFailure extends ResponseBase {}

@@ -29,7 +29,7 @@ function UserPage() {
 
             dispatch(UserService.fetchGetAll());
         } else if (!userState.isLoading && userState.isError) {
-            toast.error(userState.dataEdit?.message);
+            toast.error('Có lỗi xảy ra khi xoá');
         }
     }, [userState.dataDelete]);
     const handleDeleteUser = (id: string) => {
@@ -145,9 +145,10 @@ function UserPage() {
                                                                         <td>{item.userName}</td>
                                                                         <td>
                                                                             <img
-                                                                                className="cate-img"
+                                                                                className="cate-img-6"
                                                                                 src={`${IMG_URL}${item.image}`}
                                                                                 alt=""
+                                                                                style={{ width: 50, height: 50 }}
                                                                             />
                                                                         </td>
                                                                         <td>{item.fullName}</td>
@@ -157,7 +158,7 @@ function UserPage() {
                                                                             {item.roles?.map(
                                                                                 (itemRole: Role, index: number) => {
                                                                                     return (
-                                                                                        <span>
+                                                                                        <span key={index}>
                                                                                             {itemRole.name}
                                                                                             {index ===
                                                                                             item.roles.length - 1

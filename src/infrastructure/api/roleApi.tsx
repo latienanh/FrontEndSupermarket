@@ -1,32 +1,25 @@
-import User from '~/domain/entities/supermarketEntities/User';
-import axiosClient from './axiosClient';
-import {
-    UserCreateRequest,
-    UserEditRequest,
-    UserUpdateRequest,
-} from '~/application/model/modelRequest/UserModelRequest';
 const apiRole = {
-    getAll: async () => {
-        const res = await axiosClient.get(`/Role`);
+    getAll: async (axiosJwt: any) => {
+        const res = await axiosJwt.get(`/Role`);
 
         return res;
     },
-    getRoleById: async (id: string) => {
-        const res = await axiosClient.get(`/Role`, { params: { id } });
-        return res.data;
-    },
-    createRole: async (model: UserCreateRequest) => {
-        const res = await axiosClient.post(`/Role`, model);
-        return res.data;
-    },
-    deleteRole: async (id: string) => {
-        const res = await axiosClient.delete(`/Role/${id}`);
-        return res;
-    },
-    updateRole: async (id: string, model: UserUpdateRequest | UserEditRequest) => {
-        const res = await axiosClient.put(`/Role`, model, { params: { id } });
-        return res.data;
-    },
+    // getRoleById: async (axiosJwt: any, id: string) => {
+    //     const res = await axiosJwt.get(`/Role`, { params: { id } });
+    //     return res.data;
+    // },
+    // createRole: async (axiosJwt: any, model: UserCreateRequest) => {
+    //     const res = await axiosJwt.post(`/Role`, model);
+    //     return res.data;
+    // },
+    // deleteRole: async (axiosJwt: any, id: string) => {
+    //     const res = await axiosJwt.delete(`/Role/${id}`);
+    //     return res;
+    // },
+    // updateRole: async (axiosJwt: any, id: string, model: UserUpdateRequest | UserEditRequest) => {
+    //     const res = await axiosJwt.put(`/Role`, model, { params: { id } });
+    //     return res.data;
+    // },
 };
 
 export { apiRole };

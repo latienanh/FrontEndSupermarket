@@ -1598,3 +1598,30 @@ input.custom-file-input {
 .form-group {
     margin-top: 20px;
 }
+.vertical-line {
+    border-left: 1px solid black;
+    height: 100px; /* Điều chỉnh chiều cao của đường kẻ */
+    margin: 0 auto; /* Căn giữa đường kẻ dọc */
+}
+.td-vertical-line {
+    display: flex;
+    height: 100px;
+    align-items: center;
+    justify-content: center;
+    padding: 0; /* Loại bỏ padding nếu cần */
+}
+.line-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100px; /* Adjust the height as needed */
+}
+.line-vertical {
+    border-left: 2px solid black;
+    height: 50px; /* Adjust the height as needed */
+}
+.line-horizontal {
+    border-top: 2px solid black;
+    width: 50px; /* Adjust the width as needed */
+    margin-top: -2px; /* Adjust to remove gap between lines */
+}

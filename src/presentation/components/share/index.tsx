@@ -3,6 +3,8 @@ import { NavigationMenu, NavigationMenuDropDown, DropDownMenu } from './navigati
 import InputImageCustome from './InputImageCustome';
 import EditorCustome from './EditorCustome';
 import ButtonCustome from './ButtonCustome';
+import PaginationControl from './PaginationControls';
+import Describe from './Describe';
 export {
     InputCustome,
     NavigationMenu,
@@ -11,4 +13,6 @@ export {
     InputImageCustome,
     EditorCustome,
     ButtonCustome,
+    PaginationControl,
+    Describe,
 };

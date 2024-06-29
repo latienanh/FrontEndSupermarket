@@ -9,7 +9,6 @@ import { toast } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '~/application/redux/rootState';
 import { LoginState, fetchLogin } from '~/application/redux/slide/AuthSlide';
-import { fetchAllCategories } from '~/application/redux/slide/CategorySlide';
 import { LoadingAuth } from '../loading';
 import { InputCustome } from '~/presentation/components/share';
 function Login() {
