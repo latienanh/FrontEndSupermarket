@@ -1,7 +1,18 @@
 import { Outlet } from 'react-router-dom';
-import type { RootState } from '../../../application/redux/rootState';
+import type { AppDispatch, RootState } from '../../../application/redux/rootState';
 import { useSelector, useDispatch } from 'react-redux';
+import { useEffect } from 'react';
+import { SaleService } from '~/application/redux/slide/SaleSlide';
+import * as React from 'react';
+import { BarChart } from '@mui/x-charts/BarChart';
 function Home() {
+    const saleState = useSelector((state: RootState) => state.sale);
+    const dispatch = useDispatch<AppDispatch>();
+    useEffect(() => {
+        dispatch(SaleService.fetchGetSaleChart());
+        dispatch(SaleService.fetchGetAllInvoice());
+        dispatch(SaleService.fetchGetSaleDateNow());
+    }, []);
     return (
         <main>
             <div className="container-fluid">
@@ -10,44 +21,26 @@ function Home() {
                     <li className="breadcrumb-item active">Dashboard</li>
                 </ol>
                 <div className="row">
-                    <div className="col-xl-3 col-md-6">
-                        <div className="dashboard-report-card purple">
-                            <div className="card-content">
-                                <span className="card-title">Order Pending</span>
-                                <span className="card-count">2</span>
-                            </div>
-                            <div className="card-media">
-                                <i className="fab fa-rev"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="col-xl-3 col-md-6">
-                        <div className="dashboard-report-card red">
-                            <div className="card-content">
-                                <span className="card-title">Order Cancel</span>
-                                <span className="card-count">0</span>
-                            </div>
-                            <div className="card-media">
-                                <i className="far fa-times-circle"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="col-xl-3 col-md-6">
+                    <div className="col-xl-6 col-md-6">
                         <div className="dashboard-report-card info">
                             <div className="card-content">
-                                <span className="card-title">Order Process</span>
-                                <span className="card-count">5</span>
+                                <span className="card-title">Số lượng hoá đơn hôm nay</span>
+                                <span className="card-count">
+                                    {saleState.dataGetSaleDateNow?.data.quantityInvoice || 0}
+                                </span>
                             </div>
                             <div className="card-media">
                                 <i className="fas fa-sync-alt rpt_icon"></i>
                             </div>
                         </div>
                     </div>
-                    <div className="col-xl-3 col-md-6">
+                    <div className="col-xl-6 col-md-6">
                         <div className="dashboard-report-card success">
                             <div className="card-content">
-                                <span className="card-title">Today Income</span>
-                                <span className="card-count">$9568.00</span>
+                                <span className="card-title">THU NHẬP HÔM NAY</span>
+                                <span className="card-count">
+                                    {saleState.dataGetSaleDateNow?.data.totalPriceNow || 0} VNĐ
+                                </span>
                             </div>
                             <div className="card-media">
                                 <i className="fas fa-money-bill rpt_icon"></i>
@@ -57,145 +50,107 @@ function Home() {
                     <div className="col-xl-12 col-md-12">
                         <div className="card card-static-1 mb-30">
                             <div className="card-body">
-                                <div id="earningGraph"></div>
+                                <BarChart
+                                    series={[
+                                        {
+                                            data: saleState.dataGetSaleChart?.data.dailySaleData.map(
+                                                (item) => item.quantity,
+                                            ),
+
+                                            label: 'Số lượng hoá đơn',
+                                        },
+                                        {
+                                            data: saleState.dataGetSaleChart?.data.dailySaleData.map(
+                                                (item) => item.totalPrice,
+                                            ),
+
+                                            label: 'Tổng tiền (VNĐ)',
+                                        },
+                                        {
+                                            data: saleState.dataGetSaleChart?.data.dailySaleData.map((item) => {
+                                                if (item.quantity == 0) {
+                                                    return 0;
+                                                } else return item.totalPrice / item.quantity;
+                                            }),
+
+                                            label: 'Trung bình đơn hàng (VNĐ)',
+                                        },
+                                    ]}
+                                    height={300}
+                                    xAxis={[
+                                        {
+                                            data: saleState.dataGetSaleChart?.data.dailySaleData.map((item) =>
+                                                new Date(item.date).toLocaleDateString(),
+                                            ),
+                                            scaleType: 'band',
+                                        },
+                                    ]}
+                                    margin={{ top: 10, bottom: 30, left: 80, right: 10 }}
+                                />
                             </div>
                         </div>
                     </div>
                     <div className="col-xl-12 col-md-12">
                         <div className="card card-static-2 mb-30">
                             <div className="card-title-2 pb-3">
-                                <h4>Recent Orders</h4>
-                                <a href="orders.html" className="view-btn hover-btn">
+                                <h4>Hoá đơn </h4>
+                                {/* <a href="orders.html" className="view-btn hover-btn">
                                     View All
-                                </a>
+                                </a> */}
                             </div>
                             <div className="card-body-table">
                                 <div className="table-responsive">
                                     <table className="table ucp-table table-hover">
                                         <thead>
                                             <tr>
-                                                <th style={{ width: '130px' }}>Order ID</th>
+                                                <th style={{ width: '130px' }}>Invoice ID</th>
                                                 <th>Item</th>
                                                 <th style={{ width: '200px' }}>Date</th>
-                                                <th style={{ width: '300px' }}>Address</th>
-                                                <th style={{ width: '130px' }}>Status</th>
-                                                <th style={{ width: '130px' }}>Total</th>
-                                                <th style={{ width: '100px' }}>Action</th>
+                                                <th style={{ width: '300px' }}>Khách hàng</th>
+                                                <th style={{ width: '130px' }}>Nhân viên bán</th>
+                                                <th style={{ width: '130px' }}>Tổng hoá đơn</th>
+                                                {/* <th style={{ width: '100px' }}>Action</th> */}
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr>
-                                                <td>ORDER12345</td>
-                                                <td>
-                                                    <a href="#" target="_blank">
-                                                        Product Title Here
-                                                    </a>
-                                                </td>
-                                                <td>
-                                                    <span className="delivery-time">15/06/2020</span>
-                                                    <span className="delivery-time">4:00PM - 6.00PM</span>
-                                                </td>
-                                                <td>
-                                                    #0000, St No. 8, Shahid Karnail Singh Nagar, MBD Mall, Frozpur road,
-                                                    Ludhiana, 141001
-                                                </td>
-                                                <td>
-                                                    <span className="badge-item badge-status">Pending</span>
-                                                </td>
-                                                <td>$90</td>
-                                                <td className="action-btns">
-                                                    <a href="order_view.html" className="views-btn">
-                                                        <i className="fas fa-eye"></i>
-                                                    </a>
-                                                    <a href="order_edit.html" className="edit-btn">
-                                                        <i className="fas fa-edit"></i>
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>ORDER12346</td>
-                                                <td>
-                                                    <a href="#" target="_blank">
-                                                        Product Title Here
-                                                    </a>
-                                                </td>
-                                                <td>
-                                                    <span className="delivery-time">13/06/2020</span>
-                                                    <span className="delivery-time">2:00PM - 4.00PM</span>
-                                                </td>
-                                                <td>
-                                                    #0000, St No. 8, Shahid Karnail Singh Nagar, MBD Mall, Frozpur road,
-                                                    Ludhiana, 141001
-                                                </td>
-                                                <td>
-                                                    <span className="badge-item badge-status">Pending</span>
-                                                </td>
-                                                <td>$105</td>
-                                                <td className="action-btns">
-                                                    <a href="order_view.html" className="views-btn">
-                                                        <i className="fas fa-eye"></i>
-                                                    </a>
-                                                    <a href="order_edit.html" className="edit-btn">
-                                                        <i className="fas fa-edit"></i>
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>ORDER12347</td>
-                                                <td>
-                                                    <a href="#" target="_blank">
-                                                        Product Title Here
-                                                    </a>
-                                                </td>
-                                                <td>
-                                                    <span className="delivery-time">13/6/2020</span>
-                                                    <span className="delivery-time">5:00PM - 7.00PM</span>
-                                                </td>
-                                                <td>
-                                                    #0000, St No. 8, Shahid Karnail Singh Nagar, MBD Mall, Frozpur road,
-                                                    Ludhiana, 141001
-                                                </td>
-                                                <td>
-                                                    <span className="badge-item badge-status">Pending</span>
-                                                </td>
-                                                <td>$60</td>
-                                                <td className="action-btns">
-                                                    <a href="order_view.html" className="views-btn">
-                                                        <i className="fas fa-eye"></i>
-                                                    </a>
-                                                    <a href="order_edit.html" className="edit-btn">
-                                                        <i className="fas fa-edit"></i>
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>ORDER12348</td>
-                                                <td>
-                                                    <a href="#" target="_blank">
-                                                        Product Title Here
-                                                    </a>
-                                                </td>
-                                                <td>
-                                                    <span className="delivery-time">12/06/2020</span>
-                                                    <span className="delivery-time">01:00PM - 3.00PM</span>
-                                                </td>
-                                                <td>
-                                                    #0000, St No. 8, Shahid Karnail Singh Nagar, MBD Mall, Frozpur road,
-                                                    Ludhiana, 141001
-                                                </td>
-                                                <td>
-                                                    <span className="badge-item badge-status">Pending</span>
-                                                </td>
-                                                <td>$120</td>
-                                                <td className="action-btns">
-                                                    <a href="order_view.html" className="views-btn">
-                                                        <i className="fas fa-eye"></i>
-                                                    </a>
-                                                    <a href="order_edit.html" className="edit-btn">
-                                                        <i className="fas fa-edit"></i>
-                                                    </a>
-                                                </td>
-                                            </tr>
+                                            {saleState.dataGetAll &&
+                                                saleState.dataGetAll.listData &&
+                                                saleState.dataGetAll.listData.map((item, index) => {
+                                                    return (
+                                                        <tr key={index}>
+                                                            <td>{item.id}</td>
+                                                            <td>
+                                                                {item.invoiceDetails.map((item) => {
+                                                                    return (
+                                                                        <span className="delivery-time">
+                                                                            {item.productId}
+                                                                        </span>
+                                                                    );
+                                                                })}
+                                                            </td>
+                                                            <td>
+                                                                <span className="delivery-time">
+                                                                    {new Date(item.invoiceDate).toLocaleDateString()}
+                                                                </span>
+                                                            </td>
+                                                            <td>
+                                                                <span>{item.customer?.fullName || 'Ẩn danh'}</span>
+                                                            </td>
+                                                            <td>
+                                                                <span>{item.employee.fullName}</span>
+                                                            </td>
+                                                            <td>{item.totalPrice} VNĐ</td>
+                                                            {/* <td className="action-btns">
+                                                                <a href="order_view.html" className="views-btn">
+                                                                    <i className="fas fa-eye"></i>
+                                                                </a>
+                                                                <a href="order_edit.html" className="edit-btn">
+                                                                    <i className="fas fa-edit"></i>
+                                                                </a>
+                                                            </td> */}
+                                                        </tr>
+                                                    );
+                                                })}
                                         </tbody>
                                     </table>
                                 </div>

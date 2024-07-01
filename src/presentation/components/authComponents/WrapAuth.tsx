@@ -6,6 +6,7 @@ type WrapAuthProps = {
 };
 function WrapAuth(props: WrapAuthProps) {
     const { children } = props;
+
     return (
         <>
             <main className="main" id="top">

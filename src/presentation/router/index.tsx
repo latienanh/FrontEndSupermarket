@@ -33,6 +33,7 @@ import UpdateSupplier from '../pages/entitySupermarket/supplier/UpdateSupplier';
 import { ImportGoods, SalePage } from '../pages/sale';
 
 const publicRouter = [
+    { path: URL_APP.NONE, component: Login, layout: null },
     { path: URL_APP.Login, component: Login, layout: null },
     { path: URL_APP.Signup, component: SignUp, layout: null },
     { path: URL_APP.Logout, component: Logout, layout: null },

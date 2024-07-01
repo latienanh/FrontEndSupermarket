@@ -27,6 +27,7 @@ function SignUp() {
     const [errors, setErrors] = useState<ErrorSignUp>({});
     const dispatch = useDispatch<AppDispatch>();
     const sigUpData: SignupState = useSelector((state: RootState) => state.auth.signUp);
+    const loginState = useSelector((state: RootState) => state.auth.login);
     const navigate = useNavigate();
 
     const handleError = (errorMessage: string | null, input: string) => {
@@ -92,6 +93,16 @@ function SignUp() {
             console.log(error);
         }
     };
+    useEffect(() => {
+        if (loginState.DataSuccess?.data) {
+            toast.success(loginState.DataSuccess.message);
+            navigate('/Home');
+        } else if (!loginState.isLoading && loginState.isError) {
+            if (loginState.DataFailure) {
+                toast.error(loginState.DataFailure.message);
+            }
+        }
+    }, [loginState, navigate]);
     useEffect(() => {
         if (sigUpData.DataSuccess) {
             toast.success(sigUpData.DataSuccess.message);

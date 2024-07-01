@@ -6,6 +6,7 @@ import { AddProduct } from './presentation/pages/entitySupermarket';
 import { LoadingAuth } from './presentation/pages/loading';
 import { useAuthToken } from './presentation/utils';
 import { jwtDecode } from 'jwt-decode';
+import { WrapAuthLayout } from './presentation/components/layouts/WrapAuthLayout';
 
 function App() {
     // const token = useAuthToken();

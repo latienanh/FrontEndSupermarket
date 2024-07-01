@@ -86,7 +86,33 @@ type ErrorVariantCreate = {
     describe?: string;
     categoriesId?: string;
 };
+type ErrorStockInView = {
+    supplier?: string;
+    employee?: string;
+    note?: string;
+    stockInDetail?: string;
+    stockInDetails?: ErrorStockInDetailView[];
+};
+type ErrorStockInDetailView = {
+    quantityReceived?: string;
+    unitPriceReceived?: string;
+};
+type ErrorInvoiceView = {
+    customer?: string;
+    employee?: string;
+    paymentStatus?: string;
+    paymentMethod?: string;
+    invoiceDetails?: ErrorInvoiceDetail[];
+    invoiceDetail?: string;
+};
+type ErrorInvoiceDetailView = {
+    quantity?: string;
+    unitPrice?: string;
+};
 export {
+    ErrorInvoiceDetailView,
+    ErrorInvoiceView,
+    ErrorStockInDetailView,
     ErrorProductUpdate,
     ErrorUserEdit,
     ErrorCreateUser,
@@ -99,4 +125,5 @@ export {
     ErrorEmployee,
     ErrorProductCreate,
     ErrorVariantCreate,
+    ErrorStockInView,
 };

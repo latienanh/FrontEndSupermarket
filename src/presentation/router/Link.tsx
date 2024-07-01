@@ -1,4 +1,5 @@
 const URL_APP = {
+    NONE: '/',
     Login: '/Login',
     Auth: '/Auth',
     Signup: '/Signup',

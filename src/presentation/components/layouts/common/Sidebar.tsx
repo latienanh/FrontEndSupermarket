@@ -9,12 +9,12 @@ function Sidebar() {
             <nav className="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
                 <div className="sb-sidenav-menu">
                     <div className="nav">
-                        <a className="nav-link" href="index.html">
+                        <Link className="nav-link" to={URL_APP.Home}>
                             <div className="sb-nav-link-icon">
                                 <i className="fas fa-tachometer-alt"></i>
                             </div>
                             Dashboard
-                        </a>
+                        </Link>
                         <NavigationMenuDropDown
                             collapseTarget="collapseCategories"
                             name="Categories"

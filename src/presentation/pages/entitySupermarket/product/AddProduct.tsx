@@ -442,7 +442,7 @@ function AddProduct() {
             };
         });
         setErrors((prevProduct) => {
-            let newVariants = prevProduct.variants ? [...prevProduct.variants] : [];
+            let newVariants: any = [];
 
             dataAttribute.map((item1, index1) =>
                 item1.dataSplit?.map((itemSplit1, indexSplit1) =>
@@ -817,7 +817,7 @@ function AddProduct() {
                                     <div className="news-content-right pd-20">
                                         {categoryState.dataGetAll.DataSuccess?.listData &&
                                             categoryState.dataGetAll.DataSuccess?.listData.map(
-                                                (item, index: number) => {
+                                                (item: any, index: number) => {
                                                     return (
                                                         <div key={index} className="col-lg-8 m-2">
                                                             <input

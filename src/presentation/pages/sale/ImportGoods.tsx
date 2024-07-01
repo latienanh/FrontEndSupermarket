@@ -1,47 +1,114 @@
-import { Autocomplete, Box, Stack, TextField } from '@mui/material';
-import { ChangeEvent, useEffect, useState } from 'react';
+import { Autocomplete, Box, Input, Stack, TableCell, TableRow, TextField } from '@mui/material';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate, useParams } from 'react-router';
+import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
-import slugify from 'slugify';
-import { ErrorProductUpdate } from '~/application/model/modelErrorRequest/ErrorEntity';
-import { ProductUpdateRequest } from '~/application/model/modelRequest/ProductModelResqest';
+import { ErrorStockInDetailView, ErrorStockInView } from '~/application/model/modelErrorRequest/ErrorEntity';
+import { StockInDetailView, StockInView } from '~/application/model/modelView/ImportGoodsModelView';
 import { AppDispatch, RootState } from '~/application/redux/rootState';
-import { CategoryService } from '~/application/redux/slide/CategorySlide';
 import { EmployeeService } from '~/application/redux/slide/EmployeeSlide';
 import { ProductService } from '~/application/redux/slide/ProductSlide';
 import { SupplierService } from '~/application/redux/slide/SupplierSlide';
 import Employee from '~/domain/entities/supermarketEntities/Employee';
 import { Product } from '~/domain/entities/supermarketEntities/Product';
 import Supplier from '~/domain/entities/supermarketEntities/Supplier';
-import { ButtonCustome, EditorCustome, InputCustome, InputImageCustome } from '~/presentation/components/share';
+import { ButtonCustome } from '~/presentation/components/share';
 import { URL_APP } from '~/presentation/router/Link';
+import * as React from 'react';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableContainer from '@mui/material/TableContainer';
+import Paper from '@mui/material/Paper';
+import { TableVirtuoso, TableComponents } from 'react-virtuoso';
+import { ImportGoodsService } from '~/application/redux/slide/ImportGoodsSlide';
+import { error } from 'console';
+
+interface ColumnStockInDetail {
+    dataKey: keyof StockInDetailView;
+    label: string;
+    numeric?: boolean;
+    width: number;
+}
+const ColumnStockInDetails: ColumnStockInDetail[] = [
+    {
+        width: 150,
+        label: 'Tên',
+        dataKey: 'name',
+    },
+    {
+        width: 120,
+        label: 'Giá bán',
+        dataKey: 'price',
+        numeric: true,
+    },
+    {
+        width: 120,
+        label: 'Số lượng trong kho',
+        dataKey: 'quantityProduct',
+        numeric: true,
+    },
+    {
+        width: 120,
+        label: 'Giá nhập',
+        dataKey: 'unitPriceReceived',
+        numeric: true,
+    },
+    {
+        width: 120,
+        label: 'Số lượng nhập',
+        dataKey: 'quantityReceived',
+        numeric: true,
+    },
+];
+const CustomTableHead = React.forwardRef<HTMLTableSectionElement, any>((props, ref) => {
+    return <thead ref={ref} {...props} />;
+});
+const VirtuosoTableComponents: TableComponents<StockInDetailView> = {
+    Scroller: React.forwardRef<HTMLDivElement>((props, ref) => (
+        <TableContainer component={Paper} {...props} ref={ref} />
+    )),
+    Table: (props) => <Table {...props} sx={{ borderCollapse: 'separate', tableLayout: 'fixed' }} />,
+    TableHead: CustomTableHead,
+    TableRow: ({ item: _item, ...props }) => <TableRow {...props} />,
+    TableBody: React.forwardRef<HTMLTableSectionElement>((props, ref) => <TableBody {...props} ref={ref} />),
+};
+
+function fixedHeaderContent() {
+    return (
+        <TableRow>
+            {ColumnStockInDetails.map((column) => (
+                <TableCell
+                    key={column.dataKey}
+                    variant="head"
+                    align={column.numeric || false ? 'right' : 'left'}
+                    style={{ width: column.width }}
+                    sx={{
+                        backgroundColor: 'background.paper',
+                    }}
+                >
+                    {column.label}
+                </TableCell>
+            ))}
+        </TableRow>
+    );
+}
 
 function ImportGoods() {
     const IMG_URL = process.env.REACT_APP_IMG_URL;
-    const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [hasEditDataChanged, setHasEditDataChanged] = useState(false);
+    const importGoodsState = useSelector((state: RootState) => state.importGoods);
     const productState = useSelector((state: RootState) => state.product);
     const supplierState = useSelector((state: RootState) => state.supplier);
     const employeeState = useSelector((state: RootState) => state.employee);
     const dispatch = useDispatch<AppDispatch>();
-    const [productUpdate, setpPoductUpdate] = useState<ProductUpdateRequest>({
-        barCode: '',
-        name: '',
-        slug: '',
-        image: null,
-        price: 0,
-        describe: '',
-        categoriesId: [],
-    });
-    const [stockInAdd, setStockInAdd] = useState<StockInRequest>({
-        supplierId: '',
-        employeeId: '',
+    const [stockInAdd, setStockInAdd] = useState<StockInView>({
+        supplier: null,
+        employee: null,
         note: '',
         stockInDetails: [],
     });
-    const [errors, setErrors] = useState<ErrorProductUpdate>({});
+    const [errors, setErrors] = useState<ErrorStockInView>({});
 
     useEffect(() => {
         dispatch(SupplierService.fetchGetAll());
@@ -51,34 +118,53 @@ function ImportGoods() {
     const handleError = (errorMessage: string | null, input: string) => {
         setErrors((prevState) => ({ ...prevState, [input]: errorMessage }));
     };
+    const handlestockInDetailError = (errorMessage: string | null, input: string, index: number) => {
+        setErrors((prevState) => {
+            const errorStockInDetail = prevState.stockInDetails?.map((stockInDetail, i) => {
+                // console.log(i);
+                if (i === index) {
+                    return {
+                        ...stockInDetail,
+                        [input]: errorMessage,
+                    };
+                }
+                return stockInDetail;
+            });
 
+            return {
+                ...prevState,
+                stockInDetails: errorStockInDetail || [],
+            };
+        });
+    };
     const validate = () => {
         let isValid = true;
-        if (!productUpdate?.barCode) {
-            handleError('Vui lòng nhập barCode !', 'barCode');
-            isValid = false;
-        } else if (productUpdate.barCode.length < 5 && productUpdate.barCode.length > 15) {
-            handleError('barCode Name phải trên 5 và ít hơn 15 kí tự !', 'barCode');
+        if (!stockInAdd?.supplier) {
+            handleError('Vui lòng chưa chọn nhà cung cấp !', 'supplier');
             isValid = false;
         }
-        if (!productUpdate?.name) {
-            handleError('Vui lòng nhập tên sản phẩm !', 'name');
-            isValid = false;
-        } else if (productUpdate.name.length < 5 && productUpdate.name.length > 50) {
-            handleError('Tên phải trên 5 và ít hơn 50 kí tự !', 'name');
+        if (!stockInAdd?.employee) {
+            handleError('Chưa chọn nhân viên !', 'employee');
             isValid = false;
         }
-        if (!productUpdate?.describe) {
-            handleError('Chưa nhập mô tả !', 'describe');
+        if (stockInAdd.stockInDetails.length <= 0) {
+            handleError('Chưa chọn sản phẩm', 'stockInDetail');
             isValid = false;
         }
-        if (!productUpdate?.slug) {
-            handleError('Chưa nhập đường dẫn !', 'slug');
-            isValid = false;
-        }
-        if (!productUpdate.categoriesId || productUpdate.categoriesId.length === 0) {
-            handleError('Chưa chọn Category!', 'categoriesId');
-            isValid = false;
+        if (stockInAdd.stockInDetails && stockInAdd.stockInDetails.length > 0) {
+            stockInAdd.stockInDetails.forEach((item, index) => {
+                if (!item?.unitPriceReceived) {
+                    handlestockInDetailError('Vui lòng nhập giá !', 'unitPriceReceived', index);
+                    isValid = false;
+                } else if (item.unitPriceReceived > item.price) {
+                    handlestockInDetailError('Giá nhập lớn giá bán rùi !', 'unitPriceReceived', index);
+                    isValid = false;
+                }
+                if (!item?.quantityReceived) {
+                    handlestockInDetailError('Vui lòng số lượng !', 'quantityReceived', index);
+                    isValid = false;
+                }
+            });
         }
         if (isValid) {
             regisiter();
@@ -86,57 +172,139 @@ function ImportGoods() {
     };
     const regisiter = async () => {
         try {
-            if (id !== undefined) {
-                const payload = {
-                    id: id,
-                    model: productUpdate,
-                };
-                dispatch(ProductService.fetchUpdate(payload));
-                setHasEditDataChanged(true);
-            }
+            const payload: StockInRequest = {
+                supplierId: stockInAdd.supplier?.id || '',
+                employeeId: stockInAdd.employee?.id || '',
+                note: stockInAdd.note || 'Không có',
+                stockInDetails: stockInAdd.stockInDetails.map((item) => ({
+                    productId: item.productId,
+                    quantityReceived: item.quantityReceived,
+                    unitPriceReceived: item.unitPriceReceived,
+                })),
+            };
+            dispatch(ImportGoodsService.fetchImportGoods(payload));
+            setHasEditDataChanged(true);
         } catch (error) {
             console.log(error);
         }
     };
     useEffect(() => {
-        if (!productState.isLoading) {
-            if (!productState.isError && productState.dataUpdate) {
+        if (!importGoodsState.isLoading) {
+            if (!importGoodsState.isError && importGoodsState.dataImportGoods) {
                 if (hasEditDataChanged) {
-                    toast.success(productState.dataUpdate.message);
+                    toast.success(importGoodsState.dataImportGoods.message);
                     navigate(URL_APP.Products);
                 }
-            } else if (productState.isError && productState.dataUpdate) {
-                toast.error(productState.dataUpdate.message);
+            } else if (importGoodsState.isError && importGoodsState.dataImportGoods) {
+                toast.error(importGoodsState.dataImportGoods.message);
             }
         }
-    }, [productState.dataUpdate]);
+    }, [importGoodsState.dataImportGoods]);
 
     const handleChangeSupplier = (event: any, newValue: Supplier | null) => {
+        handleError('', 'supplier');
         if (newValue) {
             setStockInAdd((prev) => ({
                 ...prev,
-                supplierId: newValue?.id,
+                supplier: newValue,
             }));
         } else {
             setStockInAdd((prev) => ({
                 ...prev,
-                supplierId: '',
+                supplier: null,
             }));
         }
     };
     const handleChangeEmployee = (event: any, newValue: Employee | null) => {
+        handleError('', 'employee');
         if (newValue) {
             setStockInAdd((prev) => ({
                 ...prev,
-                employeeId: newValue?.id,
+                employee: newValue,
             }));
         } else {
             setStockInAdd((prev) => ({
                 ...prev,
-                employeeId: '',
+                employee: null,
             }));
         }
     };
+    const handleChangeProductQuantity = (event: any, index: number) => {
+        handlestockInDetailError('', 'quantityReceived', index);
+        // quantityReceived?: string;
+        // unitPriceReceived?: string;
+        setStockInAdd((prevState) => {
+            const updatedStockInDetail = prevState.stockInDetails?.map((stockInDetail, i) => {
+                if (i === index) {
+                    return {
+                        ...stockInDetail,
+                        quantityReceived: parseFloat(event.target.value),
+                    };
+                }
+                return stockInDetail;
+            });
+
+            return {
+                ...prevState,
+                stockInDetails: updatedStockInDetail || [],
+            };
+        });
+    };
+    const handleChangeProductPrice = (event: any, index: number) => {
+        handlestockInDetailError('', 'unitPriceReceived', index);
+        setStockInAdd((prevState) => {
+            const updatedStockInDetail = prevState.stockInDetails?.map((stockInDetail, i) => {
+                if (i === index) {
+                    return {
+                        ...stockInDetail,
+                        unitPriceReceived: parseInt(event.target.value),
+                    };
+                }
+                return stockInDetail;
+            });
+
+            return {
+                ...prevState,
+                stockInDetails: updatedStockInDetail || [],
+            };
+        });
+    };
+    const handleChangeProduct = (event: any, newValue: Product[] | null) => {
+        handleError('', 'stockInDetail');
+        if (newValue) {
+            setStockInAdd((prevStockIn) => {
+                let newStockInDetail: StockInDetailView[] = [];
+                newValue.forEach((value) => {
+                    newStockInDetail.push({
+                        productId: value.id,
+                        name: value.name,
+                        quantityProduct: value.quantity,
+                        price: value.price,
+                        quantityReceived: 0,
+                        unitPriceReceived: 0,
+                    });
+                });
+                return {
+                    ...prevStockIn,
+                    stockInDetails: newStockInDetail,
+                };
+            });
+            setErrors((prevStockInDetail) => {
+                let newErrorStockInDetail: ErrorStockInDetailView[] = [];
+                newValue.forEach(() => {
+                    newErrorStockInDetail.push({
+                        quantityReceived: '',
+                        unitPriceReceived: '',
+                    });
+                });
+                return {
+                    ...prevStockInDetail,
+                    stockInDetails: newErrorStockInDetail,
+                };
+            });
+        }
+    };
+
     return (
         <>
             {' '}
@@ -172,14 +340,14 @@ function ImportGoods() {
                                                         sx={{ '& > img': { mr: 2, flexShrink: 0 } }}
                                                         {...optionProps}
                                                     >
-                                                        {/* <img
-                                                            loading="lazy"
-                                                            width="20"
-                                                            srcSet={`https://flagcdn.com/w40/${option.code.toLowerCase()}.png 2x`}
-                                                            src={`https://flagcdn.com/w20/${option.code.toLowerCase()}.png`}
-                                                            alt=""
-                                                        /> */}
-                                                        {option.name} ({option.phoneNumber}) +{option.address}
+                                                        <div>
+                                                            <div>
+                                                                <span>Tên NCC: {option.name} </span>
+                                                            </div>
+                                                            <div>
+                                                                <span>SĐT :{option.phoneNumber}</span>
+                                                            </div>
+                                                        </div>
                                                     </Box>
                                                 );
                                             }}
@@ -194,6 +362,11 @@ function ImportGoods() {
                                                 />
                                             )}
                                         />
+                                        {errors.supplier ? (
+                                            <label className="bg text-danger">{errors.supplier}</label>
+                                        ) : (
+                                            ''
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -203,17 +376,18 @@ function ImportGoods() {
                                 </div>
                                 <div className="card-body-table">
                                     <div className="post-form">
-                                        <Stack spacing={3} sx={{ width: 500 }}>
+                                        <Stack
+                                            spacing={3}
+                                            // sx={{ width: 500 }}
+                                        >
                                             <Autocomplete
-                                                id="select-supplier"
+                                                id="select-products"
                                                 // sx={{ width: 200 }}
                                                 multiple
                                                 options={productState.dataGetAll.DataSuccess?.listData || []}
                                                 autoHighlight
                                                 getOptionLabel={(option) => option.name}
-                                                onChange={(event, newValue: any) => {
-                                                    console.log(newValue);
-                                                }}
+                                                onChange={handleChangeProduct}
                                                 renderOption={(props, option) => {
                                                     const { key, ...optionProps } = props;
                                                     return (
@@ -232,16 +406,15 @@ function ImportGoods() {
                                                             />
                                                             <div>
                                                                 <div>
-                                                                    Tên:<span>{option.name} </span>
+                                                                    <span>Tên: {option.name} </span>
                                                                 </div>
                                                                 <div>
-                                                                    Số lượng:
                                                                     <span
                                                                         className={
                                                                             option.quantity < 10 ? `text-danger` : ''
                                                                         }
                                                                     >
-                                                                        {option.quantity}
+                                                                        Số lượng: {option.quantity}
                                                                     </span>
                                                                 </div>
                                                             </div>
@@ -251,7 +424,7 @@ function ImportGoods() {
                                                 renderInput={(params) => (
                                                     <TextField
                                                         {...params}
-                                                        label="Chọn nhà cung cấp"
+                                                        label="Chọn sản phẩm nhập"
                                                         inputProps={{
                                                             ...params.inputProps,
                                                             autoComplete: 'new-password', // disable autocomplete and autofill
@@ -259,7 +432,115 @@ function ImportGoods() {
                                                     />
                                                 )}
                                             />
+                                            {errors.stockInDetail ? (
+                                                <label className="bg text-danger">{errors.stockInDetail}</label>
+                                            ) : (
+                                                ''
+                                            )}
                                         </Stack>
+                                        <Paper style={{ height: 400, width: '100%' }}>
+                                            <TableVirtuoso
+                                                data={stockInAdd.stockInDetails}
+                                                components={VirtuosoTableComponents}
+                                                fixedHeaderContent={fixedHeaderContent}
+                                                itemContent={(_index: number, row: StockInDetailView) => {
+                                                    return (
+                                                        <React.Fragment>
+                                                            {ColumnStockInDetails.map((column) => {
+                                                                if (column.dataKey === 'quantityReceived') {
+                                                                    return (
+                                                                        <>
+                                                                            <TableCell
+                                                                                key={column.dataKey}
+                                                                                align={
+                                                                                    column.numeric || false
+                                                                                        ? 'right'
+                                                                                        : 'left'
+                                                                                }
+                                                                            >
+                                                                                <Input
+                                                                                    type="number"
+                                                                                    defaultValue={row[column.dataKey]}
+                                                                                    onChange={(event) =>
+                                                                                        handleChangeProductQuantity(
+                                                                                            event,
+                                                                                            _index,
+                                                                                        )
+                                                                                    }
+                                                                                />
+                                                                                {errors.stockInDetails &&
+                                                                                errors.stockInDetails[_index] ? (
+                                                                                    <label className="bg text-danger">
+                                                                                        {
+                                                                                            errors.stockInDetails[
+                                                                                                _index
+                                                                                            ].quantityReceived
+                                                                                        }
+                                                                                    </label>
+                                                                                ) : (
+                                                                                    ''
+                                                                                )}
+                                                                            </TableCell>
+                                                                        </>
+                                                                    );
+                                                                } else if (column.dataKey === 'unitPriceReceived') {
+                                                                    return (
+                                                                        <>
+                                                                            <TableCell
+                                                                                key={column.dataKey}
+                                                                                align={
+                                                                                    column.numeric || false
+                                                                                        ? 'right'
+                                                                                        : 'left'
+                                                                                }
+                                                                            >
+                                                                                <Input
+                                                                                    type="number"
+                                                                                    defaultValue={row[column.dataKey]}
+                                                                                    onChange={(event) =>
+                                                                                        handleChangeProductPrice(
+                                                                                            event,
+                                                                                            _index,
+                                                                                        )
+                                                                                    }
+                                                                                />
+                                                                                {errors.stockInDetails &&
+                                                                                errors.stockInDetails[_index] ? (
+                                                                                    <label className="bg text-danger">
+                                                                                        {
+                                                                                            errors.stockInDetails[
+                                                                                                _index
+                                                                                            ].unitPriceReceived
+                                                                                        }
+                                                                                    </label>
+                                                                                ) : (
+                                                                                    ''
+                                                                                )}
+                                                                            </TableCell>
+                                                                        </>
+                                                                    );
+                                                                } else {
+                                                                    return (
+                                                                        <>
+                                                                            <TableCell
+                                                                                key={column.dataKey}
+                                                                                align={
+                                                                                    column.numeric || false
+                                                                                        ? 'right'
+                                                                                        : 'left'
+                                                                                }
+                                                                            >
+                                                                                {row[column.dataKey]}
+                                                                            </TableCell>
+                                                                        </>
+                                                                    );
+                                                                }
+                                                            })}
+                                                        </React.Fragment>
+                                                    );
+                                                }}
+                                            />
+                                        </Paper>
                                     </div>
                                 </div>
                             </div>
@@ -272,7 +553,7 @@ function ImportGoods() {
                                     </div>
                                     <div className="card-body-table">
                                         <Autocomplete
-                                            id="select-supplier"
+                                            id="select-employee"
                                             // sx={{ width: 200 }}
                                             options={employeeState.dataGetAll.DataSuccess?.listData || []}
                                             autoHighlight
@@ -287,21 +568,28 @@ function ImportGoods() {
                                                         sx={{ '& > img': { mr: 2, flexShrink: 0 } }}
                                                         {...optionProps}
                                                     >
-                                                        {/* <img
+                                                        <img
                                                             loading="lazy"
                                                             width="20"
-                                                            srcSet={`https://flagcdn.com/w40/${option.code.toLowerCase()}.png 2x`}
-                                                            src={`https://flagcdn.com/w20/${option.code.toLowerCase()}.png`}
+                                                            // srcSet={`https://flagcdn.com/w40/${option.code.toLowerCase()}.png 2x`}
+                                                            src={`${IMG_URL}${option.image}`}
                                                             alt=""
-                                                        /> */}
-                                                        {option.fullName} ({option.phoneNumber}) +{option.address}
+                                                        />
+                                                        <div>
+                                                            <div>
+                                                                <span>Tên: {option.fullName} </span>
+                                                            </div>
+                                                            <div>
+                                                                <span>SĐT: {option.phoneNumber}</span>
+                                                            </div>
+                                                        </div>
                                                     </Box>
                                                 );
                                             }}
                                             renderInput={(params) => (
                                                 <TextField
                                                     {...params}
-                                                    label="Chọn nhà cung cấp"
+                                                    label="Chọn nhân viên"
                                                     inputProps={{
                                                         ...params.inputProps,
                                                         autoComplete: 'new-password', // disable autocomplete and autofill
@@ -309,20 +597,25 @@ function ImportGoods() {
                                                 />
                                             )}
                                         />
+                                        {errors.employee ? (
+                                            <label className="bg text-danger">{errors.employee}</label>
+                                        ) : (
+                                            ''
+                                        )}
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div className="col-lg-12 col-md-4">
                             <ButtonCustome
-                                Title="Sửa thể loại khách"
-                                BackgroundColor="#3caffb"
-                                HoverColor="#2a7aaf"
+                                Title="Nhập hàng"
+                                BackgroundColor="#36ef84"
+                                HoverColor="#25a35a"
                                 onClick={() => {
-                                    // validate();
-                                    console.log(stockInAdd);
+                                    validate();
                                 }}
-                                Icon=" fa-solid fa-pen-to-square"
+                                Icon="fa-solid fa-plus"
+                                style="mb-5"
                             />
                         </div>
                     </div>

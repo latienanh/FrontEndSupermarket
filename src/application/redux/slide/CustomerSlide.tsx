@@ -39,6 +39,19 @@ export const CustomerService = {
             return rejectWithValue(err);
         }
     }),
+    fetchGetAll: createAsyncThunk('Customer/fetchGetAll', async (_, thunkAPI) => {
+        const { rejectWithValue, dispatch, getState } = thunkAPI;
+        try {
+            const axiosJwt = createAxios(dispatch, getState);
+            const response = await apiCustomer.getAll(axiosJwt);
+            return response;
+        } catch (err: any) {
+            if (err.response && err.response.data) {
+                return rejectWithValue(err.response.data);
+            }
+            return rejectWithValue(err);
+        }
+    }),
     fetchGetById: createAsyncThunk('Customer/fetchGetById', async (id: string, thunkAPI) => {
         const { rejectWithValue, dispatch, getState } = thunkAPI;
         try {
@@ -104,11 +117,16 @@ const initialCustomersState: getPagingState = {
     DataSuccess: null,
     DataFailure: null,
 };
+const initialGetAllState: getPagingState = {
+    DataSuccess: null,
+    DataFailure: null,
+};
 const initialCustomerState: GetCustomerByIdState = {
     DataSuccess: null,
     DataFailure: null,
 };
 interface initialStateType {
+    dataGetAll: getPagingState;
     dataGetAllCustomers: getPagingState;
     dataGetCustomerById: GetCustomerByIdState;
     dataGetCountPaging: GetCountPagingCustomerResponseSuccess | null;
@@ -121,6 +139,7 @@ interface initialStateType {
 export const Customers = createSlice({
     name: 'Customers',
     initialState: {
+        dataGetAll: initialGetAllState,
         dataGetAllCustomers: initialCustomersState,
         dataGetCustomerById: initialCustomerState,
         dataGetCountPaging: null,
@@ -147,6 +166,20 @@ export const Customers = createSlice({
                 state.isLoading = false;
                 state.isError = true;
                 state.dataGetAllCustomers.DataFailure = action.payload as GetPagingCustomerResponseFailure;
+            })
+            .addCase(CustomerService.fetchGetAll.pending, (state) => {
+                state.isLoading = true;
+                state.isError = false;
+            })
+            .addCase(CustomerService.fetchGetAll.fulfilled, (state, action) => {
+                state.dataGetAll.DataSuccess = action.payload as unknown as GetPagingCustomerResponseSuccess;
+                state.isLoading = false;
+                state.isError = false;
+            })
+            .addCase(CustomerService.fetchGetAll.rejected, (state, action) => {
+                state.isLoading = false;
+                state.isError = true;
+                state.dataGetAll.DataFailure = action.payload as GetPagingCustomerResponseFailure;
             })
             .addCase(CustomerService.fetchCreate.pending, (state) => {
                 state.isLoading = true;

@@ -1,10 +1,26 @@
-import { Link } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { RootState } from '~/application/redux/rootState';
 import imageAssets from '~/presentation/assets/images';
 import { TermsAndConditions, WrapAuth } from '~/presentation/components/authComponents';
 import WelcomeSection from '~/presentation/components/authComponents/WelcomeSection';
 import { URL_APP } from '~/presentation/router/Link';
 
 function Logout() {
+    const loginState = useSelector((state: RootState) => state.auth.login);
+    const navigate = useNavigate();
+    useEffect(() => {
+        if (loginState.DataSuccess?.data) {
+            toast.success(loginState.DataSuccess.message);
+            navigate(URL_APP.Home);
+        } else if (!loginState.isLoading && loginState.isError) {
+            if (loginState.DataFailure) {
+                toast.error(loginState.DataFailure.message);
+            }
+        }
+    }, [loginState, navigate]);
     return (
         <>
             <WrapAuth>

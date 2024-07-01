@@ -13,10 +13,16 @@ function Header(props: HeaderProps) {
     const { onSidebarToggle } = props;
     const navgation = useNavigate();
     const logoutServices = useSelector((state: RootState) => state.auth.logout);
+    const loginState = useSelector((state: RootState) => state.auth.login);
     const dispatch = useDispatch<AppDispatch>();
     const handleLogOut = () => {
         dispatch(fetchLogOut());
     };
+    useEffect(() => {
+        if (loginState.DataSuccess == null) {
+            navgation(URL_APP.Login);
+        }
+    });
     useEffect(() => {
         if (logoutServices.DataSuccess) {
             toast.success(logoutServices.DataSuccess?.message);

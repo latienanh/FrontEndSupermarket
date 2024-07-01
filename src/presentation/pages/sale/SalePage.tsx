@@ -1,289 +1,546 @@
-import { ChangeEvent, useEffect, useState } from 'react';
+import { Autocomplete, Box, Input, Stack, TableCell, TableRow, TextField } from '@mui/material';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate, useParams } from 'react-router';
+import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
-import slugify from 'slugify';
-import { ErrorProductUpdate } from '~/application/model/modelErrorRequest/ErrorEntity';
-import { ProductUpdateRequest } from '~/application/model/modelRequest/ProductModelResqest';
+import {
+    ErrorInvoiceDetailView,
+    ErrorInvoiceView,
+    ErrorStockInDetailView,
+    ErrorStockInView,
+} from '~/application/model/modelErrorRequest/ErrorEntity';
 import { AppDispatch, RootState } from '~/application/redux/rootState';
-import { CategoryService } from '~/application/redux/slide/CategorySlide';
+import { EmployeeService } from '~/application/redux/slide/EmployeeSlide';
 import { ProductService } from '~/application/redux/slide/ProductSlide';
-import { ButtonCustome, EditorCustome, InputCustome, InputImageCustome } from '~/presentation/components/share';
+import { SupplierService } from '~/application/redux/slide/SupplierSlide';
+import Employee from '~/domain/entities/supermarketEntities/Employee';
+import { Product } from '~/domain/entities/supermarketEntities/Product';
+import Supplier from '~/domain/entities/supermarketEntities/Supplier';
+import { ButtonCustome } from '~/presentation/components/share';
 import { URL_APP } from '~/presentation/router/Link';
+import * as React from 'react';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableContainer from '@mui/material/TableContainer';
+import Paper from '@mui/material/Paper';
+import { TableVirtuoso, TableComponents } from 'react-virtuoso';
+import { error } from 'console';
+import { InvoiceDetailView, InvoiceView } from '~/application/model/modelView/SaleModelView';
+import { CustomerService } from '~/application/redux/slide/CustomerSlide';
+import { SaleService } from '~/application/redux/slide/SaleSlide';
+import Customer from '~/domain/entities/supermarketEntities/Customer';
+
+interface ColumnStockInDetail {
+    dataKey: keyof InvoiceDetailView;
+    label: string;
+    numeric?: boolean;
+    width: number;
+}
+const ColumnStockInDetails: ColumnStockInDetail[] = [
+    {
+        width: 150,
+        label: 'Tên',
+        dataKey: 'name',
+    },
+    {
+        width: 120,
+        label: 'Giá bán',
+        dataKey: 'price',
+        numeric: true,
+    },
+    {
+        width: 120,
+        label: 'Số lượng trong kho',
+        dataKey: 'quantityProduct',
+        numeric: true,
+    },
+    {
+        width: 120,
+        label: 'Số lượng bán',
+        dataKey: 'quantity',
+        numeric: true,
+    },
+];
+const CustomTableHead = React.forwardRef<HTMLTableSectionElement, any>((props, ref) => {
+    return <thead ref={ref} {...props} />;
+});
+const VirtuosoTableComponents: TableComponents<InvoiceDetailView> = {
+    Scroller: React.forwardRef<HTMLDivElement>((props, ref) => (
+        <TableContainer component={Paper} {...props} ref={ref} />
+    )),
+    Table: (props) => <Table {...props} sx={{ borderCollapse: 'separate', tableLayout: 'fixed' }} />,
+    TableHead: CustomTableHead,
+    TableRow: ({ item: _item, ...props }) => <TableRow {...props} />,
+    TableBody: React.forwardRef<HTMLTableSectionElement>((props, ref) => <TableBody {...props} ref={ref} />),
+};
+
+function fixedHeaderContent() {
+    return (
+        <TableRow>
+            {ColumnStockInDetails.map((column) => (
+                <TableCell
+                    key={column.dataKey}
+                    variant="head"
+                    align={column.numeric || false ? 'right' : 'left'}
+                    style={{ width: column.width }}
+                    sx={{
+                        backgroundColor: 'background.paper',
+                    }}
+                >
+                    {column.label}
+                </TableCell>
+            ))}
+        </TableRow>
+    );
+}
 
 function SalePage() {
-    const { id } = useParams<{ id: string }>();
+    const IMG_URL = process.env.REACT_APP_IMG_URL;
     const navigate = useNavigate();
     const [hasEditDataChanged, setHasEditDataChanged] = useState(false);
+    const saleState = useSelector((state: RootState) => state.sale);
     const productState = useSelector((state: RootState) => state.product);
-    const categoryState = useSelector((state: RootState) => state.category);
+    const customerState = useSelector((state: RootState) => state.customer);
+    const employeeState = useSelector((state: RootState) => state.employee);
     const dispatch = useDispatch<AppDispatch>();
-    const [productUpdate, setpPoductUpdate] = useState<ProductUpdateRequest>({
-        barCode: '',
-        name: '',
-        slug: '',
-        image: null,
-        price: 0,
-        describe: '',
-        categoriesId: [],
+    const [invoiceAdd, setInvoiceAdd] = useState<InvoiceView>({
+        customer: null,
+        employee: null,
+        paymentStatus: 0,
+        paymentMethod: '',
+        invoiceDetails: [],
     });
-    const [errors, setErrors] = useState<ErrorProductUpdate>({});
+    const [errors, setErrors] = useState<ErrorInvoiceView>({});
 
     useEffect(() => {
-        dispatch(CategoryService.fetchGetAll());
-        if (id !== undefined) {
-            dispatch(ProductService.fetchGetById(id));
-        }
+        dispatch(CustomerService.fetchGetAll());
+        dispatch(ProductService.fetchGetAll());
+        dispatch(EmployeeService.fetchGetAll());
     }, []);
-    useEffect(() => {
-        setpPoductUpdate((prevState) => ({
-            ...prevState,
-            barCode: productState.dataGetProductById.DataSuccess?.data.barCode || '',
-            name: productState.dataGetProductById.DataSuccess?.data.name || '',
-            slug: productState.dataGetProductById.DataSuccess?.data.slug || '',
-            image: null,
-            describe: productState.dataGetProductById.DataSuccess?.data.describe || '',
-            categoriesId: productState.dataGetProductById.DataSuccess?.data?.categories
-                ? Object.values(productState.dataGetProductById.DataSuccess.data.categories).map(
-                      (categpry) => categpry.id,
-                  )
-                : [],
-        }));
-    }, [productState.dataGetProductById]);
-
     const handleError = (errorMessage: string | null, input: string) => {
         setErrors((prevState) => ({ ...prevState, [input]: errorMessage }));
     };
+    const handleInvoiceDetailError = (errorMessage: string | null, input: string, index: number) => {
+        setErrors((prevState) => {
+            const errorInvoiceDetail = prevState.invoiceDetails?.map((invoiceDetail, i) => {
+                // console.log(i);
+                if (i === index) {
+                    return {
+                        ...invoiceDetail,
+                        [input]: errorMessage,
+                    };
+                }
+                return invoiceDetail;
+            });
 
+            return {
+                ...prevState,
+                invoiceDetails: errorInvoiceDetail || [],
+            };
+        });
+    };
     const validate = () => {
         let isValid = true;
-        if (!productUpdate?.barCode) {
-            handleError('Vui lòng nhập barCode !', 'barCode');
-            isValid = false;
-        } else if (productUpdate.barCode.length < 5 && productUpdate.barCode.length > 15) {
-            handleError('barCode Name phải trên 5 và ít hơn 15 kí tự !', 'barCode');
+
+        if (!invoiceAdd?.employee) {
+            handleError('Chưa chọn nhân viên !', 'employee');
             isValid = false;
         }
-        if (!productUpdate?.name) {
-            handleError('Vui lòng nhập tên sản phẩm !', 'name');
-            isValid = false;
-        } else if (productUpdate.name.length < 5 && productUpdate.name.length > 50) {
-            handleError('Tên phải trên 5 và ít hơn 50 kí tự !', 'name');
+        if (invoiceAdd.invoiceDetails.length <= 0) {
+            handleError('Chưa chọn sản phẩm', 'invoiceDetail');
             isValid = false;
         }
-        if (!productUpdate?.describe) {
-            handleError('Chưa nhập mô tả !', 'describe');
-            isValid = false;
-        }
-        if (!productUpdate?.slug) {
-            handleError('Chưa nhập đường dẫn !', 'slug');
-            isValid = false;
-        }
-        if (!productUpdate.categoriesId || productUpdate.categoriesId.length === 0) {
-            handleError('Chưa chọn Category!', 'categoriesId');
-            isValid = false;
+        if (invoiceAdd.invoiceDetails && invoiceAdd.invoiceDetails.length > 0) {
+            invoiceAdd.invoiceDetails.forEach((item, index) => {
+                if (!item?.quantity) {
+                    handleInvoiceDetailError('Vui lòng nhập số lượng !', 'quantity', index);
+                    isValid = false;
+                } else if (item.quantity > item.quantityProduct) {
+                    handleInvoiceDetailError(`Sản phẩm trong kho chỉ có ${item.quantityProduct}!`, 'quantity', index);
+                    isValid = false;
+                }
+            });
         }
         if (isValid) {
-            // console.log(productUpdate);
+            // console.log(invoiceAdd);
             regisiter();
         }
     };
     const regisiter = async () => {
         try {
-            if (id !== undefined) {
-                const payload = {
-                    id: id,
-                    model: productUpdate,
-                };
-                dispatch(ProductService.fetchUpdate(payload));
-                setHasEditDataChanged(true);
-            }
+            const payload: InvoiceRequest = {
+                customerId: invoiceAdd.customer ? invoiceAdd.customer.id : null,
+                employeeId: invoiceAdd.employee?.id || '',
+                paymentMethod: invoiceAdd.paymentMethod,
+                paymentStatus: invoiceAdd.paymentStatus,
+                invoiceDetails: invoiceAdd.invoiceDetails.map((item) => ({
+                    productId: item.productId,
+                    quantity: item.quantity,
+                    unitPrice: item.unitPrice,
+                })),
+            };
+            dispatch(SaleService.fetchSale(payload));
+            setHasEditDataChanged(true);
         } catch (error) {
             console.log(error);
         }
     };
     useEffect(() => {
-        if (!productState.isLoading) {
-            if (!productState.isError && productState.dataUpdate) {
+        if (!saleState.isLoading) {
+            if (!saleState.isError && saleState.dataSale) {
                 if (hasEditDataChanged) {
-                    toast.success(productState.dataUpdate.message);
+                    toast.success(saleState.dataSale.message);
                     navigate(URL_APP.Products);
                 }
-            } else if (productState.isError && productState.dataUpdate) {
-                toast.error(productState.dataUpdate.message);
+            } else if (saleState.isError && saleState.dataSale) {
+                toast.error(saleState.dataSale.message);
             }
         }
-    }, [productState.dataUpdate]);
+    }, [saleState.dataSale]);
 
-    const handleClickGenerateSlug = () => {
-        handleError('', 'slug');
-        setpPoductUpdate((prevState) => ({
-            ...prevState,
-            slug: slugify(prevState.name, { lower: true, locale: 'vi' }),
-        }));
-    };
-    const handleChangeName = (event: ChangeEvent<HTMLInputElement>) => {
-        const value = event.target.value;
-        handleError('', 'name');
-        setpPoductUpdate((prevState) => ({ ...prevState, name: value }));
-    };
-    const handleChangeDescribe = (data: string) => {
-        handleError('', 'describe');
-        setpPoductUpdate((prevState) => ({ ...prevState, describe: data }));
-    };
-    const handleChangebarCode = (event: ChangeEvent<HTMLInputElement>) => {
-        const value = event.target.value;
-        handleError('', 'barCode');
-        setpPoductUpdate((prevState) => ({ ...prevState, barCode: value }));
-    };
-    const handleChangeSlug = (event: ChangeEvent<HTMLInputElement>) => {
-        const value = event.target.value;
-        handleError('', 'slug');
-        setpPoductUpdate((prevState) => ({ ...prevState, slug: value }));
-    };
-    const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (file) {
-            setpPoductUpdate((prevState) => ({ ...prevState, image: file }));
+    const handleChangeCustomer = (event: any, newValue: Customer | null) => {
+        handleError('', 'customer');
+        if (newValue) {
+            setInvoiceAdd((prev) => ({
+                ...prev,
+                customer: newValue,
+            }));
+        } else {
+            setInvoiceAdd((prev) => ({
+                ...prev,
+                customer: null,
+            }));
         }
     };
-    const handleRemoveFile = () => {
-        setpPoductUpdate((prevState) => ({ ...prevState, image: null }));
+    const handleChangeEmployee = (event: any, newValue: Employee | null) => {
+        handleError('', 'employee');
+        if (newValue) {
+            setInvoiceAdd((prev) => ({
+                ...prev,
+                employee: newValue,
+            }));
+        } else {
+            setInvoiceAdd((prev) => ({
+                ...prev,
+                employee: null,
+            }));
+        }
     };
-    const handleChangeCheckbox = (event: ChangeEvent<HTMLInputElement>, id: string) => {
-        const checked = event.target.checked;
-        setpPoductUpdate((prevState) => {
-            const rolestemp = [...prevState.categoriesId];
-            if (checked) {
-                handleError('', 'categoriesId');
-                rolestemp.push(id);
-            } else {
-                const index = rolestemp.indexOf(id);
-                if (index !== -1) {
-                    rolestemp.splice(index, 1); // Xóa id khỏi mảng roles
+    const handleChangeProductQuantity = (event: any, index: number) => {
+        handleInvoiceDetailError('', 'quantity', index);
+        // quantityReceived?: string;
+        // unitPriceReceived?: string;
+        setInvoiceAdd((prevState) => {
+            const updatedInvoiceDetails = prevState.invoiceDetails?.map((invoiceDetail, i) => {
+                if (i === index) {
+                    return {
+                        ...invoiceDetail,
+                        quantity: parseFloat(event.target.value),
+                    };
                 }
-            }
-            return { ...prevState, categoriesId: rolestemp };
+                return invoiceDetail;
+            });
+
+            return {
+                ...prevState,
+                invoiceDetails: updatedInvoiceDetails || [],
+            };
         });
     };
+    const handleChangeProduct = (event: any, newValue: Product[] | null) => {
+        handleError('', 'invoiceDetail');
+        if (newValue) {
+            setInvoiceAdd((prevStockIn) => {
+                let newInvoiceDetails: InvoiceDetailView[] = [];
+                newValue.forEach((value) => {
+                    newInvoiceDetails.push({
+                        productId: value.id,
+                        name: value.name,
+                        quantityProduct: value.quantity,
+                        price: value.price,
+                        quantity: 0,
+                        unitPrice: value.price,
+                    });
+                });
+                return {
+                    ...prevStockIn,
+                    invoiceDetails: newInvoiceDetails,
+                };
+            });
+            setErrors((prevInvoiceDetail) => {
+                let newErrorInvoiceDetail: ErrorInvoiceDetailView[] = [];
+                newValue.forEach(() => {
+                    newErrorInvoiceDetail.push({
+                        quantity: '',
+                        unitPrice: '',
+                    });
+                });
+                return {
+                    ...prevInvoiceDetail,
+                    invoiceDetails: newErrorInvoiceDetail,
+                };
+            });
+        }
+    };
+
     return (
         <>
             {' '}
             <main>
                 <div className="container-fluid">
-                    <h2 className="mt-30 page-title">Sản phẩm</h2>
+                    <h2 className="mt-30 page-title">Bán hàng</h2>
                     <ol className="breadcrumb mb-30">
                         <li className="breadcrumb-item">
-                            <a href="index.html">Dashboard</a>
+                            <a href="Sản phẩm.html">Bán hàng</a>
                         </li>
-                        <li className="breadcrumb-item">
-                            <a href="Sản phẩm.html">Sản phẩm</a>
-                        </li>
-                        <li className="breadcrumb-item active">Update</li>
                     </ol>
                     <div className="row">
-                        <div className="col-lg-9 col-md-8">
+                        <div className="col-lg-8 col-md-12">
                             <div className="card card-static-2 mb-30">
-                                <div className="card-title-2">
-                                    <h4>Update Product</h4>
+                                <div className="card-title-2 mb-3">
+                                    <h4>Thông tin nhà cung cấp</h4>
                                 </div>
                                 <div className="card-body-table">
                                     <div className="post-form">
-                                        <InputCustome
-                                            Title="Tên"
-                                            Type="text"
-                                            AutoComplete="on"
-                                            Id="card-name"
-                                            Value={productUpdate.name}
-                                            onChange={handleChangeName}
-                                            Error={errors.name}
-                                            style="col-lg-12 mt-3 mb-3"
+                                        <Autocomplete
+                                            id="select-customer"
+                                            // sx={{ width: 200 }}
+                                            options={customerState.dataGetAll.DataSuccess?.listData || []}
+                                            autoHighlight
+                                            getOptionLabel={(option) => option.fullName}
+                                            onChange={handleChangeCustomer}
+                                            renderOption={(props, option) => {
+                                                const { key, ...optionProps } = props;
+                                                return (
+                                                    <Box
+                                                        key={key}
+                                                        component="li"
+                                                        sx={{ '& > img': { mr: 2, flexShrink: 0 } }}
+                                                        {...optionProps}
+                                                    >
+                                                        <div>
+                                                            <div>
+                                                                <span>Tên Khách hàng: {option.fullName} </span>
+                                                            </div>
+                                                            <div>
+                                                                <span>SĐT :{option.phoneNumber}</span>
+                                                            </div>
+                                                        </div>
+                                                    </Box>
+                                                );
+                                            }}
+                                            renderInput={(params) => (
+                                                <TextField
+                                                    {...params}
+                                                    label="Chọn nhà khách hàng"
+                                                    inputProps={{
+                                                        ...params.inputProps,
+                                                        autoComplete: 'new-password', // disable autocomplete and autofill
+                                                    }}
+                                                />
+                                            )}
                                         />
-                                        <ButtonCustome
-                                            Title="Tạo Slug tự động"
-                                            BackgroundColor="#3caffb"
-                                            HoverColor="#2a7aaf"
-                                            onClick={handleClickGenerateSlug}
-                                            Icon=" fa-solid fa-atom"
-                                        />
-
-                                        <InputCustome
-                                            Title="Slug"
-                                            Type="text"
-                                            AutoComplete="on"
-                                            Id="card-slug"
-                                            Value={productUpdate.slug}
-                                            onChange={handleChangeSlug}
-                                            Error={errors.slug}
-                                            style="col-lg-12 mt-3 mb-3"
-                                        />
-                                        <InputCustome
-                                            Title="barCode"
-                                            Type="text"
-                                            AutoComplete="on"
-                                            Id="card-bar-code"
-                                            Value={productUpdate.barCode}
-                                            onChange={handleChangebarCode}
-                                            Error={errors.barCode}
-                                            style="col-lg-12 mt-3 mb-3"
-                                        />
-
-                                        <InputImageCustome
-                                            Title="Ảnh"
-                                            onChangeFile={handleFileChange}
-                                            removeFile={handleRemoveFile}
-                                            style="col-lg-12 mt-3 mb-3"
-                                        />
+                                        {errors.customer ? (
+                                            <label className="bg text-danger">{errors.customer}</label>
+                                        ) : (
+                                            ''
+                                        )}
                                     </div>
                                 </div>
                             </div>
                             <div className="card card-static-2 mb-30">
-                                <div className="card-title-2">
-                                    <h4>Mô tả</h4>
+                                <div className="card-title-2 mb-4">
+                                    <h4>Sản phẩm nhập </h4>
                                 </div>
                                 <div className="card-body-table">
                                     <div className="post-form">
-                                        <EditorCustome
-                                            onChangeData={handleChangeDescribe}
-                                            Title=""
-                                            Id="card-describe"
-                                            Value={productUpdate.describe}
-                                            Error={errors.describe}
-                                        />
+                                        <Stack
+                                            spacing={3}
+                                            // sx={{ width: 500 }}
+                                        >
+                                            <Autocomplete
+                                                id="select-products"
+                                                // sx={{ width: 200 }}
+                                                multiple
+                                                options={productState.dataGetAll.DataSuccess?.listData || []}
+                                                autoHighlight
+                                                getOptionLabel={(option) => option.name}
+                                                onChange={handleChangeProduct}
+                                                renderOption={(props, option) => {
+                                                    const { key, ...optionProps } = props;
+                                                    return (
+                                                        <Box
+                                                            key={key}
+                                                            component="li"
+                                                            sx={{ '& > img': { mr: 2, flexShrink: 0 } }}
+                                                            {...optionProps}
+                                                        >
+                                                            <img
+                                                                loading="lazy"
+                                                                width="20"
+                                                                // srcSet={`https://flagcdn.com/w40/${option.code.toLowerCase()}.png 2x`}
+                                                                src={`${IMG_URL}${option.image}`}
+                                                                alt=""
+                                                            />
+                                                            <div>
+                                                                <div>
+                                                                    <span>Tên: {option.name} </span>
+                                                                </div>
+                                                                <div>
+                                                                    <span
+                                                                        className={
+                                                                            option.quantity < 10 ? `text-danger` : ''
+                                                                        }
+                                                                    >
+                                                                        Số lượng: {option.quantity}
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </Box>
+                                                    );
+                                                }}
+                                                renderInput={(params) => (
+                                                    <TextField
+                                                        {...params}
+                                                        label="Chọn sản phẩm nhập"
+                                                        inputProps={{
+                                                            ...params.inputProps,
+                                                            autoComplete: 'new-password', // disable autocomplete and autofill
+                                                        }}
+                                                    />
+                                                )}
+                                            />
+                                            {errors.invoiceDetail ? (
+                                                <label className="bg text-danger">{errors.invoiceDetail}</label>
+                                            ) : (
+                                                ''
+                                            )}
+                                        </Stack>
+                                        <Paper style={{ height: 400, width: '100%' }}>
+                                            <TableVirtuoso
+                                                data={invoiceAdd.invoiceDetails}
+                                                components={VirtuosoTableComponents}
+                                                fixedHeaderContent={fixedHeaderContent}
+                                                itemContent={(_index: number, row: InvoiceDetailView) => {
+                                                    return (
+                                                        <React.Fragment>
+                                                            {ColumnStockInDetails.map((column) => {
+                                                                if (column.dataKey === 'quantity') {
+                                                                    return (
+                                                                        <>
+                                                                            <TableCell
+                                                                                key={column.dataKey}
+                                                                                align={
+                                                                                    column.numeric || false
+                                                                                        ? 'right'
+                                                                                        : 'left'
+                                                                                }
+                                                                            >
+                                                                                <Input
+                                                                                    type="number"
+                                                                                    defaultValue={row[column.dataKey]}
+                                                                                    onChange={(event) =>
+                                                                                        handleChangeProductQuantity(
+                                                                                            event,
+                                                                                            _index,
+                                                                                        )
+                                                                                    }
+                                                                                />
+                                                                                {errors.invoiceDetails &&
+                                                                                errors.invoiceDetails[_index] ? (
+                                                                                    <label className="bg text-danger">
+                                                                                        {
+                                                                                            errors.invoiceDetails[
+                                                                                                _index
+                                                                                            ].quantity
+                                                                                        }
+                                                                                    </label>
+                                                                                ) : (
+                                                                                    ''
+                                                                                )}
+                                                                            </TableCell>
+                                                                        </>
+                                                                    );
+                                                                } else {
+                                                                    return (
+                                                                        <>
+                                                                            <TableCell
+                                                                                key={column.dataKey}
+                                                                                align={
+                                                                                    column.numeric || false
+                                                                                        ? 'right'
+                                                                                        : 'left'
+                                                                                }
+                                                                            >
+                                                                                {row[column.dataKey]}
+                                                                            </TableCell>
+                                                                        </>
+                                                                    );
+                                                                }
+                                                            })}
+                                                        </React.Fragment>
+                                                    );
+                                                }}
+                                            />
+                                        </Paper>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div className="col-lg-3 col-md-4">
+                        <div className="col-lg-4 col-md-4">
                             <div className="card card-static-2 mb-30">
-                                <div className="card-title-2">
-                                    <h4>Category</h4>
-                                </div>
-                                <div className="card-body-table">
-                                    <div className="news-content-right pd-20">
-                                        {categoryState.dataGetAll.DataSuccess?.listData &&
-                                            categoryState.dataGetAll.DataSuccess?.listData.map(
-                                                (item, index: number) => {
-                                                    return (
-                                                        <div key={index} className="col-lg-8 m-2">
-                                                            <input
-                                                                type="checkbox"
-                                                                checked={productUpdate.categoriesId.some(
-                                                                    (itemUpdate) => {
-                                                                        return itemUpdate === item.id;
-                                                                    },
-                                                                )}
-                                                                onChange={(event) => {
-                                                                    handleChangeCheckbox(event, item.id);
-                                                                }}
-                                                            ></input>
-                                                            <label>{item.name}</label>
+                                <div className="post-form">
+                                    <div className="card-title-2 mb-2">
+                                        <h4>Thông tin nhân viên</h4>
+                                    </div>
+                                    <div className="card-body-table">
+                                        <Autocomplete
+                                            id="select-employee"
+                                            // sx={{ width: 200 }}
+                                            options={employeeState.dataGetAll.DataSuccess?.listData || []}
+                                            autoHighlight
+                                            getOptionLabel={(option) => option.fullName}
+                                            onChange={handleChangeEmployee}
+                                            renderOption={(props, option) => {
+                                                const { key, ...optionProps } = props;
+                                                return (
+                                                    <Box
+                                                        key={key}
+                                                        component="li"
+                                                        sx={{ '& > img': { mr: 2, flexShrink: 0 } }}
+                                                        {...optionProps}
+                                                    >
+                                                        <img
+                                                            loading="lazy"
+                                                            width="20"
+                                                            // srcSet={`https://flagcdn.com/w40/${option.code.toLowerCase()}.png 2x`}
+                                                            src={`${IMG_URL}${option.image}`}
+                                                            alt=""
+                                                        />
+                                                        <div>
+                                                            <div>
+                                                                <span>Tên: {option.fullName} </span>
+                                                            </div>
+                                                            <div>
+                                                                <span>SĐT: {option.phoneNumber}</span>
+                                                            </div>
                                                         </div>
-                                                    );
-                                                },
+                                                    </Box>
+                                                );
+                                            }}
+                                            renderInput={(params) => (
+                                                <TextField
+                                                    {...params}
+                                                    label="Chọn nhân viên"
+                                                    inputProps={{
+                                                        ...params.inputProps,
+                                                        autoComplete: 'new-password', // disable autocomplete and autofill
+                                                    }}
+                                                />
                                             )}
-                                        {errors.categoriesId ? (
-                                            <label className="bg text-danger">{errors.categoriesId}</label>
+                                        />
+                                        {errors.employee ? (
+                                            <label className="bg text-danger">{errors.employee}</label>
                                         ) : (
                                             ''
                                         )}
@@ -293,13 +550,16 @@ function SalePage() {
                         </div>
                         <div className="col-lg-12 col-md-4">
                             <ButtonCustome
-                                Title="Sửa thể loại khách"
-                                BackgroundColor="#3caffb"
-                                HoverColor="#2a7aaf"
+                                Title="Bán hàng"
+                                BackgroundColor="#36ef84"
+                                HoverColor="#25a35a"
                                 onClick={() => {
                                     validate();
+                                    // console.log(invoiceAdd);
+                                    console.log(errors);
                                 }}
-                                Icon=" fa-solid fa-pen-to-square"
+                                Icon="fa-solid fa-plus"
+                                style="mb-5"
                             />
                         </div>
                     </div>
