@@ -13,6 +13,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '~/application/redux/rootState';
 import { SignupState, fetchSigup } from '~/application/redux/slide/AuthSlide';
 import { InputCustome, InputImageCustome } from '~/presentation/components/share';
+import {
+    validateLowercase,
+    validateNumber,
+    validateSpecialCharacter,
+    validateUppercase,
+} from '~/presentation/utils/ValidatePassword';
 function SignUp() {
     const [account, setAcount] = useState<SignupRequest>({
         userName: '',
@@ -46,8 +52,24 @@ function SignUp() {
         if (!account?.password) {
             handleError('Vui lòng nhập mật khẩu !', 'passWord');
             isValid = false;
-        } else if (account.password.length < 5 && account.password.length > 50) {
-            handleError('Mật khẩu phải trên 5 và ít hơn 50 kí tự !', 'passWord');
+        } else if (account.password.length < 8 || account.password.length > 50) {
+            handleError('Mật khẩu phải trên 8 và ít hơn 50 kí tự !', 'passWord');
+            isValid = false;
+        } else if (!validateLowercase(account.password)) {
+            handleError('Mật khẩu phải kí tự thường !', 'passWord');
+
+            isValid = false;
+        } else if (!validateUppercase(account.password)) {
+            handleError('Mật khẩu phải có chữ in hoa !', 'passWord');
+
+            isValid = false;
+        } else if (!validateSpecialCharacter(account.password)) {
+            handleError('Mật khẩu phải có ký tự đặc biệt !', 'passWord');
+
+            isValid = false;
+        } else if (!validateNumber(account.password)) {
+            handleError('Mật khẩu phải có số !', 'passWord');
+
             isValid = false;
         }
         if (!account?.firstName) {
@@ -102,7 +124,7 @@ function SignUp() {
                 toast.error(loginState.DataFailure.message);
             }
         }
-    }, [loginState, navigate]);
+    }, [loginState]);
     useEffect(() => {
         if (sigUpData.DataSuccess) {
             toast.success(sigUpData.DataSuccess.message);
@@ -248,6 +270,16 @@ function SignUp() {
                                                     Error={errors.confilmPassword}
                                                     style="mb-3 col-sm-6"
                                                 />
+                                                {/* <div>
+                                                    <p> Cần phải đạt mức Trung bình trở lên.</p>
+                                                    <p>Mật khẩu phải dài ít nhất 8 kí tự.</p>
+                                                    <p>
+                                                        Mật khẩu phải chứa hai trong số các ký tự sau: chữ cái, số hoặc
+                                                        ký hiệu.
+                                                    </p>
+                                                    <p>In hoa</p>
+                                                    <p>In hoa</p>
+                                                </div> */}
                                             </div>
                                             <div className="form-check">
                                                 <input

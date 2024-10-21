@@ -17,6 +17,7 @@ function UpdateCategory() {
     const dispatch = useDispatch<AppDispatch>();
 
     const [categoryUpdate, setCategoryUpdate] = useState<CategoryRequest>({
+        id: id,
         parentId: null,
         name: '',
         describe: '',

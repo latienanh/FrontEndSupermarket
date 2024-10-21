@@ -1,21 +1,24 @@
 import { propsFetchPaging } from '~/application/model/modelRequest/FetchingPaging';
 import { ProductCreateRequest, ProductUpdateRequest } from '~/application/model/modelRequest/ProductModelResqest';
-
+const databaseName = process.env.REACT_APP_DATABASE_NAME;
+const controllerName = 'Product';
 const apiProduct = {
     getCountPaging: async (axiosJwt: any, size: number) => {
-        const res = await axiosJwt.get(`/Product/TotalPaging?size=${size}`);
+        const res = await axiosJwt.get(`/${controllerName}/${databaseName}/TotalPaging?size=${size}`);
         return res;
     },
     getPagingProduct: async (axiosJwt: any, props: propsFetchPaging) => {
-        const res = await axiosJwt.get(`/Product/GetPaging?index=${props.index}&size=${props.size}`);
+        const res = await axiosJwt.get(
+            `/${controllerName}/${databaseName}/GetPaging?index=${props.index}&size=${props.size}`,
+        );
         return res;
     },
     getAll: async (axiosJWT: any) => {
-        const res = await axiosJWT.get(`/Product`);
+        const res = await axiosJWT.get(`/${controllerName}/${databaseName}`);
         return res;
     },
     getProductById: async (axiosJWT: any, id: string) => {
-        const res = await axiosJWT.get(`/Product/${id}`);
+        const res = await axiosJWT.get(`/${controllerName}/${databaseName}/${id}`);
         return res;
     },
     createProduct: async (axiosJWT: any, model: ProductCreateRequest) => {
@@ -56,7 +59,7 @@ const apiProduct = {
             }
         }
 
-        const res = await axiosJWT.post(`/Product`, formData, {
+        const res = await axiosJWT.post(`/${controllerName}`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
@@ -64,11 +67,19 @@ const apiProduct = {
         return res;
     },
     deleteProduct: async (axiosJWT: any, id: string) => {
-        const res = await axiosJWT.delete(`/Product/${id}`);
+        const res = await axiosJWT.delete(`/${controllerName}`, {
+            data: {
+                id: id,
+            },
+        });
         return res;
     },
-    updateProduct: async (axiosJWT: any, id: string, model: ProductUpdateRequest) => {
+    updateProduct: async (axiosJWT: any, model: ProductUpdateRequest) => {
         const formData = new FormData();
+        if (model.id) {
+            formData.append('Id', model.id);
+            console.log('da co id', model.id);
+        }
         formData.append('BarCode', model.barCode);
         formData.append('Name', model.name);
         formData.append('Slug', model.slug);
@@ -80,7 +91,7 @@ const apiProduct = {
         for (let a = 0; a < model.categoriesId.length; a++) {
             formData.append(`CategoriesId[${a}]`, model.categoriesId[a]);
         }
-        const res = await axiosJWT.put(`/Product/${id}`, formData, {
+        const res = await axiosJWT.put(`/${controllerName}`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },

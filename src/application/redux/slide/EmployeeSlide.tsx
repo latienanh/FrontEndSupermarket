@@ -90,11 +90,11 @@ export const EmployeeService = {
     }),
     fetchUpdate: createAsyncThunk(
         'Employee/fetchUpdateEmployee',
-        async (payload: { id: string; model: EmployeeRequest }, thunkAPI) => {
+        async (payload: { model: EmployeeRequest }, thunkAPI) => {
             const { rejectWithValue, dispatch, getState } = thunkAPI;
             try {
                 const axiosJwt = createAxios(dispatch, getState);
-                const response = await apiEmployee.updateEmployee(axiosJwt, payload.id, payload.model);
+                const response = await apiEmployee.updateEmployee(axiosJwt, payload.model);
                 return response;
             } catch (err: any) {
                 if (err.response.data) {

@@ -1,13 +1,23 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { LoginRequest, RefreshToken, SignupRequest } from '~/application/model/modelRequest/AuthModelRequest';
+import { NULL } from 'sass';
 import {
+    ForgotPassword,
+    LoginRequest,
+    RefreshToken,
+    ResetPassword,
+    SignupRequest,
+} from '~/application/model/modelRequest/AuthModelRequest';
+import {
+    ForgotPasswordResponseSuccess,
     LogOutResponseFailure,
     LogOutResponseSuccess,
     LoginResponseFailure,
     LoginResponseSuccess,
+    ResetPasswordResponseSuccess,
     SignUpResponseFailure,
     SignUpResponseSuccess,
 } from '~/application/model/modelResponse/AuthModelResponse';
+import { ResponseBase } from '~/application/model/modelResponse/ModelResponeseBase';
 import { apiAuth } from '~/infrastructure/api/authApi';
 import { createAxios } from '~/infrastructure/api/axiosJwt';
 
@@ -56,6 +66,28 @@ export const fetchRefreshToken = createAsyncThunk('auth/fetchRefresh', async (mo
         }
     }
 });
+export const fetchForgotPassword = createAsyncThunk('auth/ForgotPassword', async (model: ForgotPassword, thunkAPI) => {
+    const { rejectWithValue } = thunkAPI;
+    try {
+        const response = await apiAuth.forgotPassword(model);
+        return response;
+    } catch (err: any) {
+        if (err.response.data) {
+            return rejectWithValue(err.response.data);
+        }
+    }
+});
+export const fetchResetPassword = createAsyncThunk('auth/ResetPassword', async (model: ResetPassword, thunkAPI) => {
+    const { rejectWithValue } = thunkAPI;
+    try {
+        const response = await apiAuth.resetPassword(model);
+        return response;
+    } catch (err: any) {
+        if (err.response.data) {
+            return rejectWithValue(err.response.data);
+        }
+    }
+});
 export interface SignupState {
     DataSuccess: SignUpResponseSuccess | null;
     isLoading: boolean;
@@ -73,6 +105,18 @@ export interface LogOutState {
     isLoading: boolean;
     isError: boolean;
     DataFailure: LogOutResponseFailure | null;
+}
+export interface ForgotpasswordState {
+    DataSuccess: ForgotPasswordResponseSuccess | null;
+    isLoading: boolean;
+    isError: boolean;
+    DataFailure: ResponseBase | null;
+}
+export interface ResetPasswordState {
+    DataSuccess: ResetPasswordResponseSuccess | null;
+    isLoading: boolean;
+    isError: boolean;
+    DataFailure: ResponseBase | null;
 }
 
 const initialLoginState: LoginState = {
@@ -93,12 +137,26 @@ const initialLogout: LogOutState = {
     isError: false,
     DataFailure: null,
 };
+const initialForgotPassword: ForgotpasswordState = {
+    DataSuccess: null,
+    isLoading: false,
+    isError: false,
+    DataFailure: null,
+};
+const initialResetPassword: ResetPasswordState = {
+    DataSuccess: null,
+    isLoading: false,
+    isError: false,
+    DataFailure: null,
+};
 export const Auth = createSlice({
     name: 'auth',
     initialState: {
         login: initialLoginState,
         signUp: initialSigupState,
         logout: initialLogout,
+        forgotPassword: initialForgotPassword,
+        resetPassword: initialResetPassword,
         refresh: {
             isLoading: false,
             isError: false,
@@ -169,6 +227,36 @@ export const Auth = createSlice({
                 state.login.DataSuccess = null;
                 // state.refresh.isLoading = false;
                 // state.refresh.isError = true;
+            })
+            .addCase(fetchForgotPassword.pending, (state) => {
+                state.forgotPassword.DataSuccess = null;
+                state.forgotPassword.isLoading = true;
+                state.forgotPassword.isError = false;
+            })
+            .addCase(fetchForgotPassword.fulfilled, (state, action) => {
+                state.forgotPassword.DataSuccess = action.payload as unknown as ForgotPasswordResponseSuccess;
+                state.forgotPassword.isLoading = false;
+                state.forgotPassword.isError = false;
+            })
+            .addCase(fetchForgotPassword.rejected, (state, action) => {
+                state.forgotPassword.DataFailure = action.payload as ResponseBase;
+                state.forgotPassword.isLoading = false;
+                state.forgotPassword.isError = true;
+            })
+            .addCase(fetchResetPassword.pending, (state) => {
+                state.resetPassword.DataSuccess = null;
+                state.resetPassword.isLoading = true;
+                state.resetPassword.isError = false;
+            })
+            .addCase(fetchResetPassword.fulfilled, (state, action) => {
+                state.resetPassword.DataSuccess = action.payload as ResetPasswordResponseSuccess;
+                state.resetPassword.isLoading = false;
+                state.resetPassword.isError = false;
+            })
+            .addCase(fetchResetPassword.rejected, (state, action) => {
+                state.resetPassword.DataFailure = action.payload as ResponseBase;
+                state.resetPassword.isLoading = false;
+                state.resetPassword.isError = true;
             });
     },
 });

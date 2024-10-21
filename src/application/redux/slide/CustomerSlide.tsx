@@ -90,11 +90,11 @@ export const CustomerService = {
     }),
     fetchUpdate: createAsyncThunk(
         'Customer/fetchUpdateCustomer',
-        async (payload: { id: string; model: CustomerRequest }, thunkAPI) => {
+        async (payload: { model: CustomerRequest }, thunkAPI) => {
             const { rejectWithValue, dispatch, getState } = thunkAPI;
             try {
                 const axiosJwt = createAxios(dispatch, getState);
-                const response = await apiCustomer.updateCustomer(axiosJwt, payload.id, payload.model);
+                const response = await apiCustomer.updateCustomer(axiosJwt, payload.model);
                 return response;
             } catch (err: any) {
                 if (err.response.data) {

@@ -11,6 +11,7 @@ type UserCreateRequest = {
 };
 
 type UserUpdateRequest = {
+    id: string | undefined;
     email: string;
     phoneNumber: string;
     firstName: string;
@@ -19,6 +20,7 @@ type UserUpdateRequest = {
     roles: string[];
 };
 type UserEditRequest = {
+    id: string | undefined;
     email: string;
     phoneNumber: string;
     firstName: string;

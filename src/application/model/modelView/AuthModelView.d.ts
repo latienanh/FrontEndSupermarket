@@ -36,4 +36,13 @@ type ErrorCreateUser = {
     phoneNumber?: string;
     confilmPassword?: string;
 };
-export { LoginViewModel, ErrorLogin, SignUpViewModel, ErrorSignUp };
+type ErrorForgotPassword = {
+    email?: string;
+};
+type ErrorResetPassword = {
+    email?: string;
+    token?: string;
+    newPassword?: string;
+};
+
+export { LoginViewModel, ErrorLogin, SignUpViewModel, ErrorSignUp, ErrorForgotPassword, ErrorResetPassword };

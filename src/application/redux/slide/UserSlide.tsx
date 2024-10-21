@@ -64,36 +64,30 @@ export const UserService = {
             }
         }
     }),
-    fetchUpdate: createAsyncThunk(
-        'user/fetchUpdateUser',
-        async (payload: { id: string; model: UserUpdateRequest }, thunkAPI) => {
-            const { rejectWithValue, dispatch, getState } = thunkAPI;
-            try {
-                const axiosJwt = createAxios(dispatch, getState);
-                const response = await apiUser.updateUser(axiosJwt, payload.id, payload.model);
-                return response;
-            } catch (err: any) {
-                if (err.response.data) {
-                    return rejectWithValue(err.response.data);
-                }
+    fetchUpdate: createAsyncThunk('user/fetchUpdateUser', async (payload: { model: UserUpdateRequest }, thunkAPI) => {
+        const { rejectWithValue, dispatch, getState } = thunkAPI;
+        try {
+            const axiosJwt = createAxios(dispatch, getState);
+            const response = await apiUser.updateUser(axiosJwt, payload.model);
+            return response;
+        } catch (err: any) {
+            if (err.response.data) {
+                return rejectWithValue(err.response.data);
             }
-        },
-    ),
-    fetchEdit: createAsyncThunk(
-        'auth/fetchEditUser',
-        async (payload: { id: string; model: UserEditRequest }, thunkAPI) => {
-            const { rejectWithValue, dispatch, getState } = thunkAPI;
-            try {
-                const axiosJwt = createAxios(dispatch, getState);
-                const response = await apiUser.editUser(axiosJwt, payload.id, payload.model);
-                return response;
-            } catch (err: any) {
-                if (err.response.data) {
-                    return rejectWithValue(err.response.data);
-                }
+        }
+    }),
+    fetchEdit: createAsyncThunk('auth/fetchEditUser', async (payload: { model: UserEditRequest }, thunkAPI) => {
+        const { rejectWithValue, dispatch, getState } = thunkAPI;
+        try {
+            const axiosJwt = createAxios(dispatch, getState);
+            const response = await apiUser.editUser(axiosJwt, payload.model);
+            return response;
+        } catch (err: any) {
+            if (err.response.data) {
+                return rejectWithValue(err.response.data);
             }
-        },
-    ),
+        }
+    }),
 };
 export interface getAllState {
     DataSuccess: GetAllUserResponseSuccess | null;

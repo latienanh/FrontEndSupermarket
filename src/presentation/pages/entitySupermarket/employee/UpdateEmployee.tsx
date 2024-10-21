@@ -22,6 +22,7 @@ function UpdateEmployee() {
     const employeeState = useSelector((state: RootState) => state.employee);
     const dispatch = useDispatch<AppDispatch>();
     const [employeeUpdate, setEmployeeUpdate] = useState<EmployeeRequest>({
+        id: id,
         firstName: '',
         lastName: '',
         email: '',

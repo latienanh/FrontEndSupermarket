@@ -22,6 +22,7 @@ function UpdateAttribute() {
     const attributeState = useSelector((state: RootState) => state.attribute);
     const dispatch = useDispatch<AppDispatch>();
     const [attributeUpdate, setattributeUpdate] = useState<AttributeRequest>({
+        id: id,
         name: '',
     });
     const [errors, setErrors] = useState<ErrorAttribute>({});

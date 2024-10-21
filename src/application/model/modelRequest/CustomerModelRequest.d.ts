@@ -1,4 +1,5 @@
 type CustomerRequest = {
+    id?: string | undefined;
     firstName: string;
     lastName: string;
     address: string;

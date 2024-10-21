@@ -11,9 +11,8 @@ import '~/presentation/assets/css/styles.css';
 import '~/presentation/assets/css/theme.css';
 import '~/presentation/assets/vendor/fontawesome-free/css/all.min.css';
 import '~/presentation/assets/js/jquery.min.js';
-
 import '~/presentation/assets/vendor/bootstrap/js/bootstrap.bundle.min.js';
-
+import '~/presentation/assets/css/loading.css';
 import { PersistGate } from 'redux-persist/integration/react';
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);

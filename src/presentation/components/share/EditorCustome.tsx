@@ -24,7 +24,7 @@ const EditorCustome = (props: EditorCustomeProps) => {
             <BoxEditor>
                 <CKEditor
                     editor={Editor}
-                    data={Value ? Value : '<p>Nhập vào đi</p>'}
+                    data={Value ? Value : ''}
                     disabled={Disabled ? Disabled : false}
                     onReady={(editor) => {
                         // You can store the "editor" and use when it is needed.

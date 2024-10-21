@@ -21,6 +21,7 @@ function UpdateUser() {
     const userState = useSelector((state: RootState) => state.user);
     const dispatch = useDispatch<AppDispatch>();
     const [userUpdate, setUserUpdate] = useState<UserUpdateRequest>({
+        id: id,
         firstName: '',
         lastName: '',
         email: '',

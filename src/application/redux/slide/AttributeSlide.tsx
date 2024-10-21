@@ -90,11 +90,11 @@ export const AttributeService = {
     }),
     fetchUpdate: createAsyncThunk(
         'Attribute/fetchUpdateAttribute',
-        async (payload: { id: string; model: AttributeRequest }, thunkAPI) => {
+        async (payload: { model: AttributeRequest }, thunkAPI) => {
             const { rejectWithValue, dispatch, getState } = thunkAPI;
             try {
                 const axiosJwt = createAxios(dispatch, getState);
-                const response = await apiAttribute.updateAttribute(axiosJwt, payload.id, payload.model);
+                const response = await apiAttribute.updateAttribute(axiosJwt, payload.model);
                 return response;
             } catch (err: any) {
                 if (err.response.data) {

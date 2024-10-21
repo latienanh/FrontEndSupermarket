@@ -1,6 +1,12 @@
 import { isRejectedWithValue } from '@reduxjs/toolkit';
 import axios from 'axios';
-import { LoginRequest, RefreshToken, SignupRequest } from '~/application/model/modelRequest/AuthModelRequest';
+import {
+    ForgotPassword,
+    LoginRequest,
+    RefreshToken,
+    ResetPassword,
+    SignupRequest,
+} from '~/application/model/modelRequest/AuthModelRequest';
 import { LoginResponseSuccess } from '~/application/model/modelResponse/AuthModelResponse';
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -41,6 +47,24 @@ const apiAuth = {
     refreshToken: async (model: RefreshToken) => {
         const jsonData = JSON.stringify(model);
         const res = await axios.post(`${API_URL}/Auth/Refresh`, jsonData, {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        return res.data;
+    },
+    forgotPassword: async (model: ForgotPassword) => {
+        const jsonData = JSON.stringify(model);
+        const res = await axios.post(`${API_URL}/Auth/ForgotPassword`, jsonData, {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        return res.data;
+    },
+    resetPassword: async (model: ResetPassword) => {
+        const jsonData = JSON.stringify(model);
+        const res = await axios.post(`${API_URL}/Auth/ResetPassword`, jsonData, {
             headers: {
                 'Content-Type': 'application/json',
             },

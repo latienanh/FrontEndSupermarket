@@ -100,6 +100,7 @@ function Home() {
                             </div>
                             <div className="card-body-table">
                                 <div className="table-responsive">
+                                    {' '}
                                     <table className="table ucp-table table-hover">
                                         <thead>
                                             <tr>

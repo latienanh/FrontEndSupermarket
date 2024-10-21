@@ -1,5 +1,5 @@
 import { AllLayouts } from '~/presentation/components/layouts';
-import { Login, Logout, SignUp } from '~/presentation/pages/auth';
+import { ForgotPasswordPage, Login, Logout, SignUp } from '~/presentation/pages/auth';
 import {
     AddAttribute,
     AddCategory,
@@ -37,6 +37,7 @@ const publicRouter = [
     { path: URL_APP.Login, component: Login, layout: null },
     { path: URL_APP.Signup, component: SignUp, layout: null },
     { path: URL_APP.Logout, component: Logout, layout: null },
+    { path: URL_APP.ForgotPassword, component: ForgotPasswordPage, layout: null },
 ];
 const privateRouter = [
     { path: URL_APP.Home, component: Home, layout: AllLayouts.DefaultLayout, role: 'admin' },

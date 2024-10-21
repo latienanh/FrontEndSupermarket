@@ -16,6 +16,18 @@ type RefreshToken = {
     accessToken: string;
     refreshToken: string;
 };
+type RefreshToken = {
+    accessToken: string;
+    refreshToken: string;
+};
+type ForgotPassword = {
+    email: string;
+};
+type ResetPassword = {
+    email: string;
+    token: string;
+    newPassword: string;
+};
 type AccessToken = {
     UserId: string;
     'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress': string;
@@ -25,4 +37,4 @@ type AccessToken = {
     iss: string;
     aud: string;
 };
-export { LoginRequest, SignupRequest, RefreshToken, AccessToken };
+export { LoginRequest, SignupRequest, RefreshToken, AccessToken, ResetPassword, ForgotPassword };

@@ -4,6 +4,7 @@ const URL_APP = {
     Auth: '/Auth',
     Signup: '/Signup',
     Logout: '/Logout',
+    ForgotPassword: '/ForgotPassword',
     Categories: '/Categories',
     AddCategory: '/Add_Category',
     Products: '/Products',

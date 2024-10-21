@@ -1,4 +1,3 @@
-import '~/presentation/assets/css/loading.css';
 function LoadingAuth() {
     return (
         <main className="main" id="top">

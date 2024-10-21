@@ -62,11 +62,11 @@ export const MemberShipTypeService = {
     }),
     fetchUpdate: createAsyncThunk(
         'MemberShipType/fetchUpdateMST',
-        async (payload: { id: string; model: MemberShipTypeRequest }, thunkAPI) => {
+        async (payload: { model: MemberShipTypeRequest }, thunkAPI) => {
             const { rejectWithValue, dispatch, getState } = thunkAPI;
             try {
                 const axiosJwt = createAxios(dispatch, getState);
-                const response = await apiMemberShipType.updateMemberShipType(axiosJwt, payload.id, payload.model);
+                const response = await apiMemberShipType.updateMemberShipType(axiosJwt, payload.model);
                 return response;
             } catch (err: any) {
                 if (err.response.data) {

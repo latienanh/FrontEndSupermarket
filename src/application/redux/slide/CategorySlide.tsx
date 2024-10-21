@@ -90,11 +90,11 @@ export const CategoryService = {
     }),
     fetchUpdate: createAsyncThunk(
         'category/fetchUpdateCategory',
-        async (payload: { id: string; model: CategoryRequest }, thunkAPI) => {
+        async (payload: { model: CategoryRequest }, thunkAPI) => {
             const { rejectWithValue, dispatch, getState } = thunkAPI;
             try {
                 const axiosJwt = createAxios(dispatch, getState);
-                const response = await apiCategory.updateCategory(axiosJwt, payload.id, payload.model);
+                const response = await apiCategory.updateCategory(axiosJwt, payload.model);
                 return response;
             } catch (err: any) {
                 if (err.response.data) {

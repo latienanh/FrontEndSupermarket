@@ -16,12 +16,18 @@ export interface DataSignUp {
     accessToken: string;
     refreshToken: string;
 }
+export interface ForgotPasswordResponseSuccess extends ResponseBase {
+    data: boolean;
+}
+export interface ResetPasswordResponseSuccess extends ResponseBase {}
 export interface SignUpResponseSuccess extends ResponseBase {}
 export interface LoginResponseFailure extends ResponseBase {}
 export interface SignUpResponseFailure extends ResponseBase {}
 export interface LogOutResponseSuccess extends ResponseBase {}
 export interface LogOutResponseFailure extends ResponseBase {}
 export {
+    ForgotPasswordResponseSuccess,
+    ResetPasswordResponseSuccess,
     LoginResponseFailure,
     LoginResponseSuccess,
     SignUpResponseSuccess,

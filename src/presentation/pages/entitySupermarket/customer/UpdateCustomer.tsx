@@ -22,6 +22,7 @@ function UpdateCustomer() {
     const memberShipTypeState = useSelector((state: RootState) => state.memberShipType);
     const dispatch = useDispatch<AppDispatch>();
     const [customerUpdate, setcustomerUpdate] = useState<CustomerRequest>({
+        id: id,
         firstName: '',
         lastName: '',
         address: '',

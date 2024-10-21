@@ -51,7 +51,7 @@ function Login() {
                 toast.error(userData.DataFailure.message);
             }
         }
-    }, [userData, navigate]);
+    }, [userData]);
 
     const handleError = (errorMessage: string, input: string) => {
         setErrors((prevState) => ({ ...prevState, [input]: errorMessage }));
@@ -133,7 +133,7 @@ function Login() {
                                                     </div>
                                                 </div>
                                                 <div className="col-auto">
-                                                    <Link className="fs--1" to={'/Forgot Password'}>
+                                                    <Link className="fs--1" to={URL_APP.ForgotPassword}>
                                                         Quên mật khẩu?
                                                     </Link>
                                                 </div>

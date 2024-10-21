@@ -21,6 +21,7 @@ function UpdateSupplier() {
     const supplierState = useSelector((state: RootState) => state.supplier);
     const dispatch = useDispatch<AppDispatch>();
     const [supplierUpdate, setSupplierUpdate] = useState<SupplierRequest>({
+        id: id,
         name: '',
         address: '',
         phoneNumber: '',

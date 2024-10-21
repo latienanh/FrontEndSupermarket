@@ -16,11 +16,16 @@ import { validateEmail, validateNumberPhone } from '~/presentation/utils';
 const IMAGE_URL = process.env.REACT_APP_IMG_URL;
 const UserProfile = () => {
     const [hasEditDataChanged, setHasEditDataChanged] = useState(false);
-    const token: string = useSelector((state: RootState) => state.auth.login.DataSuccess?.data.accessToken);
-    const userServices = useSelector((state: RootState) => state.user);
-    const decodeToken: AccessToken = jwtDecode(token);
+
+    const loginState = useSelector((state: RootState) => state.auth.login.DataSuccess);
+    // const token = useSelector((state: RootState) => state.auth.login.DataSuccess?.data.accessToken);
+    // const decodeToken: AccessToken = jwtDecode(token);
     const navigate = useNavigate();
+
+    const userServices = useSelector((state: RootState) => state.user);
+
     const [user, setUser] = useState<UserEditRequest>({
+        id: userServices.dataGetUserById.DataSuccess?.data.id,
         email: '',
         phoneNumber: '',
         firstName: '',
@@ -35,7 +40,11 @@ const UserProfile = () => {
         setErrors((prevState) => ({ ...prevState, [input]: errorMessage }));
     };
     useEffect(() => {
-        dispatch(UserService.fetchGetById(decodeToken.UserId));
+        if (loginState != null) {
+            const token = loginState?.data.accessToken;
+            const decodeToken: AccessToken = jwtDecode(token);
+            dispatch(UserService.fetchGetById(decodeToken.UserId));
+        }
     }, []);
     useEffect(() => {
         setUser((prevState) => ({
@@ -83,13 +92,17 @@ const UserProfile = () => {
     };
     const regisiter = async () => {
         try {
-            if (decodeToken.UserId) {
-                const payload: { id: string; model: UserEditRequest } = {
-                    id: decodeToken.UserId,
-                    model: user,
-                };
-                dispatch(UserService.fetchEdit(payload));
-                setHasEditDataChanged(true);
+            if (loginState != null) {
+                const token = loginState?.data.accessToken;
+                const decodeToken: AccessToken = jwtDecode(token);
+                if (decodeToken.UserId) {
+                    const payload: { id: string; model: UserEditRequest } = {
+                        id: decodeToken.UserId,
+                        model: user,
+                    };
+                    dispatch(UserService.fetchEdit(payload));
+                    setHasEditDataChanged(true);
+                }
             } else {
                 alert('khong co userId');
             }

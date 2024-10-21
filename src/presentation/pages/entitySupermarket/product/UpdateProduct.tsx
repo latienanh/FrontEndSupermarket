@@ -19,6 +19,7 @@ function UpdateProduct() {
     const categoryState = useSelector((state: RootState) => state.category);
     const dispatch = useDispatch<AppDispatch>();
     const [productUpdate, setProductUpdate] = useState<ProductUpdateRequest>({
+        id: id,
         barCode: '',
         name: '',
         slug: '',

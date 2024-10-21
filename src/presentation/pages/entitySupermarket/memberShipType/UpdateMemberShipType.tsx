@@ -20,6 +20,7 @@ function UpdateMemberShipType() {
     const memberShipTypeState = useSelector((state: RootState) => state.memberShipType);
     const dispatch = useDispatch<AppDispatch>();
     const [memberShipTypeUpdate, setmemberShipTypeUpdate] = useState<MemberShipTypeRequest>({
+        id: id,
         name: '',
     });
     const [errors, setErrors] = useState<ErrorMemberShipType>({});

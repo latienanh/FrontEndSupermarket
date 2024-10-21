@@ -22,6 +22,7 @@ type variantValueRequest = {
     variantValue: string;
 };
 type ProductUpdateRequest = {
+    id: string | undefined;
     barCode: string;
     name: string;
     slug: string;

@@ -90,11 +90,11 @@ export const SupplierService = {
     }),
     fetchUpdate: createAsyncThunk(
         'Supplier/fetchUpdateSupplier',
-        async (payload: { id: string; model: SupplierRequest }, thunkAPI) => {
+        async (payload: { model: SupplierRequest }, thunkAPI) => {
             const { rejectWithValue, dispatch, getState } = thunkAPI;
             try {
                 const axiosJwt = createAxios(dispatch, getState);
-                const response = await apiSupplier.updateSupplier(axiosJwt, payload.id, payload.model);
+                const response = await apiSupplier.updateSupplier(axiosJwt, payload.model);
                 return response;
             } catch (err: any) {
                 if (err.response.data) {

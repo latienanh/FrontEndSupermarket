@@ -1,4 +1,5 @@
 type EmployeeRequest = {
+    id?: string | undefined;
     firstName: string;
     lastName: string;
     address: string;
