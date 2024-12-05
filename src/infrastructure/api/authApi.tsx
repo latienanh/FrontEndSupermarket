@@ -14,13 +14,23 @@ const API_URL = process.env.REACT_APP_API_URL;
 //push{user}
 const apiAuth = {
     login: async (model: LoginRequest) => {
-        const jsonData = JSON.stringify(model);
-        const res = await axios.post(`${API_URL}/Auth/Login`, jsonData, {
-            headers: {
-                'Content-Type': 'application/json',
+        console.log(API_URL);
+
+        const res = await axios.post(
+            `${API_URL}/Auth/Login`,
+            {
+                username: model.userName,
+                password: model.password,
             },
-        });
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            },
+        );
+
         const data: LoginResponseSuccess = res.data;
+        console.log(data);
         return data;
     },
     sigup: async (model: SignupRequest) => {

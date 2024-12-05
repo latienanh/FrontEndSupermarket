@@ -10,34 +10,34 @@ function Home() {
     const saleState = useSelector((state: RootState) => state.sale);
 
     const dispatch = useDispatch<AppDispatch>();
-    useEffect(() => {
-        const connection = new signalR.HubConnectionBuilder()
-            .withUrl('https://localhost:7223/reportHub')
-            .withAutomaticReconnect()
-            .build();
+    // useEffect(() => {
+    //     const connection = new signalR.HubConnectionBuilder()
+    //         .withUrl('https://localhost:7223/reportHub')
+    //         .withAutomaticReconnect()
+    //         .build();
 
-        connection
-            .start()
-            .then(() => console.log('Connected to SignalR Hub'))
-            .catch((err) => console.error('Error while starting connection: ' + err));
+    //     connection
+    //         .start()
+    //         .then(() => console.log('Connected to SignalR Hub'))
+    //         .catch((err) => console.error('Error while starting connection: ' + err));
 
-        connection.on('RefreshData', () => {
-            dispatch(SaleService.fetchGetSaleChart());
-            dispatch(SaleService.fetchGetAllInvoice());
-            dispatch(SaleService.fetchGetSaleDateNow());
-        });
+    //     connection.on('RefreshData', () => {
+    //         dispatch(SaleService.fetchGetSaleChart());
+    //         dispatch(SaleService.fetchGetAllInvoice());
+    //         dispatch(SaleService.fetchGetSaleDateNow());
+    //     });
 
-        return () => {
-            connection.stop();
-        };
-    }, []);
+    //     return () => {
+    //         connection.stop();
+    //     };
+    // }, []);
 
-    useEffect(() => {
-        dispatch(SaleService.fetchGetSaleChart());
-        dispatch(SaleService.fetchGetAllInvoice());
-        dispatch(SaleService.fetchGetSaleDateNow());
-        console.log('da goi du lieu');
-    }, []);
+    // useEffect(() => {
+    //     dispatch(SaleService.fetchGetSaleChart());
+    //     dispatch(SaleService.fetchGetAllInvoice());
+    //     dispatch(SaleService.fetchGetSaleDateNow());
+    //     console.log('da goi du lieu');
+    // }, []);
     return (
         <>
             {' '}

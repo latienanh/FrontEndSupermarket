@@ -18,20 +18,20 @@ function Header(props: HeaderProps) {
     const handleLogOut = () => {
         dispatch(fetchLogOut());
     };
-    useEffect(() => {
-        if (loginState.DataSuccess == null) {
-            navgation(URL_APP.Login);
-        }
-    });
-    useEffect(() => {
-        if (logoutServices.DataSuccess) {
-            toast.success(logoutServices.DataSuccess?.message);
-            navgation(URL_APP.Logout);
-        }
-        if (logoutServices.DataFailure) {
-            toast.error(logoutServices.DataFailure?.message);
-        }
-    }, [logoutServices.DataSuccess]);
+    // useEffect(() => {
+    //     if (loginState.DataSuccess == null) {
+    //         navgation(URL_APP.Login);
+    //     }
+    // });
+    // useEffect(() => {
+    //     if (logoutServices.DataSuccess) {
+    //         toast.success(logoutServices.DataSuccess?.message);
+    //         navgation(URL_APP.Logout);
+    //     }
+    //     if (logoutServices.DataFailure) {
+    //         toast.error(logoutServices.DataFailure?.message);
+    //     }
+    // }, [logoutServices.DataSuccess]);
     return (
         <nav className="sb-topnav navbar navbar-expand navbar-light bg-clr">
             <a className="navbar-brand logo-brand" href="index.html">

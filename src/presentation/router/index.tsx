@@ -36,10 +36,10 @@ const publicRouter = [
     { path: URL_APP.NONE, component: Login, layout: null },
     { path: URL_APP.Login, component: Login, layout: null },
     { path: URL_APP.Signup, component: SignUp, layout: null },
-    { path: URL_APP.Logout, component: Logout, layout: null },
     { path: URL_APP.ForgotPassword, component: ForgotPasswordPage, layout: null },
 ];
 const privateRouter = [
+    { path: URL_APP.Logout, component: Logout, layout: null },
     { path: URL_APP.Home, component: Home, layout: AllLayouts.DefaultLayout, role: 'admin' },
     { path: URL_APP.Categories, component: CategoryPage, layout: AllLayouts.DefaultLayout, role: 'admin' },
     { path: `${URL_APP.AddCategory}/:id`, component: AddCategory, layout: AllLayouts.DefaultLayout, role: 'admin' },
