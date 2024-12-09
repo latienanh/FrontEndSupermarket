@@ -21,8 +21,8 @@ function SupplierPage() {
     const handleClickNext = () => {
         setPaging((prev) => {
             const tempindex = prev.index;
-            if (supplierState.dataGetCountPaging?.data) {
-                if (tempindex < supplierState.dataGetCountPaging?.data - 1)
+            if (supplierState.dataGetPagingSupplier.DataSuccess?.listData.totalPage) {
+                if (tempindex < supplierState.dataGetPagingSupplier.DataSuccess?.listData.totalPage - 1)
                     return {
                         ...prev,
                         index: prev.index + 1,
@@ -49,7 +49,6 @@ function SupplierPage() {
     };
     useEffect(() => {
         dispatch(SupplierService.fetchGetPaging(paging));
-        dispatch(SupplierService.fetchGetCountPaging(paging.size));
     }, []);
     useEffect(() => {
         dispatch(SupplierService.fetchGetPaging(paging));
@@ -66,7 +65,6 @@ function SupplierPage() {
             }
 
             dispatch(SupplierService.fetchGetAll());
-            dispatch(SupplierService.fetchGetCountPaging(paging.size));
             setPaging((prev) => {
                 return {
                     ...prev,
@@ -169,9 +167,9 @@ function SupplierPage() {
                                                 </thead>
                                                 <tbody>
                                                     {supplierState.dataGetPagingSupplier.DataSuccess?.listData &&
-                                                        supplierState.dataGetPagingSupplier.DataSuccess?.listData
+                                                        supplierState.dataGetPagingSupplier.DataSuccess?.listData.data
                                                             .length > 0 &&
-                                                        supplierState.dataGetPagingSupplier.DataSuccess?.listData.map(
+                                                        supplierState.dataGetPagingSupplier.DataSuccess?.listData.data.map(
                                                             (item, index) => {
                                                                 return (
                                                                     <tr key={`table-category-${index}`}>
@@ -230,7 +228,7 @@ function SupplierPage() {
                             </div>
                             <PaginationControl
                                 index={paging.index}
-                                max={supplierState.dataGetCountPaging?.data || 0}
+                                max={supplierState.dataGetPagingSupplier.DataSuccess?.listData.totalPage || 0}
                                 onClickPrev={handleClickPrev}
                                 onClickNext={handleClickNext}
                                 onclickNumber={handleClickNumber}

@@ -3,12 +3,16 @@ import { ResponseBase } from '~/application/model/modelResponse/ModelResponeseBa
 import { createAxios } from '~/infrastructure/api/axiosJwt';
 import { apiMemberShipType } from '~/infrastructure/api/memberShipTypeApi';
 import { MemberShipTypeRequest } from '~/application/model/modelRequest/MemberShipTypeMR';
+import { GetPagingMSTResponseFailure } from '../../model/modelResponse/MemberShipTypeMR';
+import { NULL } from 'sass';
 import {
     GetAllMSTResponseFailure,
     GetAllMSTResponseSuccess,
     GetMSTByIdResponseFailure,
     GetMSTByIdResponseSuccess,
+    GetPagingMSTResponseSuccess,
 } from '~/application/model/modelResponse/MemberShipTypeMR';
+import { propsFetchPaging } from '~/application/model/modelRequest/FetchingPaging';
 
 export const MemberShipTypeService = {
     fetchGetAll: createAsyncThunk('MemberShipType/fetchGetAll', async (_, thunkAPI) => {
@@ -16,6 +20,19 @@ export const MemberShipTypeService = {
         try {
             const axiosJwt = createAxios(dispatch, getState);
             const response = await apiMemberShipType.getAll(axiosJwt);
+            return response;
+        } catch (err: any) {
+            if (err.response && err.response.data) {
+                return rejectWithValue(err.response.data);
+            }
+            return rejectWithValue(err);
+        }
+    }),
+    fetchGetPaging: createAsyncThunk('MemberShipType/fetchGetPaging', async (props: propsFetchPaging, thunkAPI) => {
+        const { rejectWithValue, dispatch, getState } = thunkAPI;
+        try {
+            const axiosJwt = createAxios(dispatch, getState);
+            const response = await apiMemberShipType.getPagingMemberShipType(axiosJwt, props);
             return response;
         } catch (err: any) {
             if (err.response && err.response.data) {
@@ -84,6 +101,10 @@ export interface GetMSTById {
     DataSuccess: GetMSTByIdResponseSuccess | null;
     DataFailure: GetMSTByIdResponseFailure | null;
 }
+export interface GetPagingMST {
+    DataSuccess: GetPagingMSTResponseSuccess | null;
+    DataFailure: GetPagingMSTResponseFailure | null;
+}
 const initialMSTsState: getAllState = {
     DataSuccess: null,
     DataFailure: null,
@@ -92,8 +113,13 @@ const initialMSTState: GetMSTById = {
     DataSuccess: null,
     DataFailure: null,
 };
+const initialPagingMSTState: GetPagingMST = {
+    DataSuccess: null,
+    DataFailure: null,
+};
 interface initialStateType {
     dataGetAllMSTs: getAllState;
+    dataGetPagingMSTs: GetPagingMST;
     dataGetMSTById: GetMSTById;
     dataCreate: ResponseBase | null;
     dataDelete: ResponseBase | null;
@@ -106,6 +132,7 @@ export const MSTs = createSlice({
     initialState: {
         dataGetAllMSTs: initialMSTsState,
         dataGetMSTById: initialMSTState,
+        dataGetPagingMSTs: initialPagingMSTState,
         dataCreate: null,
         dataDelete: null,
         dataUpdate: null,
@@ -130,6 +157,20 @@ export const MSTs = createSlice({
                 state.isLoading = false;
                 state.isError = true;
                 state.dataGetAllMSTs.DataFailure = action.payload as GetAllMSTResponseFailure;
+            })
+            .addCase(MemberShipTypeService.fetchGetPaging.pending, (state) => {
+                state.isLoading = true;
+                state.isError = false;
+            })
+            .addCase(MemberShipTypeService.fetchGetPaging.fulfilled, (state, action) => {
+                state.dataGetPagingMSTs.DataSuccess = action.payload as unknown as GetPagingMSTResponseSuccess;
+                state.isLoading = false;
+                state.isError = false;
+            })
+            .addCase(MemberShipTypeService.fetchGetPaging.rejected, (state, action) => {
+                state.isLoading = false;
+                state.isError = true;
+                state.dataGetPagingMSTs.DataFailure = action.payload as GetPagingMSTResponseFailure;
             })
             .addCase(MemberShipTypeService.fetchCreate.pending, (state) => {
                 state.isLoading = true;

@@ -5,7 +5,6 @@ import { apiCustomer } from '~/infrastructure/api/customerApi';
 import { propsFetchPaging } from '~/application/model/modelRequest/FetchingPaging';
 import { CustomerRequest } from '~/application/model/modelRequest/CustomerModelRequest';
 import {
-    GetCountPagingCustomerResponseSuccess,
     GetCustomerByIdResponseFailure,
     GetCustomerByIdResponseSuccess,
     GetPagingCustomerResponseFailure,
@@ -13,19 +12,6 @@ import {
 } from '~/application/model/modelResponse/CustomerModelResponse';
 
 export const CustomerService = {
-    fetchGetCountPaging: createAsyncThunk('Customer/fetchGetCountPaging', async (size: number, thunkAPI) => {
-        const { rejectWithValue, dispatch, getState } = thunkAPI;
-        try {
-            const axiosJwt = createAxios(dispatch, getState);
-            const response = await apiCustomer.getCountPaging(axiosJwt, size);
-            return response;
-        } catch (err: any) {
-            if (err.response && err.response.data) {
-                return rejectWithValue(err.response.data);
-            }
-            return rejectWithValue(err);
-        }
-    }),
     fetchGetPaging: createAsyncThunk('Customer/fetchGetPaging', async (props: propsFetchPaging, thunkAPI) => {
         const { rejectWithValue, dispatch, getState } = thunkAPI;
         try {
@@ -129,7 +115,6 @@ interface initialStateType {
     dataGetAll: getPagingState;
     dataGetAllCustomers: getPagingState;
     dataGetCustomerById: GetCustomerByIdState;
-    dataGetCountPaging: GetCountPagingCustomerResponseSuccess | null;
     dataCreate: ResponseBase | null;
     dataDelete: ResponseBase | null;
     dataUpdate: ResponseBase | null;
@@ -142,7 +127,6 @@ export const Customers = createSlice({
         dataGetAll: initialGetAllState,
         dataGetAllCustomers: initialCustomersState,
         dataGetCustomerById: initialCustomerState,
-        dataGetCountPaging: null,
         dataCreate: null,
         dataDelete: null,
         dataUpdate: null,
@@ -223,19 +207,7 @@ export const Customers = createSlice({
                 state.isLoading = false;
                 state.isError = true;
             })
-            .addCase(CustomerService.fetchGetCountPaging.pending, (state) => {
-                state.isLoading = true;
-                state.isError = false;
-            })
-            .addCase(CustomerService.fetchGetCountPaging.fulfilled, (state, action) => {
-                state.dataGetCountPaging = action.payload as unknown as GetCountPagingCustomerResponseSuccess;
-                state.isLoading = false;
-                state.isError = false;
-            })
-            .addCase(CustomerService.fetchGetCountPaging.rejected, (state) => {
-                state.isLoading = false;
-                state.isError = true;
-            })
+
             .addCase(CustomerService.fetchGetById.pending, (state) => {
                 state.isLoading = true;
                 state.isError = false;

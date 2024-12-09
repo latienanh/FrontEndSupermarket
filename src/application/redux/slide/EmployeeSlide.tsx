@@ -5,7 +5,6 @@ import { ResponseBase } from '~/application/model/modelResponse/ModelResponeseBa
 import { propsFetchPaging } from '~/application/model/modelRequest/FetchingPaging';
 import { apiEmployee } from '~/infrastructure/api/emplyeeApi';
 import {
-    GetCountPagingEmployeeResponseSuccess,
     GetEmployeeByIdResponseFailure,
     GetEmployeeByIdResponseSuccess,
     GetMultipleEmployeeResponseFailure,
@@ -13,19 +12,6 @@ import {
 } from '~/application/model/modelResponse/EmployeeModelResponse';
 
 export const EmployeeService = {
-    fetchGetCountPaging: createAsyncThunk('Employee/fetchGetCountPaging', async (size: number, thunkAPI) => {
-        const { rejectWithValue, dispatch, getState } = thunkAPI;
-        try {
-            const axiosJwt = createAxios(dispatch, getState);
-            const response = await apiEmployee.getCountPaging(axiosJwt, size);
-            return response;
-        } catch (err: any) {
-            if (err.response && err.response.data) {
-                return rejectWithValue(err.response.data);
-            }
-            return rejectWithValue(err);
-        }
-    }),
     fetchGetAll: createAsyncThunk('Employee/fetchGetAll', async (_, thunkAPI) => {
         const { rejectWithValue, dispatch, getState } = thunkAPI;
         try {
@@ -128,7 +114,6 @@ interface initialStateType {
     dataGetPagingEmployee: getEmployeesState;
     dataGetAll: getEmployeesState;
     dataGetEmployeeById: GetEmployeeByIdState;
-    dataGetCountPaging: GetCountPagingEmployeeResponseSuccess | null;
     dataCreate: ResponseBase | null;
     dataDelete: ResponseBase | null;
     dataUpdate: ResponseBase | null;
@@ -221,19 +206,6 @@ export const EmployeeSlice = createSlice({
             })
             .addCase(EmployeeService.fetchDelete.rejected, (state, action) => {
                 state.dataDelete = action.payload as ResponseBase;
-                state.isLoading = false;
-                state.isError = true;
-            })
-            .addCase(EmployeeService.fetchGetCountPaging.pending, (state) => {
-                state.isLoading = true;
-                state.isError = false;
-            })
-            .addCase(EmployeeService.fetchGetCountPaging.fulfilled, (state, action) => {
-                state.dataGetCountPaging = action.payload as unknown as GetCountPagingEmployeeResponseSuccess;
-                state.isLoading = false;
-                state.isError = false;
-            })
-            .addCase(EmployeeService.fetchGetCountPaging.rejected, (state, action) => {
                 state.isLoading = false;
                 state.isError = true;
             })

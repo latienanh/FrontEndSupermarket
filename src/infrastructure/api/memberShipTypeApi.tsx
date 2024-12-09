@@ -1,7 +1,14 @@
+import { propsFetchPaging } from '~/application/model/modelRequest/FetchingPaging';
 import { MemberShipTypeRequest } from '~/application/model/modelRequest/MemberShipTypeMR';
 const databaseName = process.env.REACT_APP_DATABASE_NAME;
-const controllerName = 'MemberShipType';
+const controllerName = 'MembershipTypes';
 const apiMemberShipType = {
+    getPagingMemberShipType: async (axiosJwt: any, props: propsFetchPaging) => {
+        const res = await axiosJwt.get(
+            `/${controllerName}/${databaseName}/GetPaging?index=${props.index}&size=${props.size}`,
+        );
+        return res;
+    },
     getAll: async (axiosJWT: any) => {
         const res = await axiosJWT.get(`/${controllerName}/${databaseName}`);
         return res;
@@ -15,11 +22,7 @@ const apiMemberShipType = {
         return res;
     },
     deleteMemberShipType: async (axiosJWT: any, id: string) => {
-        const res = await axiosJWT.delete(`/${controllerName}`, {
-            data: {
-                id: id,
-            },
-        });
+        const res = await axiosJWT.delete(`/${controllerName}/${id}`);
         return res;
     },
     updateMemberShipType: async (axiosJWT: any, model: MemberShipTypeRequest) => {

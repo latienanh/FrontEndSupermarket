@@ -285,7 +285,7 @@ function UpdateProduct() {
                                 <div className="card-body-table">
                                     <div className="news-content-right pd-20">
                                         {categoryState.dataGetAll.DataSuccess?.listData &&
-                                            categoryState.dataGetAll.DataSuccess?.listData.map(
+                                            categoryState.dataGetAll.DataSuccess?.listData.data.map(
                                                 (item, index: number) => {
                                                     return (
                                                         <div key={index} className="col-lg-8 m-2">

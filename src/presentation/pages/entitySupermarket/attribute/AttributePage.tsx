@@ -1,29 +1,28 @@
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '~/application/redux/rootState';
 import { useEffect, useState } from 'react';
-import { toast } from 'react-toastify';
-import { LoadingAuth } from '../../loading';
-import { Role } from '~/domain/entities/supermarketEntities/Role';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { URL_APP } from '~/presentation/router/Link';
+import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
-import { AttributeService } from '~/application/redux/slide/AttributeSlide';
 import { propsFetchPaging } from '~/application/model/modelRequest/FetchingPaging';
+import { AppDispatch, RootState } from '~/application/redux/rootState';
+import { AttributeService } from '~/application/redux/slide/AttributeSlide';
 import { PaginationControl } from '~/presentation/components/share';
+import { URL_APP } from '~/presentation/router/Link';
+import { LoadingAuth } from '../../loading';
 
 function AttributePage() {
     const [hasEditDataChanged, setHasEditDataChanged] = useState(false);
     const dispatch = useDispatch<AppDispatch>();
     const attributeState = useSelector((state: RootState) => state.attribute);
     const [paging, setPaging] = useState<propsFetchPaging>({
-        size: 2,
+        size: 1,
         index: 0,
     });
     const handleClickNext = () => {
         setPaging((prev) => {
             const tempindex = prev.index;
-            if (attributeState.dataGetCountPaging?.data) {
-                if (tempindex < attributeState.dataGetCountPaging?.data - 1)
+            if (attributeState.dataGetPagingAttribute.DataSuccess?.listData?.totalPage) {
+                if (tempindex < attributeState.dataGetPagingAttribute.DataSuccess?.listData?.totalPage - 1)
                     return {
                         ...prev,
                         index: prev.index + 1,
@@ -50,7 +49,6 @@ function AttributePage() {
     };
     useEffect(() => {
         dispatch(AttributeService.fetchGetPaging(paging));
-        dispatch(AttributeService.fetchGetCountPaging(paging.size));
     }, []);
     useEffect(() => {
         dispatch(AttributeService.fetchGetPaging(paging));
@@ -67,7 +65,6 @@ function AttributePage() {
             }
 
             dispatch(AttributeService.fetchGetAll());
-            dispatch(AttributeService.fetchGetCountPaging(paging.size));
             setPaging((prev) => {
                 return {
                     ...prev,
@@ -167,9 +164,9 @@ function AttributePage() {
                                                 </thead>
                                                 <tbody>
                                                     {attributeState.dataGetPagingAttribute.DataSuccess?.listData &&
-                                                        attributeState.dataGetPagingAttribute.DataSuccess?.listData
+                                                        attributeState.dataGetPagingAttribute.DataSuccess?.listData.data
                                                             .length > 0 &&
-                                                        attributeState.dataGetPagingAttribute.DataSuccess?.listData.map(
+                                                        attributeState.dataGetPagingAttribute.DataSuccess?.listData.data.map(
                                                             (item, index) => {
                                                                 return (
                                                                     <tr key={`table-category-${index}`}>
@@ -226,7 +223,7 @@ function AttributePage() {
                             </div>
                             <PaginationControl
                                 index={paging.index}
-                                max={attributeState.dataGetCountPaging?.data || 0}
+                                max={attributeState.dataGetPagingAttribute.DataSuccess?.listData?.totalPage || 0}
                                 onClickPrev={handleClickPrev}
                                 onClickNext={handleClickNext}
                                 onclickNumber={handleClickNumber}

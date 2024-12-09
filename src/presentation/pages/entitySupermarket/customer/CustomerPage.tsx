@@ -40,8 +40,8 @@ function CustomerPage() {
     const handleClickNext = () => {
         setPaging((prev) => {
             const tempindex = prev.index;
-            if (customerState.dataGetCountPaging?.data) {
-                if (tempindex < customerState.dataGetCountPaging?.data - 1)
+            if (customerState.dataGetAllCustomers.DataSuccess?.listData.totalPage) {
+                if (tempindex < customerState.dataGetAllCustomers.DataSuccess.listData.totalPage - 1)
                     return {
                         ...prev,
                         index: prev.index + 1,
@@ -68,7 +68,6 @@ function CustomerPage() {
     };
     useEffect(() => {
         dispatch(CustomerService.fetchGetPaging(paging));
-        dispatch(CustomerService.fetchGetCountPaging(paging.size));
     }, []);
     useEffect(() => {
         dispatch(CustomerService.fetchGetPaging(paging));
@@ -84,7 +83,6 @@ function CustomerPage() {
             }
 
             dispatch(CustomerService.fetchGetPaging(paging));
-            dispatch(CustomerService.fetchGetCountPaging(paging.size));
             setPaging((prev) => {
                 return {
                     ...prev,
@@ -171,9 +169,9 @@ function CustomerPage() {
                                                 </thead>
                                                 <tbody>
                                                     {customerState.dataGetAllCustomers.DataSuccess?.listData &&
-                                                        customerState.dataGetAllCustomers.DataSuccess?.listData.length >
-                                                            0 &&
-                                                        customerState.dataGetAllCustomers.DataSuccess?.listData.map(
+                                                        customerState.dataGetAllCustomers.DataSuccess?.listData.data
+                                                            .length > 0 &&
+                                                        customerState.dataGetAllCustomers.DataSuccess?.listData.data.map(
                                                             (item, index) => {
                                                                 return (
                                                                     <tr key={`table-category-${index}`}>
@@ -258,7 +256,7 @@ function CustomerPage() {
                     </div>
                     <PaginationControl
                         index={paging.index}
-                        max={customerState.dataGetCountPaging?.data || 0}
+                        max={customerState.dataGetAllCustomers.DataSuccess?.listData.totalPage || 0}
                         onClickPrev={handleClickPrev}
                         onClickNext={handleClickNext}
                         onclickNumber={handleClickNumber}

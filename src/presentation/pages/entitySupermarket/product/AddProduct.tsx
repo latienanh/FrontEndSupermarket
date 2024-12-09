@@ -1,9 +1,10 @@
-import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
+/* eslint-disable react/style-prop-object */
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
 import slugify from 'slugify';
-import { ErrorProductCreate, ErrorVariantCreate } from '~/application/model/modelErrorRequest/ErrorEntity';
+import { ErrorProductCreate } from '~/application/model/modelErrorRequest/ErrorEntity';
 import { ProductCreateRequest, variantRequest } from '~/application/model/modelRequest/ProductModelResqest';
 import { AppDispatch, RootState } from '~/application/redux/rootState';
 import { AttributeService } from '~/application/redux/slide/AttributeSlide';
@@ -593,7 +594,7 @@ function AddProduct() {
                                                 >
                                                     {/* <option value="">Chọn thuộc tính</option> */}
                                                     {attributeState.dataGetAll.DataSuccess?.listData &&
-                                                        attributeState.dataGetAll.DataSuccess?.listData.map(
+                                                        attributeState.dataGetAll.DataSuccess?.listData.data.map(
                                                             (item, index: number) => {
                                                                 return (
                                                                     <>
@@ -615,7 +616,7 @@ function AddProduct() {
                                                 />
                                                 {attributes && (
                                                     <div className="row border border-primary rounded pb-4">
-                                                        {attributeState.dataGetAll.DataSuccess?.listData.map(
+                                                        {attributeState.dataGetAll.DataSuccess?.listData.data.map(
                                                             (item, index) => {
                                                                 if (attributes?.includes(item.id))
                                                                     return (
@@ -816,7 +817,7 @@ function AddProduct() {
                                 <div className="card-body-table">
                                     <div className="news-content-right pd-20">
                                         {categoryState.dataGetAll.DataSuccess?.listData &&
-                                            categoryState.dataGetAll.DataSuccess?.listData.map(
+                                            categoryState.dataGetAll.DataSuccess?.listData.data.map(
                                                 (item: any, index: number) => {
                                                     return (
                                                         <div key={index} className="col-lg-8 m-2">

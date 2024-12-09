@@ -50,7 +50,7 @@ function Home() {
                         <ol className="breadcrumb mb-30">
                             <li className="breadcrumb-item active">Dashboard</li>
                         </ol>
-                        <div className="row">
+                        {/* <div className="row">
                             <div className="col-xl-6 col-md-6">
                                 <div className="dashboard-report-card info">
                                     <div className="card-content">
@@ -126,9 +126,7 @@ function Home() {
                                 <div className="card card-static-2 mb-30">
                                     <div className="card-title-2 pb-3">
                                         <h4>Hoá đơn </h4>
-                                        {/* <a href="orders.html" className="view-btn hover-btn">
-                        View All
-                    </a> */}
+                                  
                                     </div>
                                     <div className="card-body-table">
                                         <div className="table-responsive">
@@ -142,7 +140,7 @@ function Home() {
                                                         <th style={{ width: '300px' }}>Khách hàng</th>
                                                         <th style={{ width: '130px' }}>Nhân viên bán</th>
                                                         <th style={{ width: '130px' }}>Tổng hoá đơn</th>
-                                                        {/* <th style={{ width: '100px' }}>Action</th> */}
+                                       
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -177,14 +175,7 @@ function Home() {
                                                                         <span>{item.employee.fullName}</span>
                                                                     </td>
                                                                     <td>{item.totalPrice} VNĐ</td>
-                                                                    {/* <td className="action-btns">
-                                                    <a href="order_view.html" className="views-btn">
-                                                        <i className="fas fa-eye"></i>
-                                                    </a>
-                                                    <a href="order_edit.html" className="edit-btn">
-                                                        <i className="fas fa-edit"></i>
-                                                    </a>
-                                                </td> */}
+                                                          
                                                                 </tr>
                                                             );
                                                         })}
@@ -194,7 +185,7 @@ function Home() {
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> */}
                     </div>
                     <Outlet></Outlet>
                 </main>

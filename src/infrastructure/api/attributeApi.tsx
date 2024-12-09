@@ -4,14 +4,11 @@ import { propsFetchPaging } from '~/application/model/modelRequest/FetchingPagin
 const databaseName = process.env.REACT_APP_DATABASE_NAME;
 const controllerName = 'Attribute';
 const apiAttribute = {
-    getCountPaging: async (axiosJwt: any, size: number) => {
-        const res = await axiosJwt.get(`/${controllerName}/${databaseName}/TotalPaging?size=${size}`);
-        return res;
-    },
     getPagingAttribute: async (axiosJwt: any, props: propsFetchPaging) => {
         const res = await axiosJwt.get(
             `/${controllerName}/${databaseName}/GetPaging?index=${props.index}&size=${props.size}`,
         );
+        console.log(res);
         return res;
     },
     getAll: async (axiosJWT: any) => {
@@ -27,11 +24,7 @@ const apiAttribute = {
         return res;
     },
     deleteAttribute: async (axiosJWT: any, id: string) => {
-        const res = await axiosJWT.delete(`/${controllerName}`, {
-            data: {
-                id: id,
-            },
-        });
+        const res = await axiosJWT.delete(`/${controllerName}/${id}`);
         return res;
     },
     updateAttribute: async (axiosJWT: any, model: AttributeRequest) => {

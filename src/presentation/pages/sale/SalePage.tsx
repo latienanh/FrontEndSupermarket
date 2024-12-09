@@ -305,7 +305,7 @@ function SalePage() {
                                         <Autocomplete
                                             id="select-customer"
                                             // sx={{ width: 200 }}
-                                            options={customerState.dataGetAll.DataSuccess?.listData || []}
+                                            options={customerState.dataGetAll.DataSuccess?.listData.data || []}
                                             autoHighlight
                                             getOptionLabel={(option) => option.fullName}
                                             onChange={handleChangeCustomer}
@@ -362,7 +362,7 @@ function SalePage() {
                                                 id="select-products"
                                                 // sx={{ width: 200 }}
                                                 multiple
-                                                options={productState.dataGetAll.DataSuccess?.listData || []}
+                                                options={productState.dataGetAll.DataSuccess?.listData.data || []}
                                                 autoHighlight
                                                 getOptionLabel={(option) => option.name}
                                                 onChange={handleChangeProduct}
@@ -497,7 +497,7 @@ function SalePage() {
                                         <Autocomplete
                                             id="select-employee"
                                             // sx={{ width: 200 }}
-                                            options={employeeState.dataGetAll.DataSuccess?.listData || []}
+                                            options={employeeState.dataGetAll.DataSuccess?.listData.data || []}
                                             autoHighlight
                                             getOptionLabel={(option) => option.fullName}
                                             onChange={handleChangeEmployee}

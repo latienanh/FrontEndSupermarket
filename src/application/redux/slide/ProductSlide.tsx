@@ -8,25 +8,11 @@ import {
     GetProductByIdResponseSuccess,
     GetProductsResponseFailure,
     GetProductsResponseSuccess,
-    GetCountPagingAtriResponseSuccess,
 } from '~/application/model/modelResponse/ProductModelResponse';
 import { apiProduct } from '~/infrastructure/api/productApi';
 import { ProductCreateRequest, ProductUpdateRequest } from '~/application/model/modelRequest/ProductModelResqest';
 
 export const ProductService = {
-    fetchGetCountPaging: createAsyncThunk('Product/fetchGetCountPaging', async (size: number, thunkAPI) => {
-        const { rejectWithValue, dispatch, getState } = thunkAPI;
-        try {
-            const axiosJwt = createAxios(dispatch, getState);
-            const response = await apiProduct.getCountPaging(axiosJwt, size);
-            return response;
-        } catch (err: any) {
-            if (err.response && err.response.data) {
-                return rejectWithValue(err.response.data);
-            }
-            return rejectWithValue(err);
-        }
-    }),
     fetchGetAll: createAsyncThunk('Product/fetchGetAll', async (_, thunkAPI) => {
         const { rejectWithValue, dispatch, getState } = thunkAPI;
         try {
@@ -129,7 +115,6 @@ interface initialStateType {
     dataGetPagingProduct: getProductsState;
     dataGetAll: getProductsState;
     dataGetProductById: GetProductByIdState;
-    dataGetCountPaging: GetCountPagingAtriResponseSuccess | null;
     dataCreate: ResponseBase | null;
     dataDelete: ResponseBase | null;
     dataUpdate: ResponseBase | null;
@@ -142,7 +127,6 @@ export const ProductSlice = createSlice({
         dataGetAll: initialProductsState,
         dataGetPagingProduct: initialProductPagingState,
         dataGetProductById: initialProductState,
-        dataGetCountPaging: null,
         dataCreate: null,
         dataDelete: null,
         dataUpdate: null,
@@ -221,19 +205,6 @@ export const ProductSlice = createSlice({
             })
             .addCase(ProductService.fetchDelete.rejected, (state, action) => {
                 state.dataDelete = action.payload as ResponseBase;
-                state.isLoading = false;
-                state.isError = true;
-            })
-            .addCase(ProductService.fetchGetCountPaging.pending, (state) => {
-                state.isLoading = true;
-                state.isError = false;
-            })
-            .addCase(ProductService.fetchGetCountPaging.fulfilled, (state, action) => {
-                state.dataGetCountPaging = action.payload as unknown as GetCountPagingAtriResponseSuccess;
-                state.isLoading = false;
-                state.isError = false;
-            })
-            .addCase(ProductService.fetchGetCountPaging.rejected, (state, action) => {
                 state.isLoading = false;
                 state.isError = true;
             })

@@ -1,11 +1,12 @@
 import Attribute from '~/domain/entities/supermarketEntities/Attribute';
 
 interface GetAttributesResponseSuccess extends ResponseBase {
-    listData: Attribute[];
+    listData: {
+        data: Attribute[];
+        totalPage: number;
+    };
 }
-interface GetCountPagingAtriResponseSuccess extends ResponseBase {
-    data: number;
-}
+
 interface GetAttributeByIdResponseSuccess extends ResponseBase {
     data: Attribute;
 }
@@ -16,6 +17,5 @@ export {
     GetAttributeByIdResponseFailure,
     GetAttributeByIdResponseSuccess,
     GetAttributesResponseSuccess,
-    GetCountPagingAtriResponseSuccess,
     GetAttributesResponseFailure,
 };

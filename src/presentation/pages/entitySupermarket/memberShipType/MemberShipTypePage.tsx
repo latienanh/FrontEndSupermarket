@@ -1,21 +1,29 @@
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '~/application/redux/rootState';
 import { useEffect, useState } from 'react';
-import { toast } from 'react-toastify';
-import { LoadingAuth } from '../../loading';
-import { Role } from '~/domain/entities/supermarketEntities/Role';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { URL_APP } from '~/presentation/router/Link';
+import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
+import { AppDispatch, RootState } from '~/application/redux/rootState';
 import { MemberShipTypeService } from '~/application/redux/slide/MemberShipTypeSlide';
+import { URL_APP } from '~/presentation/router/Link';
+import { LoadingAuth } from '../../loading';
+import { propsFetchPaging } from '~/application/model/modelRequest/FetchingPaging';
+import { PaginationControl } from '~/presentation/components/share';
 
 function MemberShipTypePage() {
     const [hasEditDataChanged, setHasEditDataChanged] = useState(false);
     const dispatch = useDispatch<AppDispatch>();
     const memberShipTypeState = useSelector((state: RootState) => state.memberShipType);
+    const [paging, setPaging] = useState<propsFetchPaging>({
+        size: 1,
+        index: 0,
+    });
     useEffect(() => {
-        dispatch(MemberShipTypeService.fetchGetAll());
+        dispatch(MemberShipTypeService.fetchGetPaging(paging));
     }, []);
+    useEffect(() => {
+        dispatch(MemberShipTypeService.fetchGetPaging(paging));
+    }, [paging]);
 
     useEffect(() => {
         if (memberShipTypeState.dataDelete) {
@@ -26,7 +34,13 @@ function MemberShipTypePage() {
                     icon: 'success',
                 });
             }
-            dispatch(MemberShipTypeService.fetchGetAll());
+            dispatch(MemberShipTypeService.fetchGetPaging(paging));
+            setPaging((prev) => {
+                return {
+                    ...prev,
+                    index: 0,
+                };
+            });
         } else if (!memberShipTypeState.isLoading && memberShipTypeState.isError) {
             toast.error('Có lỗi xảy ra khi xoá');
         }
@@ -46,6 +60,35 @@ function MemberShipTypePage() {
                 dispatch(MemberShipTypeService.fetchDelete(id));
                 setHasEditDataChanged(true);
             }
+        });
+    };
+    const handleClickNext = () => {
+        setPaging((prev) => {
+            const tempindex = prev.index;
+            if (memberShipTypeState.dataGetPagingMSTs.DataSuccess?.listData.totalPage) {
+                if (tempindex < memberShipTypeState.dataGetPagingMSTs.DataSuccess?.listData.totalPage - 1)
+                    return {
+                        ...prev,
+                        index: prev.index + 1,
+                    };
+            }
+            return prev;
+        });
+    };
+    const handleClickNumber = (a: number) => {
+        setPaging((prev) => {
+            return {
+                ...prev,
+                index: a - 1,
+            };
+        });
+    };
+    const handleClickPrev = () => {
+        setPaging((prev) => {
+            return {
+                ...prev,
+                index: prev.index - 1,
+            };
         });
     };
     return (
@@ -119,10 +162,10 @@ function MemberShipTypePage() {
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    {memberShipTypeState.dataGetAllMSTs.DataSuccess?.listData &&
-                                                        memberShipTypeState.dataGetAllMSTs.DataSuccess?.listData
+                                                    {memberShipTypeState.dataGetPagingMSTs.DataSuccess?.listData.data &&
+                                                        memberShipTypeState.dataGetPagingMSTs.DataSuccess?.listData.data
                                                             .length > 0 &&
-                                                        memberShipTypeState.dataGetAllMSTs.DataSuccess?.listData.map(
+                                                        memberShipTypeState.dataGetPagingMSTs.DataSuccess?.listData.data.map(
                                                             (item, index) => {
                                                                 return (
                                                                     <tr key={`table-category-${index}`}>
@@ -180,6 +223,13 @@ function MemberShipTypePage() {
                             </div>
                         </div>
                     </div>
+                    <PaginationControl
+                        index={paging.index}
+                        max={memberShipTypeState.dataGetPagingMSTs.DataSuccess?.listData.totalPage || 0}
+                        onClickPrev={handleClickPrev}
+                        onClickNext={handleClickNext}
+                        onclickNumber={handleClickNumber}
+                    ></PaginationControl>
                 </main>
             )}
         </>

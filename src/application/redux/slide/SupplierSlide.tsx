@@ -5,7 +5,6 @@ import { ResponseBase } from '~/application/model/modelResponse/ModelResponeseBa
 import { propsFetchPaging } from '~/application/model/modelRequest/FetchingPaging';
 import { apiSupplier } from '~/infrastructure/api/supplierApi';
 import {
-    GetCountPagingSupplierResponseSuccess,
     GetMultipleSupplierResponseFailure,
     GetMultipleSupplierResponseSuccess,
     GetSupplierByIdResponseFailure,
@@ -13,19 +12,6 @@ import {
 } from '~/application/model/modelResponse/SupplierModelResponse';
 
 export const SupplierService = {
-    fetchGetCountPaging: createAsyncThunk('Supplier/fetchGetCountPaging', async (size: number, thunkAPI) => {
-        const { rejectWithValue, dispatch, getState } = thunkAPI;
-        try {
-            const axiosJwt = createAxios(dispatch, getState);
-            const response = await apiSupplier.getCountPaging(axiosJwt, size);
-            return response;
-        } catch (err: any) {
-            if (err.response && err.response.data) {
-                return rejectWithValue(err.response.data);
-            }
-            return rejectWithValue(err);
-        }
-    }),
     fetchGetAll: createAsyncThunk('Supplier/fetchGetAll', async (_, thunkAPI) => {
         const { rejectWithValue, dispatch, getState } = thunkAPI;
         try {
@@ -128,7 +114,6 @@ interface initialStateType {
     dataGetPagingSupplier: getSuppliersState;
     dataGetAll: getSuppliersState;
     dataGetSupplierById: GetSupplierByIdState;
-    dataGetCountPaging: GetCountPagingSupplierResponseSuccess | null;
     dataCreate: ResponseBase | null;
     dataDelete: ResponseBase | null;
     dataUpdate: ResponseBase | null;
@@ -221,19 +206,6 @@ export const SupplierSlice = createSlice({
             })
             .addCase(SupplierService.fetchDelete.rejected, (state, action) => {
                 state.dataDelete = action.payload as ResponseBase;
-                state.isLoading = false;
-                state.isError = true;
-            })
-            .addCase(SupplierService.fetchGetCountPaging.pending, (state) => {
-                state.isLoading = true;
-                state.isError = false;
-            })
-            .addCase(SupplierService.fetchGetCountPaging.fulfilled, (state, action) => {
-                state.dataGetCountPaging = action.payload as unknown as GetCountPagingSupplierResponseSuccess;
-                state.isLoading = false;
-                state.isError = false;
-            })
-            .addCase(SupplierService.fetchGetCountPaging.rejected, (state, action) => {
                 state.isLoading = false;
                 state.isError = true;
             })

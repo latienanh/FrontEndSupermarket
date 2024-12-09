@@ -5,7 +5,6 @@ import { CategoryRequest } from '~/application/model/modelRequest/CategoryModelR
 import {
     GetCategoryByIdResponseFailure,
     GetCategoryByIdResponseSuccess,
-    GetCountPagingResponseSuccess,
     GetMultipleCategoriesResponseFailure,
     GetMultipleCategoriesResponseSuccess,
 } from '~/application/model/modelResponse/CategoryModelResponse';
@@ -18,19 +17,6 @@ export const CategoryService = {
         try {
             const axiosJwt = createAxios(dispatch, getState);
             const response = await apiCategory.getAll(axiosJwt);
-            return response;
-        } catch (err: any) {
-            if (err.response && err.response.data) {
-                return rejectWithValue(err.response.data);
-            }
-            return rejectWithValue(err);
-        }
-    }),
-    fetchGetCountPaging: createAsyncThunk('category/fetchGetCountPaging', async (size: number, thunkAPI) => {
-        const { rejectWithValue, dispatch, getState } = thunkAPI;
-        try {
-            const axiosJwt = createAxios(dispatch, getState);
-            const response = await apiCategory.getCountPaging(axiosJwt, size);
             return response;
         } catch (err: any) {
             if (err.response && err.response.data) {
@@ -124,7 +110,6 @@ interface initialStateType {
     dataGetAll: getCategoriesState;
     dataGetPagingCategory: getCategoriesState;
     dataGetCategoryById: GetCategoryByIdState;
-    dataGetCountPaging: GetCountPagingResponseSuccess | null;
     dataCreate: ResponseBase | null;
     dataDelete: ResponseBase | null;
     dataUpdate: ResponseBase | null;
@@ -138,7 +123,6 @@ export const CategorySlice = createSlice({
         dataGetAll: initialCategoriesState,
         dataGetPagingCategory: initialCategoriesState,
         dataGetCategoryById: initialCategoryState,
-        dataGetCountPaging: null,
         dataCreate: null,
         dataDelete: null,
         dataUpdate: null,
@@ -218,20 +202,6 @@ export const CategorySlice = createSlice({
             })
             .addCase(CategoryService.fetchDelete.rejected, (state, action) => {
                 state.dataDelete = action.payload as ResponseBase;
-                state.isLoading = false;
-                state.isError = true;
-            })
-            .addCase(CategoryService.fetchGetCountPaging.pending, (state) => {
-                state.isLoading = true;
-                state.isError = false;
-            })
-            .addCase(CategoryService.fetchGetCountPaging.fulfilled, (state, action) => {
-                state.dataGetCountPaging = action.payload as unknown as GetCountPagingResponseSuccess;
-                state.isLoading = false;
-                state.isError = false;
-            })
-            .addCase(CategoryService.fetchGetCountPaging.rejected, (state, action) => {
-                state.dataEdit = action.payload as ResponseBase;
                 state.isLoading = false;
                 state.isError = true;
             })

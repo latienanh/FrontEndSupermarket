@@ -1,15 +1,14 @@
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '~/application/redux/rootState';
 import { useEffect, useState } from 'react';
-import { toast } from 'react-toastify';
-import { LoadingAuth } from '../../loading';
-import { Role } from '~/domain/entities/supermarketEntities/Role';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { URL_APP } from '~/presentation/router/Link';
+import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
 import { propsFetchPaging } from '~/application/model/modelRequest/FetchingPaging';
-import { PaginationControl } from '~/presentation/components/share';
+import { AppDispatch, RootState } from '~/application/redux/rootState';
 import { EmployeeService } from '~/application/redux/slide/EmployeeSlide';
+import { PaginationControl } from '~/presentation/components/share';
+import { URL_APP } from '~/presentation/router/Link';
+import { LoadingAuth } from '../../loading';
 
 function EmployeePage() {
     const IMG_URL = process.env.REACT_APP_IMG_URL;
@@ -23,8 +22,8 @@ function EmployeePage() {
     const handleClickNext = () => {
         setPaging((prev) => {
             const tempindex = prev.index;
-            if (employeeState.dataGetCountPaging?.data) {
-                if (tempindex < employeeState.dataGetCountPaging?.data - 1)
+            if (employeeState.dataGetPagingEmployee.DataSuccess?.listData.totalPage) {
+                if (tempindex < employeeState.dataGetPagingEmployee.DataSuccess?.listData.totalPage - 1)
                     return {
                         ...prev,
                         index: prev.index + 1,
@@ -51,7 +50,6 @@ function EmployeePage() {
     };
     useEffect(() => {
         dispatch(EmployeeService.fetchGetPaging(paging));
-        dispatch(EmployeeService.fetchGetCountPaging(paging.size));
     }, []);
     useEffect(() => {
         dispatch(EmployeeService.fetchGetPaging(paging));
@@ -68,7 +66,6 @@ function EmployeePage() {
             }
 
             dispatch(EmployeeService.fetchGetAll());
-            dispatch(EmployeeService.fetchGetCountPaging(paging.size));
             setPaging((prev) => {
                 return {
                     ...prev,
@@ -172,9 +169,9 @@ function EmployeePage() {
                                                 </thead>
                                                 <tbody>
                                                     {employeeState.dataGetPagingEmployee.DataSuccess?.listData &&
-                                                        employeeState.dataGetPagingEmployee.DataSuccess?.listData
+                                                        employeeState.dataGetPagingEmployee.DataSuccess?.listData.data
                                                             .length > 0 &&
-                                                        employeeState.dataGetPagingEmployee.DataSuccess?.listData.map(
+                                                        employeeState.dataGetPagingEmployee.DataSuccess?.listData.data.map(
                                                             (item, index) => {
                                                                 return (
                                                                     <tr key={`table-category-${index}`}>
@@ -241,7 +238,7 @@ function EmployeePage() {
                             </div>
                             <PaginationControl
                                 index={paging.index}
-                                max={employeeState.dataGetCountPaging?.data || 0}
+                                max={employeeState.dataGetPagingEmployee.DataSuccess?.listData.totalPage || 0}
                                 onClickPrev={handleClickPrev}
                                 onClickNext={handleClickNext}
                                 onclickNumber={handleClickNumber}

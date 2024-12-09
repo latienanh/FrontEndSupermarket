@@ -3,10 +3,6 @@ import { SupplierRequest } from '~/application/model/modelRequest/SupplierModelR
 const databaseName = process.env.REACT_APP_DATABASE_NAME;
 const controllerName = 'Supplier';
 const apiSupplier = {
-    getCountPaging: async (axiosJwt: any, size: number) => {
-        const res = await axiosJwt.get(`/${controllerName}/${databaseName}/TotalPaging?size=${size}`);
-        return res;
-    },
     getPagingSupplier: async (axiosJwt: any, props: propsFetchPaging) => {
         const res = await axiosJwt.get(
             `/${controllerName}/${databaseName}/GetPaging?index=${props.index}&size=${props.size}`,
@@ -26,11 +22,7 @@ const apiSupplier = {
         return res;
     },
     deleteSupplier: async (axiosJWT: any, id: string) => {
-        const res = await axiosJWT.delete(`/${controllerName}`, {
-            data: {
-                id: id,
-            },
-        });
+        const res = await axiosJWT.delete(`/${controllerName}/${id}`);
         return res;
     },
     updateSupplier: async (axiosJWT: any, model: SupplierRequest) => {

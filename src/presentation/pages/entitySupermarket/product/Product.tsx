@@ -54,8 +54,8 @@ function ProductPage() {
     const handleClickNext = () => {
         setPaging((prev) => {
             const tempindex = prev.index;
-            if (productState.dataGetCountPaging?.data) {
-                if (tempindex < productState.dataGetCountPaging?.data - 1)
+            if (productState.dataGetPagingProduct.DataSuccess?.listData.totalPage) {
+                if (tempindex < productState.dataGetPagingProduct.DataSuccess?.listData.totalPage - 1)
                     return {
                         ...prev,
                         index: prev.index + 1,
@@ -82,7 +82,6 @@ function ProductPage() {
     };
     useEffect(() => {
         dispatch(ProductService.fetchGetPaging(paging));
-        dispatch(ProductService.fetchGetCountPaging(paging.size));
     }, []);
     useEffect(() => {
         dispatch(ProductService.fetchGetPaging(paging));
@@ -98,7 +97,6 @@ function ProductPage() {
             }
 
             dispatch(ProductService.fetchGetPaging(paging));
-            dispatch(ProductService.fetchGetCountPaging(paging.size));
             setPaging((prev) => {
                 return {
                     ...prev,
@@ -170,9 +168,9 @@ function ProductPage() {
                                             </thead>
                                             <tbody>
                                                 {productState.dataGetPagingProduct.DataSuccess?.listData &&
-                                                    productState.dataGetPagingProduct.DataSuccess?.listData.length >
-                                                        0 &&
-                                                    productState.dataGetPagingProduct.DataSuccess?.listData.map(
+                                                    productState.dataGetPagingProduct.DataSuccess?.listData.data
+                                                        .length > 0 &&
+                                                    productState.dataGetPagingProduct.DataSuccess?.listData.data.map(
                                                         (item, index) => {
                                                             return (
                                                                 <>
@@ -415,7 +413,7 @@ function ProductPage() {
                         </div>
                         <PaginationControl
                             index={paging.index}
-                            max={productState.dataGetCountPaging?.data || 0}
+                            max={productState.dataGetPagingProduct.DataSuccess?.listData.totalPage || 0}
                             onClickPrev={handleClickPrev}
                             onClickNext={handleClickNext}
                             onclickNumber={handleClickNumber}

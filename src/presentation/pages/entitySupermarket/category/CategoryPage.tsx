@@ -1,14 +1,13 @@
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '~/application/redux/rootState';
 import { useEffect, useState } from 'react';
-import { CategoryService } from '~/application/redux/slide/CategorySlide';
-import { Link, useNavigate } from 'react-router-dom';
-import { URL_APP } from '~/presentation/router/Link';
-import { ButtonCustome, Describe, PaginationControl } from '~/presentation/components/share';
-import Swal from 'sweetalert2';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { AddCategoryParams } from './AddCategory';
+import Swal from 'sweetalert2';
 import { propsFetchPaging } from '~/application/model/modelRequest/FetchingPaging';
+import { AppDispatch, RootState } from '~/application/redux/rootState';
+import { CategoryService } from '~/application/redux/slide/CategorySlide';
+import { ButtonCustome, Describe, PaginationControl } from '~/presentation/components/share';
+import { URL_APP } from '~/presentation/router/Link';
 type ShowDescribe = {
     isShow: boolean;
     describe: string;
@@ -52,8 +51,8 @@ function CategoryPage() {
     const handleClickNext = () => {
         setPaging((prev) => {
             const tempindex = prev.index;
-            if (dataCategory.dataGetCountPaging?.data) {
-                if (tempindex < dataCategory.dataGetCountPaging?.data - 1)
+            if (dataCategory.dataGetPagingCategory.DataSuccess?.listData?.totalPage) {
+                if (tempindex < dataCategory.dataGetPagingCategory.DataSuccess?.listData?.totalPage - 1)
                     return {
                         ...prev,
                         index: prev.index + 1,
@@ -80,7 +79,6 @@ function CategoryPage() {
     };
     useEffect(() => {
         dispatch(CategoryService.fetchGetPaging(paging));
-        dispatch(CategoryService.fetchGetCountPaging(paging.size));
     }, []);
     useEffect(() => {
         dispatch(CategoryService.fetchGetPaging(paging));
@@ -96,7 +94,6 @@ function CategoryPage() {
             }
 
             dispatch(CategoryService.fetchGetPaging(paging));
-            dispatch(CategoryService.fetchGetCountPaging(paging.size));
             setPaging((prev) => {
                 return {
                     ...prev,
@@ -163,9 +160,9 @@ function CategoryPage() {
                                             </thead>
                                             <tbody>
                                                 {dataCategory.dataGetPagingCategory.DataSuccess?.listData &&
-                                                    dataCategory.dataGetPagingCategory.DataSuccess?.listData.length >
-                                                        0 &&
-                                                    dataCategory.dataGetPagingCategory.DataSuccess?.listData.map(
+                                                    dataCategory.dataGetPagingCategory.DataSuccess?.listData.data
+                                                        .length > 0 &&
+                                                    dataCategory.dataGetPagingCategory.DataSuccess?.listData.data.map(
                                                         (item, index) => {
                                                             return (
                                                                 <>
@@ -353,7 +350,7 @@ function CategoryPage() {
                         </div>
                         <PaginationControl
                             index={paging.index}
-                            max={dataCategory.dataGetCountPaging?.data || 0}
+                            max={dataCategory.dataGetPagingCategory.DataSuccess?.listData?.totalPage || 0}
                             onClickPrev={handleClickPrev}
                             onClickNext={handleClickNext}
                             onclickNumber={handleClickNumber}

@@ -28,11 +28,7 @@ const apiCustomer = {
         return res;
     },
     deleteCustomer: async (axiosJWT: any, id: string) => {
-        const res = await axiosJWT.delete(`/${controllerName}`, {
-            data: {
-                id: id,
-            },
-        });
+        const res = await axiosJWT.delete(`/${controllerName}/${id}`);
         return res;
     },
     updateCustomer: async (axiosJWT: any, model: CustomerRequest) => {

@@ -2,7 +2,7 @@ import { CategoryRequest } from '~/application/model/modelRequest/CategoryModelR
 import { propsFetchPaging } from '~/application/model/modelRequest/FetchingPaging';
 
 const databaseName = process.env.REACT_APP_DATABASE_NAME;
-const controllerName = 'Categories';
+const controllerName = 'Category';
 
 const apiCategory = {
     getAll: async (axiosJwt: any) => {
@@ -26,13 +26,13 @@ const apiCategory = {
     createCategory: async (axiosJWT: any, model: CategoryRequest) => {
         const formData = new FormData();
         if (model.parentId) {
-            formData.append('ParentId', model.parentId);
+            formData.append('parentId', model.parentId);
         }
 
-        formData.append('Name', model.name);
-        formData.append('Describe', model.describe);
+        formData.append('name', model.name);
+        formData.append('describe', model.describe);
         if (model.image) {
-            formData.append('Image', model.image);
+            formData.append('image', model.image);
         }
         console.log(formData);
         const res = await axiosJWT.post(`/${controllerName}`, formData, {
@@ -43,25 +43,21 @@ const apiCategory = {
         return res;
     },
     deleteCategory: async (axiosJWT: any, id: string) => {
-        const res = await axiosJWT.delete(`/${controllerName}`, {
-            data: {
-                id: id,
-            },
-        });
+        const res = await axiosJWT.delete(`/${controllerName}/${id}`);
         return res;
     },
     updateCategory: async (axiosJWT: any, model: CategoryRequest) => {
         const formData = new FormData();
         if (model.id) {
-            formData.append('Id', model.id);
+            formData.append('id', model.id);
         }
         // if (model.parentId) {
         //     formData.append('ParentId', model.parentId);
         // }
-        formData.append('Name', model.name);
-        formData.append('Describe', model.describe);
+        formData.append('name', model.name);
+        formData.append('describe', model.describe);
         if (model.image) {
-            formData.append('Image', model.image);
+            formData.append('image', model.image);
         }
         console.log(formData);
         const res = await axiosJWT.put(`/${controllerName}`, formData, {

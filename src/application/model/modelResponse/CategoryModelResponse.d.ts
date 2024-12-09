@@ -2,11 +2,12 @@ import Categories from '~/domain/entities/supermarketEntities/Category';
 import Category from '~/domain/entities/supermarketEntities/Category';
 
 interface GetMultipleCategoriesResponseSuccess extends ResponseBase {
-    listData: Categories[];
+    listData: {
+        data: Categories[];
+        totalPage: number;
+    };
 }
-interface GetCountPagingResponseSuccess extends ResponseBase {
-    data: number;
-}
+
 interface GetCategoryByIdResponseSuccess extends ResponseBase {
     data: Category;
 }
@@ -17,6 +18,5 @@ export {
     GetCategoryByIdResponseFailure,
     GetCategoryByIdResponseSuccess,
     GetMultipleCategoriesResponseSuccess,
-    GetCountPagingResponseSuccess,
     GetMultipleCategoriesResponseFailure,
 };

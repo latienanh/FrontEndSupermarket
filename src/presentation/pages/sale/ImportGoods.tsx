@@ -327,7 +327,7 @@ function ImportGoods() {
                                         <Autocomplete
                                             id="select-supplier"
                                             // sx={{ width: 200 }}
-                                            options={supplierState.dataGetAll.DataSuccess?.listData || []}
+                                            options={supplierState.dataGetAll.DataSuccess?.listData.data || []}
                                             autoHighlight
                                             getOptionLabel={(option) => option.name}
                                             onChange={handleChangeSupplier}
@@ -384,7 +384,7 @@ function ImportGoods() {
                                                 id="select-products"
                                                 // sx={{ width: 200 }}
                                                 multiple
-                                                options={productState.dataGetAll.DataSuccess?.listData || []}
+                                                options={productState.dataGetAll.DataSuccess?.listData.data || []}
                                                 autoHighlight
                                                 getOptionLabel={(option) => option.name}
                                                 onChange={handleChangeProduct}
@@ -555,7 +555,7 @@ function ImportGoods() {
                                         <Autocomplete
                                             id="select-employee"
                                             // sx={{ width: 200 }}
-                                            options={employeeState.dataGetAll.DataSuccess?.listData || []}
+                                            options={employeeState.dataGetAll.DataSuccess?.listData.data || []}
                                             autoHighlight
                                             getOptionLabel={(option) => option.fullName}
                                             onChange={handleChangeEmployee}

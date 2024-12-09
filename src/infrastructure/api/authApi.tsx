@@ -56,7 +56,7 @@ const apiAuth = {
     },
     refreshToken: async (model: RefreshToken) => {
         const jsonData = JSON.stringify(model);
-        const res = await axios.post(`${API_URL}/Auth/Refresh`, jsonData, {
+        const res = await axios.post(`${API_URL}/Auth/renewToken`, jsonData, {
             headers: {
                 'Content-Type': 'application/json',
             },

@@ -1,31 +1,17 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { createAxios } from '~/infrastructure/api/axiosJwt';
 import { AttributeRequest } from '~/application/model/modelRequest/AttributeModelRequest';
-import { ResponseBase } from '~/application/model/modelResponse/ModelResponeseBase';
 import { propsFetchPaging } from '~/application/model/modelRequest/FetchingPaging';
-import { apiAttribute } from '~/infrastructure/api/attributeApi';
 import {
     GetAttributeByIdResponseFailure,
     GetAttributeByIdResponseSuccess,
     GetAttributesResponseFailure,
     GetAttributesResponseSuccess,
-    GetCountPagingAtriResponseSuccess,
 } from '~/application/model/modelResponse/AttributeModelResponse';
+import { ResponseBase } from '~/application/model/modelResponse/ModelResponeseBase';
+import { apiAttribute } from '~/infrastructure/api/attributeApi';
+import { createAxios } from '~/infrastructure/api/axiosJwt';
 
 export const AttributeService = {
-    fetchGetCountPaging: createAsyncThunk('Attribute/fetchGetCountPaging', async (size: number, thunkAPI) => {
-        const { rejectWithValue, dispatch, getState } = thunkAPI;
-        try {
-            const axiosJwt = createAxios(dispatch, getState);
-            const response = await apiAttribute.getCountPaging(axiosJwt, size);
-            return response;
-        } catch (err: any) {
-            if (err.response && err.response.data) {
-                return rejectWithValue(err.response.data);
-            }
-            return rejectWithValue(err);
-        }
-    }),
     fetchGetAll: createAsyncThunk('Attribute/fetchGetAll', async (_, thunkAPI) => {
         const { rejectWithValue, dispatch, getState } = thunkAPI;
         try {
@@ -128,7 +114,6 @@ interface initialStateType {
     dataGetPagingAttribute: getAttributesState;
     dataGetAll: getAttributesState;
     dataGetAttributeById: GetAttributeByIdState;
-    dataGetCountPaging: GetCountPagingAtriResponseSuccess | null;
     dataCreate: ResponseBase | null;
     dataDelete: ResponseBase | null;
     dataUpdate: ResponseBase | null;
@@ -141,7 +126,6 @@ export const AttributeSlice = createSlice({
         dataGetAll: initialAttributesState,
         dataGetPagingAttribute: initialAttributePagingState,
         dataGetAttributeById: initialAttributeState,
-        dataGetCountPaging: null,
         dataCreate: null,
         dataDelete: null,
         dataUpdate: null,
@@ -220,19 +204,6 @@ export const AttributeSlice = createSlice({
             })
             .addCase(AttributeService.fetchDelete.rejected, (state, action) => {
                 state.dataDelete = action.payload as ResponseBase;
-                state.isLoading = false;
-                state.isError = true;
-            })
-            .addCase(AttributeService.fetchGetCountPaging.pending, (state) => {
-                state.isLoading = true;
-                state.isError = false;
-            })
-            .addCase(AttributeService.fetchGetCountPaging.fulfilled, (state, action) => {
-                state.dataGetCountPaging = action.payload as unknown as GetCountPagingAtriResponseSuccess;
-                state.isLoading = false;
-                state.isError = false;
-            })
-            .addCase(AttributeService.fetchGetCountPaging.rejected, (state, action) => {
                 state.isLoading = false;
                 state.isError = true;
             })
