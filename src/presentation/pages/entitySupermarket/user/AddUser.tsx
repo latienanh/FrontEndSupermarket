@@ -1,4 +1,3 @@
-import { Button, Checkbox } from '@mui/material';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
@@ -8,11 +7,11 @@ import { UserCreateRequest } from '~/application/model/modelRequest/UserModelReq
 import { AppDispatch, RootState } from '~/application/redux/rootState';
 import { fetchAllRole } from '~/application/redux/slide/RoleSlide';
 import { UserService } from '~/application/redux/slide/UserSlide';
-import { ButtonCustome, EditorCustome, InputCustome, InputImageCustome } from '~/presentation/components/share';
+import { Role } from '~/domain/entities/supermarketEntities/Role';
+import { ButtonCustome, InputCustome, InputImageCustome } from '~/presentation/components/share';
 import { URL_APP } from '~/presentation/router/Link';
 import { validateEmail, validateNumberPhone } from '~/presentation/utils';
 import { LoadingAuth } from '../../loading';
-import { Role } from '~/domain/entities/supermarketEntities/Role';
 
 function AddUser() {
     const [hasEditDataChanged, setHasEditDataChanged] = useState(false);
@@ -23,6 +22,7 @@ function AddUser() {
     const [userCreate, setUserCreate] = useState<UserCreateRequest>({
         userName: '',
         password: '',
+        address: '',
         firstName: '',
         lastName: '',
         confilmPassword: '',
@@ -47,6 +47,10 @@ function AddUser() {
             isValid = false;
         } else if (userCreate.userName.length > 50) {
             handleError('UserName dưới 50 kí tự !', 'userName');
+            isValid = false;
+        }
+        if (!userCreate?.address) {
+            handleError('Vui lòng nhập địa chỉ !', 'address');
             isValid = false;
         }
         if (!userCreate?.password) {
@@ -121,6 +125,11 @@ function AddUser() {
         const value = event.target.value;
         handleError('', 'userName');
         setUserCreate((prevState) => ({ ...prevState, userName: value }));
+    };
+    const handleChangeAddress = (event: ChangeEvent<HTMLInputElement>) => {
+        const value = event.target.value;
+        handleError('', 'address');
+        setUserCreate((prevState) => ({ ...prevState, address: value }));
     };
     const handleChangePassword = (event: ChangeEvent<HTMLInputElement>) => {
         const value = event.target.value;
@@ -240,7 +249,15 @@ function AddUser() {
                                                     Error={errors.lastName}
                                                     style="col-lg-4 mt-3 mb-3"
                                                 />
-
+                                                <InputCustome
+                                                    Title="Địa chỉ"
+                                                    Type="text"
+                                                    AutoComplete="on"
+                                                    Id="card-last-name"
+                                                    onChange={handleChangeAddress}
+                                                    Error={errors.address}
+                                                    style="col-lg-4 mt-3 mb-3"
+                                                />
                                                 <InputCustome
                                                     Title="Số điện thoại"
                                                     Type="number"

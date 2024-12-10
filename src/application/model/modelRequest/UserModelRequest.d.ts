@@ -4,6 +4,7 @@ type UserCreateRequest = {
     password: string;
     phoneNumber: string;
     firstName: string;
+    address: string;
     lastName: string;
     avatar: File | null;
     confilmPassword: string;
@@ -16,6 +17,7 @@ type UserUpdateRequest = {
     phoneNumber: string;
     firstName: string;
     lastName: string;
+    address: string;
     avatar: File | null;
     roles: string[];
 };

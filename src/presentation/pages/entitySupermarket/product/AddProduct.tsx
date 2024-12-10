@@ -36,8 +36,12 @@ function AddProduct() {
         slug: '',
         image: null,
         describe: '',
-        price: 0,
         categoriesId: [],
+        defaultUnit: {
+            price: 0,
+            quantity: 1,
+            name: '',
+        },
         variants: [],
     });
     const [errors, setErrors] = useState<ErrorProductCreate>({});
@@ -78,6 +82,7 @@ function AddProduct() {
             handleError('barCode Name phải trên 5 và ít hơn 15 kí tự !', 'barCode');
             isValid = false;
         }
+
         if (!productCreate?.name) {
             handleError('Vui lòng nhập tên sản phẩm !', 'name');
             isValid = false;
@@ -85,6 +90,7 @@ function AddProduct() {
             handleError('Tên phải trên 5 và ít hơn 50 kí tự !', 'name');
             isValid = false;
         }
+
         if (!productCreate?.describe) {
             handleError('Chưa nhập mô tả !', 'describe');
             isValid = false;
@@ -97,13 +103,13 @@ function AddProduct() {
             handleError('Chưa chọn Category!', 'categoriesId');
             isValid = false;
         }
-        if (!productCreate.price) {
-            handleError('Chưa nhập giá!', 'price');
-            isValid = false;
-        } else if (productCreate.price < 0) {
-            handleError('Giá phải lớn hơn 0!', 'price');
-            isValid = false;
-        }
+        // if (!productCreate.defaultUnit.price) {
+        //     handleError('Chưa nhập giá!', 'quantityDefault');
+        //     isValid = false;
+        // } else if (productCreate.defaultUnit.price < 0) {
+        //     handleError('Giá phải lớn hơn 0!', 'price');
+        //     isValid = false;
+        // }
         if (productCreate.variants && productCreate.variants.length > 0) {
             productCreate.variants.forEach((item, index) => {
                 if (!item?.barCode) {
@@ -203,6 +209,28 @@ function AddProduct() {
     };
     const handleRemoveFile = () => {
         setProductCreate((prevState) => ({ ...prevState, image: null }));
+    };
+    const handleChangeUnitNameDefault = (event: ChangeEvent<HTMLInputElement>) => {
+        const value = event.target.value;
+        handleError('', 'unitNameDefault');
+        setProductCreate((prevState) => ({
+            ...prevState,
+            defaultUnit: {
+                ...prevState.defaultUnit,
+                name: value,
+            },
+        }));
+    };
+    const handleChangeUnitPriceyDefault = (event: ChangeEvent<HTMLInputElement>) => {
+        const value = Number(event.target.value);
+        handleError('', 'priceDefault');
+        setProductCreate((prevState) => ({
+            ...prevState,
+            defaultUnit: {
+                ...prevState.defaultUnit,
+                price: value,
+            },
+        }));
     };
     const handleChangeCheckbox = (event: ChangeEvent<HTMLInputElement>, id: string) => {
         const checked = event.target.checked;
@@ -490,7 +518,7 @@ function AddProduct() {
                                     <h4>News Content</h4>
                                 </div>
                                 <div className="card-body-table">
-                                    <div className="post-form">
+                                    <div className="post-form row">
                                         <InputCustome
                                             Title="Tên"
                                             Type="text"
@@ -499,17 +527,7 @@ function AddProduct() {
                                             Value={productCreate.name}
                                             onChange={handleChangeName}
                                             Error={errors.name}
-                                            style="col-lg-12 mt-3 mb-3"
-                                        />
-                                        <InputCustome
-                                            Title="Giá"
-                                            Type="number"
-                                            AutoComplete="on"
-                                            Id="card-price"
-                                            Value={productCreate.price.toString()}
-                                            onChange={handleChangePrice}
-                                            Error={errors.price}
-                                            style="col-lg-12 mt-3 mb-3"
+                                            style="col-md-4 col-12 mt-3 mb-3"
                                         />
                                         <ButtonCustome
                                             Title="Tạo Slug tự động"
@@ -527,7 +545,7 @@ function AddProduct() {
                                             Value={productCreate.slug}
                                             onChange={handleChangeSlug}
                                             Error={errors.slug}
-                                            style="col-lg-12 mt-3 mb-3"
+                                            style="col-md-4 col-12 mt-3 mb-3"
                                         />
                                         <InputCustome
                                             Title="barCode"
@@ -537,14 +555,33 @@ function AddProduct() {
                                             Value={productCreate.barCode}
                                             onChange={handleChangeBarCode}
                                             Error={errors.barCode}
-                                            style="col-lg-12 mt-3 mb-3"
+                                            style="col-md-4 col-12 mt-3 mb-3"
                                         />
-
+                                        <InputCustome
+                                            Title="unitNameDefault"
+                                            Type="text"
+                                            AutoComplete="on"
+                                            Id="card-unit-name-default"
+                                            Value={productCreate.defaultUnit.name}
+                                            onChange={handleChangeUnitNameDefault}
+                                            Error={errors.unitNameDefault}
+                                            style="col-md-4 col-12 mt-3 mb-3"
+                                        />
+                                        <InputCustome
+                                            Title="priceDefault"
+                                            Type="text"
+                                            AutoComplete="on"
+                                            Id="card-price-default"
+                                            Value={productCreate.defaultUnit.price}
+                                            onChange={handleChangeUnitPriceyDefault}
+                                            Error={errors.priceDefault}
+                                            style="col-md-4 col-12 mt-3 mb-3"
+                                        />
                                         <InputImageCustome
                                             Title="Ảnh"
                                             onChangeFile={handleFileChange}
                                             removeFile={handleRemoveFile}
-                                            style="col-lg-12 mt-3 mb-3"
+                                            style="col-md-4 col-12 mt-3 mb-3"
                                         />
                                         <EditorCustome
                                             onChangeData={handleChangeDescribe}
@@ -594,7 +631,7 @@ function AddProduct() {
                                                 >
                                                     {/* <option value="">Chọn thuộc tính</option> */}
                                                     {attributeState.dataGetAll.DataSuccess?.listData &&
-                                                        attributeState.dataGetAll.DataSuccess?.listData.data.map(
+                                                        attributeState.dataGetAll.DataSuccess?.listData.map(
                                                             (item, index: number) => {
                                                                 return (
                                                                     <>
@@ -616,7 +653,7 @@ function AddProduct() {
                                                 />
                                                 {attributes && (
                                                     <div className="row border border-primary rounded pb-4">
-                                                        {attributeState.dataGetAll.DataSuccess?.listData.data.map(
+                                                        {attributeState.dataGetAll.DataSuccess?.listData.map(
                                                             (item, index) => {
                                                                 if (attributes?.includes(item.id))
                                                                     return (
@@ -774,7 +811,7 @@ function AddProduct() {
                                                                         removeFile={() => {
                                                                             handleVariantRemoveFile(index);
                                                                         }}
-                                                                        style="col-lg-12 mt-3 mb-3"
+                                                                        style="col-md-4 col-12 mt-3 mb-3"
                                                                     />
                                                                     <EditorCustome
                                                                         onChangeData={(event) => {
@@ -817,7 +854,7 @@ function AddProduct() {
                                 <div className="card-body-table">
                                     <div className="news-content-right pd-20">
                                         {categoryState.dataGetAll.DataSuccess?.listData &&
-                                            categoryState.dataGetAll.DataSuccess?.listData.data.map(
+                                            categoryState.dataGetAll.DataSuccess?.listData.map(
                                                 (item: any, index: number) => {
                                                     return (
                                                         <div key={index} className="col-lg-8 m-2">

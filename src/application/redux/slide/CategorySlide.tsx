@@ -3,6 +3,8 @@ import { createAxios } from '~/infrastructure/api/axiosJwt';
 import { apiCategory } from '~/infrastructure/api/categoryApi';
 import { CategoryRequest } from '~/application/model/modelRequest/CategoryModelRequest';
 import {
+    GetAllCategoriesResponseFailure,
+    GetAllCategoriesResponseSuccess,
     GetCategoryByIdResponseFailure,
     GetCategoryByIdResponseSuccess,
     GetMultipleCategoriesResponseFailure,
@@ -94,6 +96,10 @@ export interface getCategoriesState {
     DataSuccess: GetMultipleCategoriesResponseSuccess | null;
     DataFailure: GetMultipleCategoriesResponseFailure | null;
 }
+export interface getAllCategoriesState {
+    DataSuccess: GetAllCategoriesResponseSuccess | null;
+    DataFailure: GetAllCategoriesResponseFailure | null;
+}
 export interface GetCategoryByIdState {
     DataSuccess: GetCategoryByIdResponseSuccess | null;
     DataFailure: GetCategoryByIdResponseFailure | null;
@@ -102,12 +108,16 @@ const initialCategoriesState: getCategoriesState = {
     DataSuccess: null,
     DataFailure: null,
 };
+const initialAllCategoriesState: getAllCategoriesState = {
+    DataSuccess: null,
+    DataFailure: null,
+};
 const initialCategoryState: GetCategoryByIdState = {
     DataSuccess: null,
     DataFailure: null,
 };
 interface initialStateType {
-    dataGetAll: getCategoriesState;
+    dataGetAll: getAllCategoriesState;
     dataGetPagingCategory: getCategoriesState;
     dataGetCategoryById: GetCategoryByIdState;
     dataCreate: ResponseBase | null;
@@ -120,7 +130,7 @@ interface initialStateType {
 export const CategorySlice = createSlice({
     name: 'category',
     initialState: {
-        dataGetAll: initialCategoriesState,
+        dataGetAll: initialAllCategoriesState,
         dataGetPagingCategory: initialCategoriesState,
         dataGetCategoryById: initialCategoryState,
         dataCreate: null,
@@ -139,14 +149,14 @@ export const CategorySlice = createSlice({
                 state.isError = false;
             })
             .addCase(CategoryService.fetchGetAll.fulfilled, (state, action) => {
-                state.dataGetAll.DataSuccess = action.payload as unknown as GetMultipleCategoriesResponseSuccess;
+                state.dataGetAll.DataSuccess = action.payload as unknown as GetAllCategoriesResponseSuccess;
                 state.isLoading = false;
                 state.isError = false;
             })
             .addCase(CategoryService.fetchGetAll.rejected, (state, action) => {
                 state.isLoading = false;
                 state.isError = true;
-                state.dataGetAll.DataFailure = action.payload as GetMultipleCategoriesResponseFailure;
+                state.dataGetAll.DataFailure = action.payload as GetAllCategoriesResponseFailure;
             })
             .addCase(CategoryService.fetchGetPaging.pending, (state) => {
                 state.isLoading = true;

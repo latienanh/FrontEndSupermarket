@@ -1,4 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { propsFetchPaging } from '~/application/model/modelRequest/FetchingPaging';
 import {
     UserCreateRequest,
     UserEditRequest,
@@ -8,18 +9,33 @@ import { ResponseBase } from '~/application/model/modelResponse/ModelResponeseBa
 import {
     GetAllUserResponseFailure,
     GetAllUserResponseSuccess,
+    GetMultipleUsersResponseFailure,
+    GetMultipleUsersResponseSuccess,
     GetUserByIdResponseFailure,
     GetUserByIdResponseSuccess,
 } from '~/application/model/modelResponse/UserModelResponse';
+import { createAxios } from '~/infrastructure/api/axiosJwt';
 import { apiUser } from '~/infrastructure/api/userApi';
 import { RootState } from '../rootState';
-import { createAxios } from '~/infrastructure/api/axiosJwt';
 export const UserService = {
     fetchGetAll: createAsyncThunk<any, void, { state: RootState }>('user/fetchGetAll', async (_, thunkAPI) => {
         const { rejectWithValue, dispatch, getState } = thunkAPI;
         try {
             const axiosJwt = createAxios(dispatch, getState);
             const response = await apiUser.getAll(axiosJwt);
+            return response;
+        } catch (err: any) {
+            if (err.response && err.response.data) {
+                return rejectWithValue(err.response.data);
+            }
+            return rejectWithValue(err);
+        }
+    }),
+    fetchGetPaging: createAsyncThunk('Employee/fetchGetPaging', async (props: propsFetchPaging, thunkAPI) => {
+        const { rejectWithValue, dispatch, getState } = thunkAPI;
+        try {
+            const axiosJwt = createAxios(dispatch, getState);
+            const response = await apiUser.getPagingUser(axiosJwt, props);
             return response;
         } catch (err: any) {
             if (err.response && err.response.data) {
@@ -93,6 +109,10 @@ export interface getAllState {
     DataSuccess: GetAllUserResponseSuccess | null;
     DataFailure: GetAllUserResponseFailure | null;
 }
+export interface getPagingUserState {
+    DataSuccess: GetMultipleUsersResponseSuccess | null;
+    DataFailure: GetMultipleUsersResponseFailure | null;
+}
 export interface GetUserById {
     DataSuccess: GetUserByIdResponseSuccess | null;
     DataFailure: GetUserByIdResponseFailure | null;
@@ -105,8 +125,13 @@ const initialUserState: GetUserById = {
     DataSuccess: null,
     DataFailure: null,
 };
+const initialPagingUserState: getPagingUserState = {
+    DataSuccess: null,
+    DataFailure: null,
+};
 interface initialStateType {
     dataGetAllUsers: getAllState;
+    dataGetPagingUser: getPagingUserState;
     dataGetUserById: GetUserById;
     dataCreate: ResponseBase | null;
     dataDelete: ResponseBase | null;
@@ -120,6 +145,7 @@ export const Users = createSlice({
     initialState: {
         dataGetAllUsers: initialUsersState,
         dataGetUserById: initialUserState,
+        dataGetPagingUser: initialPagingUserState,
         dataCreate: null,
         dataDelete: null,
         dataUpdate: null,
@@ -144,6 +170,20 @@ export const Users = createSlice({
                 state.isLoading = false;
                 state.isError = true;
                 state.dataGetAllUsers.DataFailure = action.payload as GetAllUserResponseFailure;
+            })
+            .addCase(UserService.fetchGetPaging.pending, (state) => {
+                state.isLoading = true;
+                state.isError = false;
+            })
+            .addCase(UserService.fetchGetPaging.fulfilled, (state, action) => {
+                state.dataGetPagingUser.DataSuccess = action.payload as unknown as GetMultipleUsersResponseSuccess;
+                state.isLoading = false;
+                state.isError = false;
+            })
+            .addCase(UserService.fetchGetPaging.rejected, (state, action) => {
+                state.isLoading = false;
+                state.isError = true;
+                state.dataGetPagingUser.DataFailure = action.payload as GetMultipleUsersResponseFailure;
             })
             .addCase(UserService.fetchCreate.pending, (state) => {
                 state.isLoading = true;

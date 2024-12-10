@@ -25,6 +25,7 @@ function UpdateUser() {
         firstName: '',
         lastName: '',
         email: '',
+        address: '',
         avatar: null,
         phoneNumber: '',
         roles: [],
@@ -44,6 +45,7 @@ function UpdateUser() {
             lastName: userState.dataGetUserById.DataSuccess?.data.lastName || '',
             email: userState.dataGetUserById.DataSuccess?.data.email || '',
             avatar: null,
+            address: userState.dataGetUserById.DataSuccess?.data.address || '',
             phoneNumber: userState.dataGetUserById.DataSuccess?.data.phoneNumber || '',
             roles: userState.dataGetUserById.DataSuccess?.data?.roles
                 ? Object.values(userState.dataGetUserById.DataSuccess.data.roles).map((role) => role.id)
@@ -62,6 +64,10 @@ function UpdateUser() {
             isValid = false;
         } else if (userUpdate.firstName.length < 5 && userUpdate.firstName.length > 50) {
             handleError('First Name phải trên 5 và ít hơn 50 kí tự !', 'firstName');
+            isValid = false;
+        }
+        if (!userUpdate?.address) {
+            handleError('Vui lòng nhập địa chỉ !', 'address');
             isValid = false;
         }
         if (!userUpdate?.lastName) {
@@ -129,6 +135,11 @@ function UpdateUser() {
         const value = event.target.value;
         handleError('', 'firstName');
         setUserUpdate((prevState) => ({ ...prevState, firstName: value }));
+    };
+    const handleChangeAddress = (event: ChangeEvent<HTMLInputElement>) => {
+        const value = event.target.value;
+        handleError('', 'address');
+        setUserUpdate((prevState) => ({ ...prevState, address: value }));
     };
     const handleChangeLastName = (event: ChangeEvent<HTMLInputElement>) => {
         const value = event.target.value;
@@ -199,6 +210,16 @@ function UpdateUser() {
                                                     onChange={handleChangeEmail}
                                                     Value={userUpdate.email}
                                                     Error={errors.email}
+                                                    style="col-lg-6 mt-3 mb-3"
+                                                />
+                                                <InputCustome
+                                                    Title="Địa chỉ"
+                                                    Type="text"
+                                                    AutoComplete="on"
+                                                    Id="card-last-address"
+                                                    Value={userUpdate.address}
+                                                    onChange={handleChangeAddress}
+                                                    Error={errors.address}
                                                     style="col-lg-6 mt-3 mb-3"
                                                 />
                                                 <InputCustome

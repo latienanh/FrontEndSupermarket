@@ -26,6 +26,11 @@ function UpdateProduct() {
         image: null,
         price: 0,
         describe: '',
+        defaultUnit: {
+            price: 0,
+            quantity: 1,
+            name: '',
+        },
         categoriesId: [],
     });
     const [errors, setErrors] = useState<ErrorProductUpdate>({});
@@ -155,6 +160,28 @@ function UpdateProduct() {
         handleError('', 'slug');
         setProductUpdate((prevState) => ({ ...prevState, slug: value }));
     };
+    const handleChangeUnitNameDefault = (event: ChangeEvent<HTMLInputElement>) => {
+        const value = event.target.value;
+        handleError('', 'unitNameDefault');
+        setProductUpdate((prevState) => ({
+            ...prevState,
+            defaultUnit: {
+                ...prevState.defaultUnit,
+                name: value,
+            },
+        }));
+    };
+    const handleChangeUnitQuantityDefault = (event: ChangeEvent<HTMLInputElement>) => {
+        const value = Number(event.target.value);
+        handleError('', 'quantityDefault');
+        setProductUpdate((prevState) => ({
+            ...prevState,
+            defaultUnit: {
+                ...prevState.defaultUnit,
+                quantity: value,
+            },
+        }));
+    };
     const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {
@@ -250,6 +277,26 @@ function UpdateProduct() {
                                             Error={errors.barCode}
                                             style="col-lg-12 mt-3 mb-3"
                                         />
+                                        <InputCustome
+                                            Title="unitNameDefault"
+                                            Type="text"
+                                            AutoComplete="on"
+                                            Id="card-unit-name-default"
+                                            Value={productUpdate.defaultUnit.name}
+                                            onChange={handleChangeUnitNameDefault}
+                                            Error={errors.unitNameDefault}
+                                            style="col-lg-12 mt-3 mb-3"
+                                        />
+                                        <InputCustome
+                                            Title="quantityDefault"
+                                            Type="text"
+                                            AutoComplete="on"
+                                            Id="card-quantity-default"
+                                            Value={productUpdate.defaultUnit.quantity}
+                                            onChange={handleChangeUnitQuantityDefault}
+                                            Error={errors.quantityDefault}
+                                            style="col-lg-12 mt-3 mb-3"
+                                        />
 
                                         <InputImageCustome
                                             Title="Ảnh"
@@ -285,7 +332,7 @@ function UpdateProduct() {
                                 <div className="card-body-table">
                                     <div className="news-content-right pd-20">
                                         {categoryState.dataGetAll.DataSuccess?.listData &&
-                                            categoryState.dataGetAll.DataSuccess?.listData.data.map(
+                                            categoryState.dataGetAll.DataSuccess?.listData.map(
                                                 (item, index: number) => {
                                                     return (
                                                         <div key={index} className="col-lg-8 m-2">

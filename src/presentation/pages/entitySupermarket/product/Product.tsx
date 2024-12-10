@@ -1,13 +1,14 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '~/application/redux/rootState';
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { URL_APP } from '~/presentation/router/Link';
 import { ButtonCustome, Describe, PaginationControl } from '~/presentation/components/share';
 import Swal from 'sweetalert2';
 import { toast } from 'react-toastify';
 import { propsFetchPaging } from '~/application/model/modelRequest/FetchingPaging';
 import { ProductService } from '~/application/redux/slide/ProductSlide';
+import { ProductUnit } from '~/domain/entities/supermarketEntities/Product';
 
 type ShowDescribe = {
     isShow: boolean;
@@ -160,6 +161,7 @@ function ProductPage() {
                                                     <th>Mô tả</th>
                                                     <th>Số lượng</th>
                                                     <th>Giá bán</th>
+
                                                     <th>Category</th>
                                                     <th>Slug</th>
                                                     <th>Ảnh</th>
@@ -218,6 +220,29 @@ function ProductPage() {
                                                                                             className="badge-item badge-status m-1"
                                                                                         >
                                                                                             {itemCategory.name}
+                                                                                        </span>
+                                                                                    );
+                                                                                },
+                                                                            )}
+                                                                        </td>
+                                                                        <td>
+                                                                            {item.productUnits?.map(
+                                                                                (
+                                                                                    itemProductUnit: ProductUnit,
+                                                                                    index: number,
+                                                                                ) => {
+                                                                                    return (
+                                                                                        <span
+                                                                                            key={index}
+                                                                                            className="badge-item badge-status m-1"
+                                                                                        >
+                                                                                            {
+                                                                                                itemProductUnit.unit
+                                                                                                    .unitName
+                                                                                            }
+                                                                                            {itemProductUnit.prices.map(
+                                                                                                (p) => p.salePrice,
+                                                                                            )}
                                                                                         </span>
                                                                                     );
                                                                                 },
@@ -357,6 +382,31 @@ function ProductPage() {
                                                                                         )}
                                                                                     </td>
                                                                                     <td>{itemVariant.slug}</td>
+                                                                                    <td>
+                                                                                        {itemVariant.productUnits?.map(
+                                                                                            (
+                                                                                                itemProductUnit: ProductUnit,
+                                                                                                index: number,
+                                                                                            ) => {
+                                                                                                return (
+                                                                                                    <span
+                                                                                                        key={index}
+                                                                                                        className="badge-item badge-status m-1"
+                                                                                                    >
+                                                                                                        {
+                                                                                                            itemProductUnit
+                                                                                                                .unit
+                                                                                                                .unitName
+                                                                                                        }
+                                                                                                        {itemProductUnit.prices.map(
+                                                                                                            (p) =>
+                                                                                                                p.salePrice,
+                                                                                                        )}
+                                                                                                    </span>
+                                                                                                );
+                                                                                            },
+                                                                                        )}
+                                                                                    </td>
                                                                                     <td>
                                                                                         <img
                                                                                             className="cate-img "

@@ -8,7 +8,7 @@ type InputProps = {
     Id: string;
     AutoComplete: string;
     style?: string;
-    Value?: string;
+    Value?: string | number;
 };
 type ButtonProps = {
     Title: string;

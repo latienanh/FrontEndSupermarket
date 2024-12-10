@@ -6,16 +6,21 @@ interface GetAttributesResponseSuccess extends ResponseBase {
         totalPage: number;
     };
 }
+interface GetAllAttributesResponseSuccess extends ResponseBase {
+    listData: Attribute[];
+}
 
 interface GetAttributeByIdResponseSuccess extends ResponseBase {
     data: Attribute;
 }
 interface GetAttributeByIdResponseFailure extends ResponseBase {}
 interface GetAttributesResponseFailure extends ResponseBase {}
-
+interface GetAllAttributesResponseFailure extends ResponseBase {}
 export {
     GetAttributeByIdResponseFailure,
     GetAttributeByIdResponseSuccess,
     GetAttributesResponseSuccess,
     GetAttributesResponseFailure,
+    GetAllAttributesResponseFailure,
+    GetAllAttributesResponseSuccess,
 };

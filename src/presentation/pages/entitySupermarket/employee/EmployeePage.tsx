@@ -65,7 +65,7 @@ function EmployeePage() {
                 });
             }
 
-            dispatch(EmployeeService.fetchGetAll());
+            dispatch(EmployeeService.fetchGetPaging(paging));
             setPaging((prev) => {
                 return {
                     ...prev,

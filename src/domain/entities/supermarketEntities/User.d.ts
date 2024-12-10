@@ -9,5 +9,7 @@ export default interface User {
     lastName: string;
     fullName: string;
     image: string;
+    address: string;
+    isActive: boolean;
     roles: Role[];
 }

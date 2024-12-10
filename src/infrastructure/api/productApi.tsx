@@ -22,41 +22,53 @@ const apiProduct = {
         return res;
     },
     createProduct: async (axiosJWT: any, model: ProductCreateRequest) => {
+        console.log(model);
         const formData = new FormData();
-        formData.append('BarCode', model.barCode);
-        formData.append('Name', model.name);
-        formData.append('Slug', model.slug);
-        formData.append('Price', model.price.toString());
-        formData.append('Describe', model.describe);
+        formData.append('barCode', model.barCode);
+        formData.append('name', model.name);
+        formData.append('slug', model.slug);
+        formData.append('describe', model.describe);
+        formData.append('defaultUnit', JSON.stringify(model.defaultUnit));
+
         if (model.image) {
-            formData.append('Image', model.image);
+            formData.append('image', model.image);
         }
-        for (let a = 0; a < model.categoriesId.length; a++) {
-            formData.append(`CategoriesId[${a}]`, model.categoriesId[a]);
-        }
+        // for (let a = 0; a < model.categoriesId.length; a++) {
+        //     formData.append(`categoriesId[${a}]`, model.categoriesId[a]);
+        // }
+        formData.append(`categoriesId`, JSON.stringify(model.categoriesId));
         if (model.variants) {
+            formData.append('variants', JSON.stringify(model.variants));
             for (let a = 0; a < model.variants.length; a++) {
-                formData.append(`Variants[${a}].BarCode`, model.variants[a].barCode);
-                formData.append(`Variants[${a}].Name`, model.variants[a].name);
-                formData.append(`Variants[${a}].Slug`, model.variants[a].slug);
-                formData.append(`Variants[${a}].Price`, model.variants[a].price.toString());
-                formData.append(`Variants[${a}].Describe`, model.variants[a].describe);
                 if (model.variants[a].image) {
-                    formData.append(`Variants[${a}].Image`, model.variants[a].image as any);
-                }
-                if (model.variants[a].variantValues) {
-                    for (let i = 0; i < model.variants[a].variantValues.length; i++) {
-                        formData.append(
-                            `Variants[${a}].VariantValues[${i}].AttributeId`,
-                            model.variants[a].variantValues[i].attributeId,
-                        );
-                        formData.append(
-                            `Variants[${a}].VariantValues[${i}].VariantValue`,
-                            model.variants[a].variantValues[i].variantValue,
-                        );
-                    }
+                    formData.append(`variantImages`, model.variants[a].image as any);
                 }
             }
+            //     if (model.variants[a].image) {
+            //         formData.append(`variantImages`, model.variants[a].image as any);
+            //     }
+            // for (let a = 0; a < model.variants.length; a++) {
+            //     formData.append(`variants[${a}].barCode`, model.variants[a].barCode);
+            //     formData.append(`variants[${a}].name`, model.variants[a].name);
+            //     formData.append(`variants[${a}].slug`, model.variants[a].slug);
+            //     formData.append(`variants[${a}].price`, model.variants[a].price.toString());
+            //     formData.append(`variants[${a}].describe`, model.variants[a].describe);
+            //     if (model.variants[a].image) {
+            //         formData.append(`variantImages`, model.variants[a].image as any);
+            //     }
+            //     if (model.variants[a].variantValues) {
+            //         for (let i = 0; i < model.variants[a].variantValues.length; i++) {
+            //             formData.append(
+            //                 `variants[${a}].variantValues[${i}].attributeId`,
+            //                 model.variants[a].variantValues[i].attributeId,
+            //             );
+            //             formData.append(
+            //                 `variants[${a}].variantValues[${i}].variantValue`,
+            //                 model.variants[a].variantValues[i].variantValue,
+            //             );
+            //         }
+            //     }
+            // }
         }
 
         const res = await axiosJWT.post(`/${controllerName}`, formData, {

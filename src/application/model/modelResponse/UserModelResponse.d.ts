@@ -11,8 +11,11 @@ export interface GetMultipleUsersResponseSuccess extends ResponseBase {
         totalPage: number;
     };
 }
+
 export interface GetUserByIdResponseSuccess extends ResponseBase {
     data: User;
 }
 export interface GetUserByIdResponseFailure extends ResponseBase {}
 export interface GetAllUserResponseFailure extends ResponseBase {}
+
+export interface GetMultipleUsersResponseFailure extends ResponseBase {}

@@ -8,15 +8,53 @@ import { Role } from '~/domain/entities/supermarketEntities/Role';
 import { Link } from 'react-router-dom';
 import { URL_APP } from '~/presentation/router/Link';
 import Swal from 'sweetalert2';
+import { propsFetchPaging } from '~/application/model/modelRequest/FetchingPaging';
+import { PaginationControl } from '~/presentation/components/share';
 
 function UserPage() {
     const IMG_URL = process.env.REACT_APP_IMG_URL;
     const [hasEditDataChanged, setHasEditDataChanged] = useState(false);
     const dispatch = useDispatch<AppDispatch>();
     const userState = useSelector((state: RootState) => state.user);
+    const [paging, setPaging] = useState<propsFetchPaging>({
+        size: 2,
+        index: 0,
+    });
+    const handleClickNext = () => {
+        setPaging((prev) => {
+            const tempindex = prev.index;
+            if (userState.dataGetPagingUser.DataSuccess?.listData.totalPage) {
+                if (tempindex < userState.dataGetPagingUser.DataSuccess?.listData.totalPage - 1)
+                    return {
+                        ...prev,
+                        index: prev.index + 1,
+                    };
+            }
+            return prev;
+        });
+    };
+    const handleClickNumber = (a: number) => {
+        setPaging((prev) => {
+            return {
+                ...prev,
+                index: a - 1,
+            };
+        });
+    };
+    const handleClickPrev = () => {
+        setPaging((prev) => {
+            return {
+                ...prev,
+                index: prev.index - 1,
+            };
+        });
+    };
     useEffect(() => {
-        dispatch(UserService.fetchGetAll());
+        dispatch(UserService.fetchGetPaging(paging));
     }, []);
+    useEffect(() => {
+        dispatch(UserService.fetchGetPaging(paging));
+    }, [paging]);
     useEffect(() => {
         if (userState.dataDelete) {
             if (hasEditDataChanged) {
@@ -27,7 +65,13 @@ function UserPage() {
                 });
             }
 
-            dispatch(UserService.fetchGetAll());
+            dispatch(UserService.fetchGetPaging(paging));
+            setPaging((prev) => {
+                return {
+                    ...prev,
+                    index: 0,
+                };
+            });
         } else if (!userState.isLoading && userState.isError) {
             toast.error('Có lỗi xảy ra khi xoá');
         }
@@ -120,14 +164,16 @@ function UserPage() {
                                                         <th>Tên</th>
                                                         <th>Email</th>
                                                         <th>Số điện thoại</th>
+                                                        <th>Kích hoạt</th>
                                                         <th>Role</th>
                                                         <th>Hành động</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    {userState.dataGetAllUsers.DataSuccess?.listData &&
-                                                        userState.dataGetAllUsers.DataSuccess?.listData.length > 0 &&
-                                                        userState.dataGetAllUsers.DataSuccess?.listData.map(
+                                                    {userState.dataGetPagingUser.DataSuccess?.listData.data &&
+                                                        userState.dataGetPagingUser.DataSuccess?.listData.data.length >
+                                                            0 &&
+                                                        userState.dataGetPagingUser.DataSuccess?.listData.data.map(
                                                             (item, index) => {
                                                                 return (
                                                                     <tr key={`table-category-${index}`}>
@@ -154,6 +200,13 @@ function UserPage() {
                                                                         <td>{item.fullName}</td>
                                                                         <td>{item.email}</td>
                                                                         <td>{item.phoneNumber}</td>
+                                                                        <td>
+                                                                            {item.isActive ? (
+                                                                                <i className="fa-solid fa-circle-check text-success"></i>
+                                                                            ) : (
+                                                                                <i className="fa-solid fa-circle-xmark text-danger"></i>
+                                                                            )}
+                                                                        </td>
                                                                         <td>
                                                                             {item.roles?.map(
                                                                                 (itemRole: Role, index: number) => {
@@ -212,39 +265,13 @@ function UserPage() {
                             </div>
                         </div>
                     </div>
-                    <div className="card-footer border-top d-flex justify-content-center">
-                        <button
-                            className="btn btn-falcon-default btn-sm me-2"
-                            type="button"
-                            // disabled="disabled"
-                            data-bs-toggle="tooltip"
-                            data-bs-placement="top"
-                            title="Prev"
-                        >
-                            <span className="fas fa-chevron-left"></span>
-                        </button>
-                        <a className="btn btn-sm btn-falcon-default text-primary me-2" href="#!">
-                            1
-                        </a>
-                        <a className="btn btn-sm btn-falcon-default me-2" href="#!">
-                            2
-                        </a>
-                        <a className="btn btn-sm btn-falcon-default me-2" href="#!">
-                            <span className="fas fa-ellipsis-h"></span>
-                        </a>
-                        <a className="btn btn-sm btn-falcon-default me-2" href="#!">
-                            35
-                        </a>
-                        <button
-                            className="btn btn-falcon-default btn-sm"
-                            type="button"
-                            data-bs-toggle="tooltip"
-                            data-bs-placement="top"
-                            title="Next"
-                        >
-                            <span className="fas fa-chevron-right"></span>
-                        </button>
-                    </div>
+                    <PaginationControl
+                        index={paging.index}
+                        max={userState.dataGetPagingUser.DataSuccess?.listData.totalPage || 0}
+                        onClickPrev={handleClickPrev}
+                        onClickNext={handleClickNext}
+                        onclickNumber={handleClickNumber}
+                    ></PaginationControl>
                 </main>
             )}
         </>

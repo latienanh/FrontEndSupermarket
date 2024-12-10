@@ -8,15 +8,22 @@ interface GetMultipleCategoriesResponseSuccess extends ResponseBase {
     };
 }
 
+interface GetAllCategoriesResponseSuccess extends ResponseBase {
+    listData: Categories[];
+}
 interface GetCategoryByIdResponseSuccess extends ResponseBase {
     data: Category;
 }
 interface GetCategoryByIdResponseFailure extends ResponseBase {}
 interface GetMultipleCategoriesResponseFailure extends ResponseBase {}
-
+interface GetAllCategoriesResponseFailure extends ResponseBase {
+    listData: Categories[];
+}
 export {
     GetCategoryByIdResponseFailure,
     GetCategoryByIdResponseSuccess,
     GetMultipleCategoriesResponseSuccess,
     GetMultipleCategoriesResponseFailure,
+    GetAllCategoriesResponseFailure,
+    GetAllCategoriesResponseSuccess,
 };

@@ -2,17 +2,16 @@ import { ChangeEvent, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router';
 import { toast } from 'react-toastify';
+import { ErrorCustomer } from '~/application/model/modelErrorRequest/ErrorEntity';
+import { CustomerRequest } from '~/application/model/modelRequest/CustomerModelRequest';
 import { AppDispatch, RootState } from '~/application/redux/rootState';
-import { fetchAllRole } from '~/application/redux/slide/RoleSlide';
 import { CustomerService } from '~/application/redux/slide/CustomerSlide';
+import { MemberShipTypeService } from '~/application/redux/slide/MemberShipTypeSlide';
+import MemberShipType from '~/domain/entities/supermarketEntities/MemberShipType';
 import { ButtonCustome, InputCustome } from '~/presentation/components/share';
 import { URL_APP } from '~/presentation/router/Link';
 import { validateEmail, validateNumberPhone } from '~/presentation/utils';
 import { LoadingAuth } from '../../loading';
-import { CustomerRequest } from '~/application/model/modelRequest/CustomerModelRequest';
-import { ErrorCustomer } from '~/application/model/modelErrorRequest/ErrorEntity';
-import { MemberShipTypeService } from '~/application/redux/slide/MemberShipTypeSlide';
-import MemberShipType from '~/domain/entities/supermarketEntities/MemberShipType';
 
 function UpdateCustomer() {
     const { id } = useParams<{ id: string }>();
@@ -46,7 +45,7 @@ function UpdateCustomer() {
             email: customerState.dataGetCustomerById.DataSuccess?.data.email || '',
             address: customerState.dataGetCustomerById.DataSuccess?.data.address || '',
             phoneNumber: customerState.dataGetCustomerById.DataSuccess?.data.phoneNumber || '',
-            membershipTypeId: customerState.dataGetCustomerById.DataSuccess?.data.membershipType.id || '',
+            membershipTypeId: customerState.dataGetCustomerById.DataSuccess?.data.membershipTypeId || '',
         }));
     }, [customerState.dataGetCustomerById]);
 

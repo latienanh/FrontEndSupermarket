@@ -9,4 +9,5 @@ export default interface Customer {
     phoneNumber: string;
     email: string;
     membershipType: MemberShipType;
+    membershipTypeId: string;
 }

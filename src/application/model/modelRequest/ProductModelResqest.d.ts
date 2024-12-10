@@ -2,10 +2,11 @@ type ProductCreateRequest = {
     barCode: string;
     name: string;
     slug: string;
-    price: number;
     image: File | null;
     describe: string;
     categoriesId: string[];
+    defaultUnit: Unit;
+    additionalUnits?: Unit[];
     variants?: variantRequest[] | null;
 };
 type variantRequest = {
@@ -15,6 +16,7 @@ type variantRequest = {
     price: number;
     describe: string;
     image: File | null;
+
     variantValues: variantValueRequest[];
 };
 type variantValueRequest = {
@@ -28,8 +30,15 @@ type ProductUpdateRequest = {
     slug: string;
     price: number;
     image: File | null;
+    defaultUnit: Unit;
+    additionalUnits?: Unit[];
     describe: string;
     categoriesId: string[];
+};
+type Unit = {
+    name: string;
+    quantity: number;
+    price: number;
 };
 
 export { ProductCreateRequest, ProductUpdateRequest, variantRequest, variantValueRequest };

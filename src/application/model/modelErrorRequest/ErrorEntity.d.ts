@@ -13,12 +13,14 @@ type ErrorCreateUser = {
     lastName?: string;
     avatar?: string;
     email?: string;
+    address?: string;
     phoneNumber?: string;
     confilmPassword?: string;
     roles?: string;
 };
 type ErrorUpdateUser = {
     email?: string;
+    address?: string;
     phoneNumber?: string;
     firstName?: string;
     lastName?: string;
@@ -66,6 +68,8 @@ type ErrorProductUpdate = {
     image?: string;
     describe?: string;
     categoriesId?: string;
+    quantityDefault?: string;
+    unitNameDefault?: string;
 };
 type ErrorProductCreate = {
     barCode?: string;
@@ -75,6 +79,8 @@ type ErrorProductCreate = {
     image?: string;
     describe?: string;
     categoriesId?: string;
+    priceDefault?: string;
+    unitNameDefault?: string;
     variants?: ErrorVariantCreate[];
 };
 type ErrorVariantCreate = {

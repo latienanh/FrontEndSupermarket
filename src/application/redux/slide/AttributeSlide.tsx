@@ -2,6 +2,8 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { AttributeRequest } from '~/application/model/modelRequest/AttributeModelRequest';
 import { propsFetchPaging } from '~/application/model/modelRequest/FetchingPaging';
 import {
+    GetAllAttributesResponseFailure,
+    GetAllAttributesResponseSuccess,
     GetAttributeByIdResponseFailure,
     GetAttributeByIdResponseSuccess,
     GetAttributesResponseFailure,
@@ -94,6 +96,10 @@ export interface getAttributesState {
     DataSuccess: GetAttributesResponseSuccess | null;
     DataFailure: GetAttributesResponseFailure | null;
 }
+export interface getAllAttributesState {
+    DataSuccess: GetAllAttributesResponseSuccess | null;
+    DataFailure: GetAllAttributesResponseFailure | null;
+}
 export interface GetAttributeByIdState {
     DataSuccess: GetAttributeByIdResponseSuccess | null;
     DataFailure: GetAttributeByIdResponseFailure | null;
@@ -112,7 +118,7 @@ const initialAttributeState: GetAttributeByIdState = {
 };
 interface initialStateType {
     dataGetPagingAttribute: getAttributesState;
-    dataGetAll: getAttributesState;
+    dataGetAll: getAllAttributesState;
     dataGetAttributeById: GetAttributeByIdState;
     dataCreate: ResponseBase | null;
     dataDelete: ResponseBase | null;
@@ -156,14 +162,14 @@ export const AttributeSlice = createSlice({
                 state.isError = false;
             })
             .addCase(AttributeService.fetchGetAll.fulfilled, (state, action) => {
-                state.dataGetAll.DataSuccess = action.payload as unknown as GetAttributesResponseSuccess;
+                state.dataGetAll.DataSuccess = action.payload as unknown as GetAllAttributesResponseSuccess;
                 state.isLoading = false;
                 state.isError = false;
             })
             .addCase(AttributeService.fetchGetAll.rejected, (state, action) => {
                 state.isLoading = false;
                 state.isError = true;
-                state.dataGetAll.DataFailure = action.payload as GetAttributesResponseFailure;
+                state.dataGetAll.DataFailure = action.payload as GetAllAttributesResponseFailure;
             })
             .addCase(AttributeService.fetchCreate.pending, (state) => {
                 state.isLoading = true;
