@@ -10,6 +10,7 @@ type InvoiceView = {
 };
 type InvoiceDetailView = {
     productId: string;
+    productUnitId: string;
     quantityProduct: number;
     name: string;
     price: number;

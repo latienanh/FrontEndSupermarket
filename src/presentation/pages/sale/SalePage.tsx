@@ -1,34 +1,38 @@
-import { Autocomplete, Box, Input, Stack, TableCell, TableRow, TextField } from '@mui/material';
+import {
+    Autocomplete,
+    Box,
+    FormControl,
+    Input,
+    InputLabel,
+    MenuItem,
+    Select,
+    Stack,
+    TableCell,
+    TableRow,
+    TextField,
+} from '@mui/material';
+import Paper from '@mui/material/Paper';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableContainer from '@mui/material/TableContainer';
+import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
-import {
-    ErrorInvoiceDetailView,
-    ErrorInvoiceView,
-    ErrorStockInDetailView,
-    ErrorStockInView,
-} from '~/application/model/modelErrorRequest/ErrorEntity';
+import { TableComponents, TableVirtuoso } from 'react-virtuoso';
+import { ErrorInvoiceDetailView, ErrorInvoiceView } from '~/application/model/modelErrorRequest/ErrorEntity';
+import { InvoiceDetailView, InvoiceView } from '~/application/model/modelView/SaleModelView';
 import { AppDispatch, RootState } from '~/application/redux/rootState';
+import { CustomerService } from '~/application/redux/slide/CustomerSlide';
 import { EmployeeService } from '~/application/redux/slide/EmployeeSlide';
 import { ProductService } from '~/application/redux/slide/ProductSlide';
-import { SupplierService } from '~/application/redux/slide/SupplierSlide';
-import Employee from '~/domain/entities/supermarketEntities/Employee';
-import { Product } from '~/domain/entities/supermarketEntities/Product';
-import Supplier from '~/domain/entities/supermarketEntities/Supplier';
-import { ButtonCustome } from '~/presentation/components/share';
-import { URL_APP } from '~/presentation/router/Link';
-import * as React from 'react';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableContainer from '@mui/material/TableContainer';
-import Paper from '@mui/material/Paper';
-import { TableVirtuoso, TableComponents } from 'react-virtuoso';
-import { error } from 'console';
-import { InvoiceDetailView, InvoiceView } from '~/application/model/modelView/SaleModelView';
-import { CustomerService } from '~/application/redux/slide/CustomerSlide';
 import { SaleService } from '~/application/redux/slide/SaleSlide';
 import Customer from '~/domain/entities/supermarketEntities/Customer';
+import Employee from '~/domain/entities/supermarketEntities/Employee';
+import { Product } from '~/domain/entities/supermarketEntities/Product';
+import { ButtonCustome } from '~/presentation/components/share';
+import { URL_APP } from '~/presentation/router/Link';
 
 interface ColumnStockInDetail {
     dataKey: keyof InvoiceDetailView;
@@ -41,6 +45,12 @@ const ColumnStockInDetails: ColumnStockInDetail[] = [
         width: 150,
         label: 'Tên',
         dataKey: 'name',
+    },
+    {
+        width: 120,
+        label: 'Đơn vị',
+        dataKey: 'productUnitId',
+        numeric: true,
     },
     {
         width: 120,
@@ -175,6 +185,7 @@ function SalePage() {
                 paymentStatus: invoiceAdd.paymentStatus,
                 invoiceDetails: invoiceAdd.invoiceDetails.map((item) => ({
                     productId: item.productId,
+                    productUnitId: item.productUnitId,
                     quantity: item.quantity,
                     unitPrice: item.unitPrice,
                 })),
@@ -250,20 +261,22 @@ function SalePage() {
     const handleChangeProduct = (event: any, newValue: Product[] | null) => {
         handleError('', 'invoiceDetail');
         if (newValue) {
-            setInvoiceAdd((prevStockIn) => {
+            setInvoiceAdd((prevInvoice) => {
                 let newInvoiceDetails: InvoiceDetailView[] = [];
                 newValue.forEach((value) => {
+                    const defaultUnit = value.productUnits[0];
                     newInvoiceDetails.push({
                         productId: value.id,
+                        productUnitId: defaultUnit.id,
                         name: value.name,
                         quantityProduct: value.mainQuantity,
-                        price: value.price,
+                        price: defaultUnit.prices[0].salePrice,
                         quantity: 0,
-                        unitPrice: value.price,
+                        unitPrice: defaultUnit.prices[0].salePrice,
                     });
                 });
                 return {
-                    ...prevStockIn,
+                    ...prevInvoice,
                     invoiceDetails: newInvoiceDetails,
                 };
             });
@@ -281,6 +294,37 @@ function SalePage() {
                 };
             });
         }
+    };
+
+    const handleProductUnitChange = (event: any, index: number) => {
+        const newUnitId = event.target.value as string;
+        setInvoiceAdd((prevInvoice) => {
+            const updatedInvoiceDetails = prevInvoice.invoiceDetails.map((invoiceDetail, i) => {
+                if (i === index) {
+                    const product = productState.dataGetAll.DataSuccess?.listData.find(
+                        (p) => p.id === invoiceDetail.productId,
+                    );
+                    const newUnit = product?.productUnits.find((u) => u.id === newUnitId);
+                    if (newUnit) {
+                        const newPrice = newUnit.prices[0]?.salePrice || 0;
+                        const newQuantityProduct = Math.floor(product!.mainQuantity / newUnit.conversionRate);
+                        return {
+                            ...invoiceDetail,
+                            productUnitId: newUnitId,
+                            price: newPrice,
+                            unitPrice: newPrice,
+                            quantityProduct: newQuantityProduct,
+                        };
+                    }
+                }
+                return invoiceDetail;
+            });
+
+            return {
+                ...prevInvoice,
+                invoiceDetails: updatedInvoiceDetails,
+            };
+        });
     };
 
     return (
@@ -429,54 +473,84 @@ function SalePage() {
                                                             {ColumnStockInDetails.map((column) => {
                                                                 if (column.dataKey === 'quantity') {
                                                                     return (
-                                                                        <>
-                                                                            <TableCell
-                                                                                key={column.dataKey}
-                                                                                align={
-                                                                                    column.numeric || false
-                                                                                        ? 'right'
-                                                                                        : 'left'
+                                                                        <TableCell
+                                                                            key={column.dataKey}
+                                                                            align={
+                                                                                column.numeric || false
+                                                                                    ? 'right'
+                                                                                    : 'left'
+                                                                            }
+                                                                        >
+                                                                            <Input
+                                                                                type="number"
+                                                                                value={row[column.dataKey]}
+                                                                                onChange={(event) =>
+                                                                                    handleChangeProductQuantity(
+                                                                                        event,
+                                                                                        _index,
+                                                                                    )
                                                                                 }
-                                                                            >
-                                                                                <Input
-                                                                                    type="number"
-                                                                                    defaultValue={row[column.dataKey]}
+                                                                            />
+                                                                            {errors.invoiceDetails &&
+                                                                            errors.invoiceDetails[_index] ? (
+                                                                                <label className="bg text-danger">
+                                                                                    {
+                                                                                        errors.invoiceDetails[_index]
+                                                                                            .quantity
+                                                                                    }
+                                                                                </label>
+                                                                            ) : (
+                                                                                ''
+                                                                            )}
+                                                                        </TableCell>
+                                                                    );
+                                                                } else if (column.dataKey === 'productUnitId') {
+                                                                    return (
+                                                                        <TableCell
+                                                                            key={column.dataKey}
+                                                                            align={column.numeric ? 'right' : 'left'}
+                                                                        >
+                                                                            <FormControl fullWidth>
+                                                                                <InputLabel>Đơn vị</InputLabel>
+                                                                                <Select
+                                                                                    value={row[column.dataKey]}
                                                                                     onChange={(event) =>
-                                                                                        handleChangeProductQuantity(
+                                                                                        handleProductUnitChange(
                                                                                             event,
                                                                                             _index,
                                                                                         )
                                                                                     }
-                                                                                />
-                                                                                {errors.invoiceDetails &&
-                                                                                errors.invoiceDetails[_index] ? (
-                                                                                    <label className="bg text-danger">
-                                                                                        {
-                                                                                            errors.invoiceDetails[
-                                                                                                _index
-                                                                                            ].quantity
-                                                                                        }
-                                                                                    </label>
-                                                                                ) : (
-                                                                                    ''
-                                                                                )}
-                                                                            </TableCell>
-                                                                        </>
+                                                                                >
+                                                                                    {productState.dataGetAll.DataSuccess?.listData
+                                                                                        .find(
+                                                                                            (product) =>
+                                                                                                product.id ===
+                                                                                                row.productId,
+                                                                                        )
+                                                                                        ?.productUnits.map((unit) => (
+                                                                                            <MenuItem
+                                                                                                key={unit.id}
+                                                                                                value={unit.id}
+                                                                                            >
+                                                                                                {unit.unit.unitName}
+                                                                                            </MenuItem>
+                                                                                        ))}
+                                                                                </Select>
+                                                                            </FormControl>
+                                                                        </TableCell>
                                                                     );
                                                                 } else {
                                                                     return (
-                                                                        <>
-                                                                            <TableCell
-                                                                                key={column.dataKey}
-                                                                                align={
-                                                                                    column.numeric || false
-                                                                                        ? 'right'
-                                                                                        : 'left'
-                                                                                }
-                                                                            >
-                                                                                {row[column.dataKey]}
-                                                                            </TableCell>
-                                                                        </>
+                                                                        <TableCell
+                                                                            key={column.dataKey}
+                                                                            align={
+                                                                                column.numeric || false
+                                                                                    ? 'right'
+                                                                                    : 'left'
+                                                                            }
+                                                                        >
+                                                                            {row[column.dataKey]}
+                                                                        </TableCell>
                                                                     );
                                                                 }
                                                             })}

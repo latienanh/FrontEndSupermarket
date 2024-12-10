@@ -7,6 +7,7 @@ type InvoiceRequest = {
 };
 type InvoiceDetailRequest = {
     productId: string;
+    productUnitId: string;
     quantity: number;
     unitPrice: number;
 };
