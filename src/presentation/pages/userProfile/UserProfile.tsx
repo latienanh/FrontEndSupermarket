@@ -9,7 +9,6 @@ import { UserEditRequest } from '~/application/model/modelRequest/UserModelReque
 import { AppDispatch, RootState } from '~/application/redux/rootState';
 import { UserService } from '~/application/redux/slide/UserSlide';
 import { Role } from '~/domain/entities/supermarketEntities/Role';
-import User from '~/domain/entities/supermarketEntities/User';
 import { ButtonCustome, InputCustome, InputImageCustome } from '~/presentation/components/share';
 import { URL_APP } from '~/presentation/router/Link';
 import { validateEmail, validateNumberPhone } from '~/presentation/utils';
