@@ -1,5 +1,6 @@
 import { propsFetchPaging } from '~/application/model/modelRequest/FetchingPaging';
 import { ProductCreateRequest, ProductUpdateRequest } from '~/application/model/modelRequest/ProductModelResqest';
+import { ModleCreateProduct } from '~/presentation/pages/entitySupermarket/product/AddProduct';
 const databaseName = process.env.REACT_APP_DATABASE_NAME;
 const controllerName = 'Product';
 const apiProduct = {
@@ -21,27 +22,27 @@ const apiProduct = {
         const res = await axiosJWT.get(`/${controllerName}/${databaseName}/${id}`);
         return res;
     },
-    createProduct: async (axiosJWT: any, model: ProductCreateRequest) => {
+    createProduct: async (axiosJWT: any, model: ModleCreateProduct) => {
         console.log(model);
         const formData = new FormData();
-        formData.append('barCode', model.barCode);
-        formData.append('name', model.name);
-        formData.append('slug', model.slug);
-        formData.append('describe', model.describe);
-        formData.append('defaultUnit', JSON.stringify(model.defaultUnit));
-
-        if (model.image) {
-            formData.append('image', model.image);
+        formData.append('barCode', model.productCreate.barCode);
+        formData.append('name', model.productCreate.name);
+        formData.append('slug', model.productCreate.slug);
+        formData.append('describe', model.productCreate.describe);
+        formData.append('defaultUnit', JSON.stringify(model.productCreate.defaultUnit));
+        formData.append('additionalUnits', JSON.stringify(model.units));
+        if (model.productCreate.image) {
+            formData.append('image', model.productCreate.image);
         }
         // for (let a = 0; a < model.categoriesId.length; a++) {
         //     formData.append(`categoriesId[${a}]`, model.categoriesId[a]);
         // }
-        formData.append(`categoriesId`, JSON.stringify(model.categoriesId));
-        if (model.variants) {
-            formData.append('variants', JSON.stringify(model.variants));
-            for (let a = 0; a < model.variants.length; a++) {
-                if (model.variants[a].image) {
-                    formData.append(`variantImages`, model.variants[a].image as any);
+        formData.append(`categoriesId`, JSON.stringify(model.productCreate.categoriesId));
+        if (model.productCreate.variants) {
+            formData.append('variants', JSON.stringify(model.productCreate.variants));
+            for (let a = 0; a < model.productCreate.variants.length; a++) {
+                if (model.productCreate.variants[a].image) {
+                    formData.append(`variantImages`, model.productCreate.variants[a].image as any);
                 }
             }
             //     if (model.variants[a].image) {

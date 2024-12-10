@@ -11,6 +11,7 @@ type StockInView = {
 };
 type StockInDetailView = {
     productId: string;
+    productUnitId: string;
     quantityProduct: number;
     name: string;
     price: number;

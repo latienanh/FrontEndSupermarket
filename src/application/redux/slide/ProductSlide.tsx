@@ -13,6 +13,7 @@ import {
 } from '~/application/model/modelResponse/ProductModelResponse';
 import { apiProduct } from '~/infrastructure/api/productApi';
 import { ProductCreateRequest, ProductUpdateRequest } from '~/application/model/modelRequest/ProductModelResqest';
+import { ModleCreateProduct } from '~/presentation/pages/entitySupermarket/product/AddProduct';
 
 export const ProductService = {
     fetchGetAll: createAsyncThunk('Product/fetchGetAll', async (_, thunkAPI) => {
@@ -53,7 +54,7 @@ export const ProductService = {
             }
         }
     }),
-    fetchCreate: createAsyncThunk('Product/fetchCreateProduct', async (model: ProductCreateRequest, thunkAPI) => {
+    fetchCreate: createAsyncThunk('Product/fetchCreateProduct', async (model: ModleCreateProduct, thunkAPI) => {
         const { rejectWithValue, dispatch, getState } = thunkAPI;
         try {
             const axiosJwt = createAxios(dispatch, getState);

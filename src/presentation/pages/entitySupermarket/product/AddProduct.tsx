@@ -1,4 +1,5 @@
 /* eslint-disable react/style-prop-object */
+import { Button, FormControl, FormControlLabel, InputLabel, MenuItem, Select, Switch, TextField } from '@mui/material';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
@@ -18,7 +19,15 @@ type dataAttribute = {
     data: string | null;
     dataSplit: string[] | null;
 };
-
+export interface UnitRequest {
+    name: string | null;
+    quantity: number | null;
+    price: number | null;
+}
+export interface ModleCreateProduct {
+    productCreate: ProductCreateRequest;
+    units: UnitRequest[];
+}
 function AddProduct() {
     const [hasEditDataChanged, setHasEditDataChanged] = useState(false);
     const [showAttribute, setShowAttribute] = useState(false);
@@ -44,6 +53,20 @@ function AddProduct() {
         },
         variants: [],
     });
+    const [units, setUnits] = useState<UnitRequest[]>([]);
+    const [isConversionEnabled, setIsConversionEnabled] = useState(false);
+
+    const handleAddUnit = () => {
+        setUnits([...units, { name: '', quantity: 0, price: 0 }]);
+        console.log(units);
+    };
+
+    const handleInputChange = (index: number, field: keyof UnitRequest, value: any) => {
+        const newUnits = [...units];
+        newUnits[index][field] = value;
+        setUnits(newUnits);
+        console.log(units);
+    };
     const [errors, setErrors] = useState<ErrorProductCreate>({});
     const navigate = useNavigate();
     useEffect(() => {
@@ -151,7 +174,11 @@ function AddProduct() {
     };
     const regisiter = async () => {
         try {
-            dispatch(ProductService.fetchCreate(productCreate));
+            const model: ModleCreateProduct = {
+                productCreate: productCreate,
+                units: units,
+            };
+            dispatch(ProductService.fetchCreate(model));
             setHasEditDataChanged(true);
         } catch (error) {
             console.log(error);
@@ -843,6 +870,72 @@ function AddProduct() {
                                             </>
                                         )}
                                     </div>
+                                </div>
+                            </div>
+                            <div className="card card-static-2 mb-30">
+                                <div className="p-4">
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={isConversionEnabled}
+                                                onChange={(e) => setIsConversionEnabled(e.target.checked)}
+                                                color="primary"
+                                            />
+                                        }
+                                        label="Thêm đơn vị quy đổi"
+                                    />
+                                    {isConversionEnabled &&
+                                        units.map((unit, index) => (
+                                            <div
+                                                key={index}
+                                                style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}
+                                            >
+                                                {/* <FormControl variant="outlined" style={{ minWidth: 120 }}>
+                                                    <InputLabel>Chọn phiên bản</InputLabel>
+                                                    <Select
+                                                        value={unit.version}
+                                                        onChange={(e) =>
+                                                            handleInputChange(index, 'version', e.target.value)
+                                                        }
+                                                        label="Chọn phiên bản"
+                                                    >
+                                                        <MenuItem value="">
+                                                            <em>None</em>
+                                                        </MenuItem>
+                                                        <MenuItem value="version1">Version 1</MenuItem>
+                                                        <MenuItem value="version2">Version 2</MenuItem>
+                                                
+                                                    </Select>
+                                                </FormControl> */}
+                                                <TextField
+                                                    label="Đơn vị quy đổi"
+                                                    variant="outlined"
+                                                    value={unit.name}
+                                                    onChange={(e) => handleInputChange(index, 'name', e.target.value)}
+                                                />
+                                                <TextField
+                                                    label="Số lượng"
+                                                    type="number"
+                                                    variant="outlined"
+                                                    value={unit.quantity}
+                                                    onChange={(e) =>
+                                                        handleInputChange(index, 'quantity', e.target.value)
+                                                    }
+                                                />
+                                                <TextField
+                                                    label="Giá"
+                                                    type="number"
+                                                    variant="outlined"
+                                                    value={unit.price}
+                                                    onChange={(e) => handleInputChange(index, 'price', e.target.value)}
+                                                />
+                                            </div>
+                                        ))}
+                                    {isConversionEnabled && (
+                                        <Button variant="outlined" color="primary" onClick={handleAddUnit}>
+                                            Thêm đơn vị khác
+                                        </Button>
+                                    )}
                                 </div>
                             </div>
                         </div>

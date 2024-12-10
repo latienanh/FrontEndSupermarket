@@ -8,6 +8,20 @@ import { AppDispatch, RootState } from '~/application/redux/rootState';
 import { CategoryService } from '~/application/redux/slide/CategorySlide';
 import { ButtonCustome, Describe, PaginationControl } from '~/presentation/components/share';
 import { URL_APP } from '~/presentation/router/Link';
+import Box from '@mui/material/Box';
+import Collapse from '@mui/material/Collapse';
+import IconButton from '@mui/material/IconButton';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Typography from '@mui/material/Typography';
+import Paper from '@mui/material/Paper';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+
 type ShowDescribe = {
     isShow: boolean;
     describe: string;
@@ -20,6 +34,15 @@ function CategoryPage() {
         describe: '',
         isShow: false,
     });
+    const [open, setOpen] = useState(false);
+    const [openRows, setOpenRows] = useState<boolean[]>([]); // Lưu trạng thái mở/đóng của từng hàng
+    const handleRowClick = (index: number) => {
+        setOpenRows((prev) => {
+            const newOpenRows = [...prev];
+            newOpenRows[index] = !newOpenRows[index]; // Chuyển trạng thái mở/đóng của hàng cụ thể
+            return newOpenRows;
+        });
+    };
     const dataCategory = useSelector((state: RootState) => state.category);
     const [paging, setPaging] = useState<propsFetchPaging>({
         size: 2,
@@ -31,6 +54,7 @@ function CategoryPage() {
             isShow: false,
         }));
     };
+
     const handleDeleteCategory = (id: string) => {
         Swal.fire({
             title: 'Bạn chắc chắn chứ?',
@@ -109,17 +133,11 @@ function CategoryPage() {
             {' '}
             <main>
                 <div className="container-fluid">
-                    <h2 className="mt-30 page-title">Categories</h2>
-                    <ol className="breadcrumb mb-30">
-                        <li className="breadcrumb-item">
-                            <a href="index.html">Dashboard</a>
-                        </li>
-                        <li className="breadcrumb-item active">Categories</li>
-                    </ol>
+                    <h2 className="mt-30 page-title">Loại sản phẩm</h2>
                     <div className="row justify-content-between">
                         <div className="col-lg-12">
                             <Link to={URL_APP.AddCategory} className="add-btn hover-btn">
-                                Add New
+                                'Thêm mới sản phẩm'
                             </Link>
                         </div>
 
@@ -144,206 +162,268 @@ function CategoryPage() {
                                 </div>
                                 <div className="card-body-table">
                                     <div className="table-responsive">
-                                        <table className="table ucp-table table-hover">
-                                            <thead>
-                                                <tr>
-                                                    <th></th>
-                                                    <th>
-                                                        <input type="checkbox" className="check-all" />
-                                                    </th>
-                                                    <th>ID</th>
-                                                    <th>Name</th>
-                                                    <th>Ảnh</th>
-                                                    <th>Mô Tả</th>
-                                                    <th>Hành động</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {dataCategory.dataGetPagingCategory.DataSuccess?.listData &&
-                                                    dataCategory.dataGetPagingCategory.DataSuccess?.listData.data
-                                                        .length > 0 &&
-                                                    dataCategory.dataGetPagingCategory.DataSuccess?.listData.data.map(
-                                                        (item, index) => {
-                                                            return (
-                                                                <>
-                                                                    {' '}
-                                                                    <tr key={`table-category-${index}`}>
-                                                                        <td></td>
-                                                                        <td>
-                                                                            <input
-                                                                                type="checkbox"
-                                                                                className="check-item"
-                                                                                name="ids[]"
-                                                                                value="11"
-                                                                            />
-                                                                        </td>
-                                                                        <td>{item.id}</td>
-                                                                        <td>{item.name}</td>
-                                                                        <td>
-                                                                            <img
-                                                                                className="cate-img "
-                                                                                src={`${IMG_URL}${item.image}`}
-                                                                                alt=""
-                                                                                style={{ width: 50, height: 50 }}
-                                                                            />
-                                                                        </td>
-                                                                        <td>
-                                                                            <ButtonCustome
-                                                                                Title="Xem"
-                                                                                BackgroundColor="#3caffb"
-                                                                                HoverColor="#2a7aaf"
-                                                                                onClick={() => {
-                                                                                    // handleShow();
-                                                                                    setDescribe((prev) => ({
-                                                                                        ...prev,
-                                                                                        isShow: true,
-                                                                                        describe:
-                                                                                            item.describe ||
-                                                                                            'Chưa có gì',
-                                                                                    }));
-                                                                                }}
-                                                                                Icon=" fa-regular fa-eye"
-                                                                            />
-                                                                        </td>
-
-                                                                        <td>
-                                                                            <button
-                                                                                className="btn btn-falcon-default btn-sm dropdown-toggle ms-2 dropdown-caret-none"
-                                                                                type="button"
-                                                                                data-bs-toggle="dropdown"
-                                                                                aria-haspopup="true"
-                                                                                aria-expanded="false"
-                                                                            >
-                                                                                <span className="fas fa-ellipsis-h"></span>
-                                                                            </button>
-                                                                            <div className="dropdown-menu">
-                                                                                <Link
-                                                                                    className="dropdown-item"
-                                                                                    to={`${URL_APP.UpdateCategory}/${item.id}`}
+                                        <TableContainer component={Paper}>
+                                            <Table aria-label="collapsible table">
+                                                <TableHead>
+                                                    <TableRow>
+                                                        <TableCell />
+                                                        <TableCell>STT</TableCell>
+                                                        <TableCell align="center">Tên sản phẩm</TableCell>
+                                                        <TableCell align="center">Ảnh</TableCell>
+                                                        <TableCell align="center">Mô tả</TableCell>
+                                                        <TableCell align="center">Hành động</TableCell>
+                                                    </TableRow>
+                                                </TableHead>
+                                                <TableBody>
+                                                    {dataCategory.dataGetPagingCategory.DataSuccess?.listData &&
+                                                        dataCategory.dataGetPagingCategory.DataSuccess?.listData.data
+                                                            .length > 0 &&
+                                                        dataCategory.dataGetPagingCategory.DataSuccess?.listData.data.map(
+                                                            (item, index) => {
+                                                                return (
+                                                                    <>
+                                                                        <TableRow
+                                                                            sx={{ '& > *': { borderBottom: 'unset' } }}
+                                                                        >
+                                                                            <TableCell>
+                                                                                <IconButton
+                                                                                    aria-label="expand row"
+                                                                                    size="small"
+                                                                                    onClick={() =>
+                                                                                        handleRowClick(index)
+                                                                                    }
                                                                                 >
-                                                                                    Edit
-                                                                                </Link>
-                                                                                <Link
-                                                                                    className="dropdown-item"
-                                                                                    to={`${URL_APP.AddCategory}/${item.id}`}
-                                                                                >
-                                                                                    Thêm loại thấp hơn
-                                                                                </Link>
-                                                                                <div className="dropdown-divider"></div>
-                                                                                <a
-                                                                                    className="dropdown-item text-danger"
+                                                                                    {openRows[index] ? (
+                                                                                        <KeyboardArrowUpIcon />
+                                                                                    ) : (
+                                                                                        <KeyboardArrowDownIcon />
+                                                                                    )}
+                                                                                </IconButton>
+                                                                            </TableCell>
+                                                                            <TableCell component="th" scope="row">
+                                                                                {index + 1 + paging.index * paging.size}
+                                                                            </TableCell>
+                                                                            <TableCell align="center">
+                                                                                {item.name}
+                                                                            </TableCell>
+                                                                            <TableCell align="center">
+                                                                                <img
+                                                                                    className="cate-img "
+                                                                                    src={`${IMG_URL}${item.image}`}
+                                                                                    alt=""
+                                                                                    style={{ width: 50, height: 50 }}
+                                                                                />
+                                                                            </TableCell>
+                                                                            <TableCell align="center">
+                                                                                {' '}
+                                                                                <ButtonCustome
+                                                                                    Title="Xem"
+                                                                                    BackgroundColor="#3caffb"
+                                                                                    HoverColor="#2a7aaf"
                                                                                     onClick={() => {
-                                                                                        handleDeleteCategory(item.id);
+                                                                                        // handleShow();
+                                                                                        setDescribe((prev) => ({
+                                                                                            ...prev,
+                                                                                            isShow: true,
+                                                                                            describe:
+                                                                                                item.describe ||
+                                                                                                'Chưa có gì',
+                                                                                        }));
                                                                                     }}
+                                                                                    Icon=" fa-regular fa-eye"
+                                                                                />
+                                                                            </TableCell>
+                                                                            <TableCell align="center">
+                                                                                <button
+                                                                                    className="btn btn-falcon-default btn-sm dropdown-toggle ms-2 dropdown-caret-none"
+                                                                                    type="button"
+                                                                                    data-bs-toggle="dropdown"
+                                                                                    aria-haspopup="true"
+                                                                                    aria-expanded="false"
                                                                                 >
-                                                                                    Delete Category
-                                                                                </a>
-                                                                            </div>
-                                                                        </td>
-                                                                    </tr>
-                                                                    {item.categoryChildren != null &&
-                                                                        item.categoryChildren.map((itemchi, index) => {
-                                                                            return (
-                                                                                <tr
-                                                                                    key={`table-category-children-${index}`}
-                                                                                    style={{
-                                                                                        margin: 20,
-                                                                                        // backgroundColor: 'red',
-                                                                                    }}
+                                                                                    <span className="fas fa-ellipsis-h"></span>
+                                                                                </button>
+                                                                                <div className="dropdown-menu">
+                                                                                    <Link
+                                                                                        className="dropdown-item"
+                                                                                        to={`${URL_APP.UpdateCategory}/${item.id}`}
+                                                                                    >
+                                                                                        Edit
+                                                                                    </Link>
+                                                                                    <Link
+                                                                                        className="dropdown-item"
+                                                                                        to={`${URL_APP.AddCategory}/${item.id}`}
+                                                                                    >
+                                                                                        Thêm loại thấp hơn
+                                                                                    </Link>
+                                                                                    <div className="dropdown-divider"></div>
+                                                                                    <a
+                                                                                        className="dropdown-item text-danger"
+                                                                                        onClick={() => {
+                                                                                            handleDeleteCategory(
+                                                                                                item.id,
+                                                                                            );
+                                                                                        }}
+                                                                                    >
+                                                                                        Delete Category
+                                                                                    </a>
+                                                                                </div>
+                                                                            </TableCell>
+                                                                        </TableRow>
+                                                                        <TableRow>
+                                                                            <TableCell
+                                                                                style={{
+                                                                                    paddingBottom: 0,
+                                                                                    paddingTop: 0,
+                                                                                }}
+                                                                                colSpan={6}
+                                                                            >
+                                                                                <Collapse
+                                                                                    in={openRows[index]}
+                                                                                    timeout="auto"
+                                                                                    unmountOnExit
                                                                                 >
-                                                                                    <td>
-                                                                                        <div
-                                                                                            style={{
-                                                                                                marginTop: 20,
-                                                                                                transform:
-                                                                                                    'rotate(90deg) scaleY(-1)',
-                                                                                                display: 'flex',
-                                                                                                justifyContent:
-                                                                                                    'center',
-                                                                                                alignContent: 'center',
-                                                                                            }}
+                                                                                    <Box sx={{ margin: 1 }}>
+                                                                                        <Typography
+                                                                                            variant="h6"
+                                                                                            gutterBottom
+                                                                                            component="div"
                                                                                         >
-                                                                                            <i className="fa-solid fa-arrow-turn-down"></i>
-                                                                                        </div>
-                                                                                    </td>
-                                                                                    <td>
-                                                                                        <input
-                                                                                            type="checkbox"
-                                                                                            className="check-item"
-                                                                                            name="ids[]"
-                                                                                            value="11"
-                                                                                        />
-                                                                                    </td>
-                                                                                    <td>{itemchi.id}</td>
-                                                                                    <td>{itemchi.name}</td>
-                                                                                    <td>
-                                                                                        <img
-                                                                                            className="cate-img "
-                                                                                            src={`${IMG_URL}${itemchi.image}`}
-                                                                                            alt=""
-                                                                                            style={{
-                                                                                                width: 50,
-                                                                                                height: 50,
-                                                                                            }}
-                                                                                        />
-                                                                                    </td>
-                                                                                    <td>
-                                                                                        <ButtonCustome
-                                                                                            Title="Xem"
-                                                                                            BackgroundColor="#3caffb"
-                                                                                            HoverColor="#2a7aaf"
-                                                                                            onClick={() => {
-                                                                                                // handleShow();
-                                                                                                setDescribe((prev) => ({
-                                                                                                    ...prev,
-                                                                                                    isShow: true,
-                                                                                                    describe:
-                                                                                                        itemchi.describe ||
-                                                                                                        'Chưa có gì',
-                                                                                                }));
-                                                                                            }}
-                                                                                            Icon=" fa-regular fa-eye"
-                                                                                        />
-                                                                                    </td>
-                                                                                    <td>
-                                                                                        <button
-                                                                                            className="btn btn-falcon-default btn-sm dropdown-toggle ms-2 dropdown-caret-none"
-                                                                                            type="button"
-                                                                                            data-bs-toggle="dropdown"
-                                                                                            aria-haspopup="true"
-                                                                                            aria-expanded="false"
+                                                                                            Sản phẩm biến thể
+                                                                                        </Typography>
+                                                                                        <Table
+                                                                                            size="small"
+                                                                                            aria-label="purchases"
                                                                                         >
-                                                                                            <span className="fas fa-ellipsis-h"></span>
-                                                                                        </button>
-                                                                                        <div className="dropdown-menu">
-                                                                                            <Link
-                                                                                                className="dropdown-item"
-                                                                                                to={`${URL_APP.UpdateCategory}/${itemchi.id}`}
-                                                                                            >
-                                                                                                Edit
-                                                                                            </Link>
-                                                                                            <div className="dropdown-divider"></div>
-                                                                                            <a
-                                                                                                className="dropdown-item text-danger"
-                                                                                                onClick={() => {
-                                                                                                    handleDeleteCategory(
-                                                                                                        itemchi.id,
-                                                                                                    );
-                                                                                                }}
-                                                                                            >
-                                                                                                Delete Category
-                                                                                            </a>
-                                                                                        </div>
-                                                                                    </td>
-                                                                                </tr>
-                                                                            );
-                                                                        })}
-                                                                </>
-                                                            );
-                                                        },
-                                                    )}
-                                            </tbody>
-                                        </table>
+                                                                                            <TableHead>
+                                                                                                <TableRow>
+                                                                                                    <TableCell align="center">
+                                                                                                        STT
+                                                                                                    </TableCell>
+                                                                                                    <TableCell align="center">
+                                                                                                        Tên sản phẩm
+                                                                                                    </TableCell>
+                                                                                                    <TableCell align="center">
+                                                                                                        Ảnh
+                                                                                                    </TableCell>
+                                                                                                    <TableCell align="center">
+                                                                                                        Mô tả
+                                                                                                    </TableCell>
+                                                                                                    <TableCell align="center">
+                                                                                                        Hành động
+                                                                                                    </TableCell>
+                                                                                                </TableRow>
+                                                                                            </TableHead>
+                                                                                            <TableBody>
+                                                                                                {item.categoryChildren !=
+                                                                                                    null &&
+                                                                                                    item.categoryChildren.map(
+                                                                                                        (
+                                                                                                            itemchi,
+                                                                                                            index,
+                                                                                                        ) => (
+                                                                                                            <TableRow
+                                                                                                                key={
+                                                                                                                    index
+                                                                                                                }
+                                                                                                            >
+                                                                                                                <TableCell
+                                                                                                                    component="th"
+                                                                                                                    scope="row"
+                                                                                                                    align="center"
+                                                                                                                >
+                                                                                                                    {index +
+                                                                                                                        1}
+                                                                                                                </TableCell>
+                                                                                                                <TableCell
+                                                                                                                    component="th"
+                                                                                                                    scope="row"
+                                                                                                                    align="center"
+                                                                                                                >
+                                                                                                                    {
+                                                                                                                        itemchi.name
+                                                                                                                    }
+                                                                                                                </TableCell>
+                                                                                                                <TableCell align="center">
+                                                                                                                    <img
+                                                                                                                        className="cate-img "
+                                                                                                                        src={`${IMG_URL}${itemchi.image}`}
+                                                                                                                        alt=""
+                                                                                                                        style={{
+                                                                                                                            width: 50,
+                                                                                                                            height: 50,
+                                                                                                                        }}
+                                                                                                                    />
+                                                                                                                </TableCell>
+                                                                                                                <TableCell align="center">
+                                                                                                                    <ButtonCustome
+                                                                                                                        Title="Xem"
+                                                                                                                        BackgroundColor="#3caffb"
+                                                                                                                        HoverColor="#2a7aaf"
+                                                                                                                        onClick={() => {
+                                                                                                                            // handleShow();
+                                                                                                                            setDescribe(
+                                                                                                                                (
+                                                                                                                                    prev,
+                                                                                                                                ) => ({
+                                                                                                                                    ...prev,
+                                                                                                                                    isShow: true,
+                                                                                                                                    describe:
+                                                                                                                                        itemchi.describe ||
+                                                                                                                                        'Chưa có gì',
+                                                                                                                                }),
+                                                                                                                            );
+                                                                                                                        }}
+                                                                                                                        Icon=" fa-regular fa-eye"
+                                                                                                                    />
+                                                                                                                </TableCell>
+                                                                                                                <TableCell align="center">
+                                                                                                                    <button
+                                                                                                                        className="btn btn-falcon-default btn-sm dropdown-toggle ms-2 dropdown-caret-none"
+                                                                                                                        type="button"
+                                                                                                                        data-bs-toggle="dropdown"
+                                                                                                                        aria-haspopup="true"
+                                                                                                                        aria-expanded="false"
+                                                                                                                    >
+                                                                                                                        <span className="fas fa-ellipsis-h"></span>
+                                                                                                                    </button>
+                                                                                                                    <div className="dropdown-menu">
+                                                                                                                        <Link
+                                                                                                                            className="dropdown-item"
+                                                                                                                            to={`${URL_APP.UpdateCategory}/${itemchi.id}`}
+                                                                                                                        >
+                                                                                                                            Edit
+                                                                                                                        </Link>
+                                                                                                                        <div className="dropdown-divider"></div>
+                                                                                                                        <a
+                                                                                                                            className="dropdown-item text-danger"
+                                                                                                                            onClick={() => {
+                                                                                                                                handleDeleteCategory(
+                                                                                                                                    itemchi.id,
+                                                                                                                                );
+                                                                                                                            }}
+                                                                                                                        >
+                                                                                                                            Delete
+                                                                                                                            Category
+                                                                                                                        </a>
+                                                                                                                    </div>
+                                                                                                                </TableCell>
+                                                                                                            </TableRow>
+                                                                                                        ),
+                                                                                                    )}
+                                                                                            </TableBody>
+                                                                                        </Table>
+                                                                                    </Box>
+                                                                                </Collapse>
+                                                                            </TableCell>
+                                                                        </TableRow>
+                                                                    </>
+                                                                );
+                                                            },
+                                                        )}
+                                                </TableBody>
+                                            </Table>
+                                        </TableContainer>
                                     </div>
                                 </div>
                             </div>

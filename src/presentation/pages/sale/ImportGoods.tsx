@@ -1,4 +1,16 @@
-import { Autocomplete, Box, Input, Stack, TableCell, TableRow, TextField } from '@mui/material';
+import {
+    Autocomplete,
+    Box,
+    FormControl,
+    Input,
+    InputLabel,
+    MenuItem,
+    Select,
+    Stack,
+    TableCell,
+    TableRow,
+    TextField,
+} from '@mui/material';
 import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -21,6 +33,7 @@ import { Product } from '~/domain/entities/supermarketEntities/Product';
 import Supplier from '~/domain/entities/supermarketEntities/Supplier';
 import { ButtonCustome } from '~/presentation/components/share';
 import { URL_APP } from '~/presentation/router/Link';
+import { ProductUnit } from '../../../domain/entities/supermarketEntities/Product';
 
 interface ColumnStockInDetail {
     dataKey: keyof StockInDetailView;
@@ -33,6 +46,11 @@ const ColumnStockInDetails: ColumnStockInDetail[] = [
         width: 150,
         label: 'Tên',
         dataKey: 'name',
+    },
+    {
+        width: 120,
+        label: 'Đơn vị',
+        dataKey: 'productUnitId',
     },
     {
         width: 120,
@@ -166,6 +184,7 @@ function ImportGoods() {
             });
         }
         if (isValid) {
+            console.log(stockInAdd);
             regisiter();
         }
     };
@@ -177,6 +196,7 @@ function ImportGoods() {
                 note: stockInAdd.note || 'Không có',
                 stockInDetails: stockInAdd.stockInDetails.map((item) => ({
                     productId: item.productId,
+                    productUnitId: item.productUnitId,
                     quantityReceived: item.quantityReceived,
                     unitPriceReceived: item.unitPriceReceived,
                 })),
@@ -268,19 +288,48 @@ function ImportGoods() {
             };
         });
     };
+    const handleProductUnitChange = (event: any, index: number) => {
+        const newUnitId = event.target.value as string;
+        setStockInAdd((prevState) => {
+            const updatedStockInDetail = prevState.stockInDetails.map((stockInDetail, i) => {
+                if (i === index) {
+                    const product = productState.dataGetAll.DataSuccess?.listData.find(
+                        (p) => p.id === stockInDetail.productId,
+                    );
+                    const newUnit = product?.productUnits.find((u) => u.id === newUnitId);
+                    const newPrice = newUnit?.prices[0]?.salePrice || 0;
+                    return {
+                        ...stockInDetail,
+                        productUnitId: newUnitId,
+                        price: newPrice,
+                        // Do not change unitPriceReceived here
+                    };
+                }
+                return stockInDetail;
+            });
+
+            return {
+                ...prevState,
+                stockInDetails: updatedStockInDetail,
+            };
+        });
+    };
     const handleChangeProduct = (event: any, newValue: Product[] | null) => {
         handleError('', 'stockInDetail');
         if (newValue) {
             setStockInAdd((prevStockIn) => {
                 let newStockInDetail: StockInDetailView[] = [];
                 newValue.forEach((value) => {
+                    const productUnit = value.productUnits && value.productUnits[0];
+                    const price = productUnit && productUnit.prices && productUnit.prices[0];
                     newStockInDetail.push({
                         productId: value.id,
+                        productUnitId: productUnit ? productUnit.id : '',
                         name: value.name,
                         quantityProduct: value.mainQuantity,
-                        price: value.price,
+                        price: price ? price.salePrice : 0,
                         quantityReceived: 0,
-                        unitPriceReceived: 0,
+                        unitPriceReceived: 0, // Set default unitPriceReceived to 0
                     });
                 });
                 return {
@@ -483,6 +532,41 @@ function ImportGoods() {
                                                                                 )}
                                                                             </TableCell>
                                                                         </>
+                                                                    );
+                                                                } else if (column.dataKey === 'productUnitId') {
+                                                                    return (
+                                                                        <TableCell
+                                                                            key={column.dataKey}
+                                                                            align={column.numeric ? 'right' : 'left'}
+                                                                        >
+                                                                            <FormControl fullWidth>
+                                                                                <InputLabel>Đơn vị</InputLabel>
+                                                                                <Select
+                                                                                    value={row[column.dataKey]}
+                                                                                    onChange={(event) =>
+                                                                                        handleProductUnitChange(
+                                                                                            event,
+                                                                                            _index,
+                                                                                        )
+                                                                                    }
+                                                                                >
+                                                                                    {productState.dataGetAll.DataSuccess?.listData
+                                                                                        .find(
+                                                                                            (product) =>
+                                                                                                product.id ===
+                                                                                                row.productId,
+                                                                                        )
+                                                                                        ?.productUnits.map((unit) => (
+                                                                                            <MenuItem
+                                                                                                key={unit.id}
+                                                                                                value={unit.id}
+                                                                                            >
+                                                                                                {unit.unit.unitName}
+                                                                                            </MenuItem>
+                                                                                        ))}
+                                                                                </Select>
+                                                                            </FormControl>
+                                                                        </TableCell>
                                                                     );
                                                                 } else if (column.dataKey === 'unitPriceReceived') {
                                                                     return (

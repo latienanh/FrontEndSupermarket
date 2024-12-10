@@ -1,14 +1,14 @@
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '~/application/redux/rootState';
 import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { URL_APP } from '~/presentation/router/Link';
-import { ButtonCustome, Describe, PaginationControl } from '~/presentation/components/share';
-import Swal from 'sweetalert2';
 import { toast } from 'react-toastify';
+import Swal from 'sweetalert2';
 import { propsFetchPaging } from '~/application/model/modelRequest/FetchingPaging';
+import { AppDispatch, RootState } from '~/application/redux/rootState';
 import { ProductService } from '~/application/redux/slide/ProductSlide';
 import { ProductUnit } from '~/domain/entities/supermarketEntities/Product';
+import { ButtonCustome, Describe, PaginationControl } from '~/presentation/components/share';
+import { URL_APP } from '~/presentation/router/Link';
 
 type ShowDescribe = {
     isShow: boolean;
@@ -29,6 +29,7 @@ function ProductPage() {
         size: 2,
         index: 0,
     });
+
     const handleClose = () => {
         setDescribe((prev) => ({
             ...prev,

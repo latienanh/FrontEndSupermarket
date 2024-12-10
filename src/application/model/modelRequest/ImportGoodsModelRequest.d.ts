@@ -6,6 +6,7 @@ type StockInRequest = {
 };
 type StockInDetailRequest = {
     productId: string;
+    productUnitId: string;
     quantityReceived: number;
     unitPriceReceived: number;
 };
