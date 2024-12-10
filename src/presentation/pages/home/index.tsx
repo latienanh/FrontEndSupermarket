@@ -32,12 +32,12 @@ function Home() {
     //     };
     // }, []);
 
-    // useEffect(() => {
-    //     dispatch(SaleService.fetchGetSaleChart());
-    //     dispatch(SaleService.fetchGetAllInvoice());
-    //     dispatch(SaleService.fetchGetSaleDateNow());
-    //     console.log('da goi du lieu');
-    // }, []);
+    useEffect(() => {
+        dispatch(SaleService.fetchGetSaleChart());
+        // dispatch(SaleService.fetchGetAllInvoice());
+        // dispatch(SaleService.fetchGetSaleDateNow());
+        console.log('da goi du lieu');
+    }, []);
     return (
         <>
             {' '}
@@ -50,8 +50,8 @@ function Home() {
                         <ol className="breadcrumb mb-30">
                             <li className="breadcrumb-item active">Dashboard</li>
                         </ol>
-                        {/* <div className="row">
-                            <div className="col-xl-6 col-md-6">
+                        <div className="row">
+                            {/* <div className="col-xl-6 col-md-6">
                                 <div className="dashboard-report-card info">
                                     <div className="card-content">
                                         <span className="card-title">Số lượng hoá đơn hôm nay</span>
@@ -76,7 +76,7 @@ function Home() {
                                         <i className="fas fa-money-bill rpt_icon"></i>
                                     </div>
                                 </div>
-                            </div>
+                            </div> */}
                             <div className="col-xl-12 col-md-12">
                                 <div className="card card-static-1 mb-30">
                                     <div className="card-body">
@@ -122,7 +122,7 @@ function Home() {
                                     </div>
                                 </div>
                             </div>
-                            <div className="col-xl-12 col-md-12">
+                            {/* <div className="col-xl-12 col-md-12">
                                 <div className="card card-static-2 mb-30">
                                     <div className="card-title-2 pb-3">
                                         <h4>Hoá đơn </h4>
@@ -184,8 +184,8 @@ function Home() {
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div> */}
+                            </div> */}
+                        </div>
                     </div>
                     <Outlet></Outlet>
                 </main>

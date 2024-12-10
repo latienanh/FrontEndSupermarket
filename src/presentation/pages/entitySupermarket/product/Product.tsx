@@ -9,7 +9,19 @@ import { ProductService } from '~/application/redux/slide/ProductSlide';
 import { ProductUnit } from '~/domain/entities/supermarketEntities/Product';
 import { ButtonCustome, Describe, PaginationControl } from '~/presentation/components/share';
 import { URL_APP } from '~/presentation/router/Link';
-
+import Box from '@mui/material/Box';
+import Collapse from '@mui/material/Collapse';
+import IconButton from '@mui/material/IconButton';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Typography from '@mui/material/Typography';
+import Paper from '@mui/material/Paper';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 type ShowDescribe = {
     isShow: boolean;
     describe: string;
@@ -23,7 +35,14 @@ function ProductPage() {
         describe: '',
         isShow: false,
     });
-    console.log(describe);
+    const [openRows, setOpenRows] = useState<boolean[]>([]); // Lưu trạng thái mở/đóng của từng hàng
+    const handleRowClick = (index: number) => {
+        setOpenRows((prev) => {
+            const newOpenRows = [...prev];
+            newOpenRows[index] = !newOpenRows[index]; // Chuyển trạng thái mở/đóng của hàng cụ thể
+            return newOpenRows;
+        });
+    };
     const productState = useSelector((state: RootState) => state.product);
     const [paging, setPaging] = useState<propsFetchPaging>({
         size: 2,
@@ -114,17 +133,11 @@ function ProductPage() {
             {' '}
             <main>
                 <div className="container-fluid">
-                    <h2 className="mt-30 page-title">Product</h2>
-                    <ol className="breadcrumb mb-30">
-                        <li className="breadcrumb-item">
-                            <a href="index.html">Dashboard</a>
-                        </li>
-                        <li className="breadcrumb-item active">Product</li>
-                    </ol>
+                    <h2 className="mt-30 page-title">Sản phẩm</h2>
                     <div className="row justify-content-between">
                         <div className="col-lg-12">
                             <Link to={URL_APP.AddProduct} className="add-btn hover-btn">
-                                Add New
+                                Thêm mới sản phẩm
                             </Link>
                         </div>
 
@@ -145,319 +158,429 @@ function ProductPage() {
                         <div className="col-lg-12 col-md-12">
                             <div className="card card-static-2 mt-30 mb-30">
                                 <div className="card-title-2  pb-3">
-                                    <h4>All Product</h4>
+                                    <h4>Tất cả sản phẩm</h4>
                                 </div>
                                 <div className="card-body-table">
                                     <div className="table-responsive">
-                                        <table className="table ucp-table table-hover">
-                                            <thead>
-                                                <tr>
-                                                    <th></th>
-                                                    <th>
-                                                        <input type="checkbox" className="check-all" />
-                                                    </th>
-                                                    {/* <th>ID</th> */}
-                                                    <th>Name</th>
-                                                    <th>Barcode</th>
-                                                    <th>Mô tả</th>
-                                                    <th>Số lượng</th>
-                                                    <th>Giá bán</th>
-
-                                                    <th>Category</th>
-                                                    <th>Slug</th>
-                                                    <th>Ảnh</th>
-                                                    <th>Hành động</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {productState.dataGetPagingProduct.DataSuccess?.listData &&
-                                                    productState.dataGetPagingProduct.DataSuccess?.listData.data
-                                                        .length > 0 &&
-                                                    productState.dataGetPagingProduct.DataSuccess?.listData.data.map(
-                                                        (item, index) => {
-                                                            return (
-                                                                <>
-                                                                    {' '}
-                                                                    <tr key={`table-category-${index}`}>
-                                                                        <td></td>
-                                                                        <td>
-                                                                            <input
-                                                                                type="checkbox"
-                                                                                className="check-item"
-                                                                                name="ids[]"
-                                                                                value="11"
-                                                                            />
-                                                                        </td>
-                                                                        {/* <td>{item.id}</td> */}
-                                                                        <td>{item.name}</td>
-                                                                        <td>{item.barCode}</td>
-                                                                        <td>
-                                                                            <ButtonCustome
-                                                                                Title="Xem"
-                                                                                BackgroundColor="#3caffb"
-                                                                                HoverColor="#2a7aaf"
-                                                                                onClick={() => {
-                                                                                    // handleShow();
-
-                                                                                    setDescribe((prev) => ({
-                                                                                        ...prev,
-                                                                                        isShow: true,
-                                                                                        describe:
-                                                                                            item.describe ||
-                                                                                            'Chưa có gì',
-                                                                                    }));
-                                                                                }}
-                                                                                Icon=" fa-regular fa-eye"
-                                                                            />
-                                                                        </td>
-                                                                        <td>{item.mainQuantity}</td>
-                                                                        <td>{item.price + ' VNĐ'}</td>
-                                                                        <td>
-                                                                            {item.categories?.map(
-                                                                                (itemCategory: any, index: number) => {
-                                                                                    return (
+                                        <TableContainer component={Paper}>
+                                            <Table aria-label="collapsible table">
+                                                <TableHead>
+                                                    <TableRow>
+                                                        <TableCell />
+                                                        <TableCell>STT</TableCell>
+                                                        <TableCell align="center">Tên sản phẩm</TableCell>
+                                                        <TableCell align="center">Barcode</TableCell>
+                                                        <TableCell align="center">Mô tả</TableCell>
+                                                        <TableCell align="center">Số lượng</TableCell>
+                                                        <TableCell align="center">Loại</TableCell>
+                                                        <TableCell align="center">Đơn vị:Giá</TableCell>
+                                                        <TableCell align="center">Ảnh</TableCell>
+                                                        <TableCell align="center">Hành động</TableCell>
+                                                    </TableRow>
+                                                </TableHead>
+                                                <TableBody>
+                                                    {productState.dataGetPagingProduct.DataSuccess?.listData &&
+                                                        productState.dataGetPagingProduct.DataSuccess?.listData.data
+                                                            .length > 0 &&
+                                                        productState.dataGetPagingProduct.DataSuccess?.listData.data.map(
+                                                            (item, index) => {
+                                                                return (
+                                                                    <>
+                                                                        <TableRow
+                                                                            sx={{ '& > *': { borderBottom: 'unset' } }}
+                                                                        >
+                                                                            <TableCell>
+                                                                                <IconButton
+                                                                                    aria-label="expand row"
+                                                                                    size="small"
+                                                                                    onClick={() =>
+                                                                                        handleRowClick(index)
+                                                                                    }
+                                                                                >
+                                                                                    {openRows[index] ? (
+                                                                                        <KeyboardArrowUpIcon />
+                                                                                    ) : (
+                                                                                        <KeyboardArrowDownIcon />
+                                                                                    )}
+                                                                                </IconButton>
+                                                                            </TableCell>
+                                                                            <TableCell component="th" scope="row">
+                                                                                {index + 1 + paging.index * paging.size}
+                                                                            </TableCell>
+                                                                            <TableCell align="center">
+                                                                                {item.name}
+                                                                            </TableCell>
+                                                                            <TableCell align="center">
+                                                                                {item.barCode}
+                                                                            </TableCell>
+                                                                            <TableCell align="center">
+                                                                                {' '}
+                                                                                <ButtonCustome
+                                                                                    Title="Xem"
+                                                                                    BackgroundColor="#3caffb"
+                                                                                    HoverColor="#2a7aaf"
+                                                                                    onClick={() => {
+                                                                                        // handleShow();
+                                                                                        setDescribe((prev) => ({
+                                                                                            ...prev,
+                                                                                            isShow: true,
+                                                                                            describe:
+                                                                                                item.describe ||
+                                                                                                'Chưa có gì',
+                                                                                        }));
+                                                                                    }}
+                                                                                    Icon=" fa-regular fa-eye"
+                                                                                />
+                                                                            </TableCell>
+                                                                            <TableCell align="center">
+                                                                                {item.mainQuantity}
+                                                                            </TableCell>
+                                                                            <TableCell align="center">
+                                                                                {item.productUnits?.map(
+                                                                                    (
+                                                                                        itemProductUnit: ProductUnit,
+                                                                                        index: number,
+                                                                                    ) => (
                                                                                         <span
                                                                                             key={index}
                                                                                             className="badge-item badge-status m-1"
                                                                                         >
-                                                                                            {itemCategory.name}
-                                                                                        </span>
-                                                                                    );
-                                                                                },
-                                                                            )}
-                                                                        </td>
-                                                                        <td>
-                                                                            {item.productUnits?.map(
-                                                                                (
-                                                                                    itemProductUnit: ProductUnit,
-                                                                                    index: number,
-                                                                                ) => {
-                                                                                    return (
-                                                                                        <span
-                                                                                            key={index}
-                                                                                            className="badge-item badge-status m-1"
-                                                                                        >
-                                                                                            {
-                                                                                                itemProductUnit.unit
-                                                                                                    .unitName
-                                                                                            }
-                                                                                            {itemProductUnit.prices.map(
-                                                                                                (p) => p.salePrice,
+                                                                                            {itemProductUnit.unit
+                                                                                                ?.unitName ||
+                                                                                                'N/A'}{' '}
+                                                                                            :
+                                                                                            {itemProductUnit.prices?.map(
+                                                                                                (p, priceIndex) => (
+                                                                                                    <span
+                                                                                                        key={priceIndex}
+                                                                                                    >
+                                                                                                        {p.salePrice ||
+                                                                                                            '0'}
+                                                                                                    </span>
+                                                                                                ),
                                                                                             )}
                                                                                         </span>
-                                                                                    );
-                                                                                },
-                                                                            )}
-                                                                        </td>
-                                                                        <td>{item.slug}</td>
-                                                                        <td>
-                                                                            <img
-                                                                                className="cate-img "
-                                                                                src={`${IMG_URL}${item.image}`}
-                                                                                alt=""
-                                                                                style={{ width: 50, height: 50 }}
-                                                                            />
-                                                                        </td>
+                                                                                    ),
+                                                                                )}
+                                                                            </TableCell>
 
-                                                                        <td>
-                                                                            <button
-                                                                                className="btn btn-falcon-default btn-sm dropdown-toggle ms-2 dropdown-caret-none"
-                                                                                type="button"
-                                                                                data-bs-toggle="dropdown"
-                                                                                aria-haspopup="true"
-                                                                                aria-expanded="false"
+                                                                            <TableCell align="center">
+                                                                                {item.slug}
+                                                                            </TableCell>
+                                                                            <TableCell align="center">
+                                                                                <img
+                                                                                    className="cate-img "
+                                                                                    src={`${IMG_URL}${item.image}`}
+                                                                                    alt=""
+                                                                                    style={{ width: 50, height: 50 }}
+                                                                                />
+                                                                            </TableCell>
+                                                                            <TableCell align="center">
+                                                                                <button
+                                                                                    className="btn btn-falcon-default btn-sm dropdown-toggle ms-2 dropdown-caret-none"
+                                                                                    type="button"
+                                                                                    data-bs-toggle="dropdown"
+                                                                                    aria-haspopup="true"
+                                                                                    aria-expanded="false"
+                                                                                >
+                                                                                    <span className="fas fa-ellipsis-h"></span>
+                                                                                </button>
+                                                                                <div className="dropdown-menu">
+                                                                                    <Link
+                                                                                        className="dropdown-item"
+                                                                                        to={`${URL_APP.UpdateCategory}/${item.id}`}
+                                                                                    >
+                                                                                        Edit
+                                                                                    </Link>
+                                                                                    <Link
+                                                                                        className="dropdown-item"
+                                                                                        to={`${URL_APP.AddCategory}/${item.id}`}
+                                                                                    >
+                                                                                        Thêm loại thấp hơn
+                                                                                    </Link>
+                                                                                    <div className="dropdown-divider"></div>
+                                                                                    <a
+                                                                                        className="dropdown-item text-danger"
+                                                                                        onClick={() => {
+                                                                                            handleDeleteCategory(
+                                                                                                item.id,
+                                                                                            );
+                                                                                        }}
+                                                                                    >
+                                                                                        Delete Category
+                                                                                    </a>
+                                                                                </div>
+                                                                            </TableCell>
+                                                                        </TableRow>
+                                                                        <TableRow>
+                                                                            <TableCell
+                                                                                style={{
+                                                                                    paddingBottom: 0,
+                                                                                    paddingTop: 0,
+                                                                                }}
+                                                                                colSpan={6}
                                                                             >
-                                                                                <span className="fas fa-ellipsis-h"></span>
-                                                                            </button>
-                                                                            <div className="dropdown-menu">
-                                                                                <Link
-                                                                                    className="dropdown-item"
-                                                                                    to={`${URL_APP.UpdateProduct}/${item.id}`}
+                                                                                <Collapse
+                                                                                    in={openRows[index]}
+                                                                                    timeout="auto"
+                                                                                    unmountOnExit
                                                                                 >
-                                                                                    Sửa sản phẩm
-                                                                                </Link>
-                                                                                <div className="dropdown-divider"></div>
-                                                                                <a
-                                                                                    className="dropdown-item text-danger"
-                                                                                    onClick={() => {
-                                                                                        handleDeleteCategory(item.id);
-                                                                                    }}
-                                                                                >
-                                                                                    Xoá sản phẩm
-                                                                                </a>
-                                                                            </div>
-                                                                        </td>
-                                                                    </tr>
-                                                                    {item.variants != null &&
-                                                                        item.variants.map((itemVariant, index) => {
-                                                                            return (
-                                                                                <tr
-                                                                                    key={`table-category-children-${index}`}
-                                                                                    style={{
-                                                                                        margin: 20,
-                                                                                        // backgroundColor: 'red',
-                                                                                    }}
-                                                                                >
-                                                                                    <td>
-                                                                                        <div
-                                                                                            style={{
-                                                                                                marginTop: 20,
-                                                                                                transform:
-                                                                                                    'rotate(90deg) scaleY(-1)',
-                                                                                                display: 'flex',
-                                                                                                justifyContent:
-                                                                                                    'center',
-                                                                                                alignContent: 'center',
-                                                                                            }}
+                                                                                    <Box sx={{ margin: 1 }}>
+                                                                                        <Typography
+                                                                                            variant="h6"
+                                                                                            gutterBottom
+                                                                                            component="div"
                                                                                         >
-                                                                                            <i className="fa-solid fa-arrow-turn-down"></i>
-                                                                                        </div>
-                                                                                    </td>
-                                                                                    <td>
-                                                                                        <input
-                                                                                            type="checkbox"
-                                                                                            className="check-item"
-                                                                                            name="ids[]"
-                                                                                            value="11"
-                                                                                        />
-                                                                                    </td>
-                                                                                    {/* <td>{itemVariant.id}</td> */}
-                                                                                    <td>
-                                                                                        {itemVariant.name}
-                                                                                        {itemVariant.variantValues.map(
-                                                                                            (itemVariantValue) => {
-                                                                                                return (
-                                                                                                    <>
-                                                                                                        {'-'}
-                                                                                                        <span className="badge-item badge-status m-1">
-                                                                                                            {
-                                                                                                                itemVariantValue.attributeValueName
-                                                                                                            }
-                                                                                                        </span>
-                                                                                                    </>
-                                                                                                );
-                                                                                            },
-                                                                                        )}
-                                                                                    </td>
-                                                                                    <td>{itemVariant.barCode}</td>
-                                                                                    <td>
-                                                                                        <ButtonCustome
-                                                                                            Title="Xem"
-                                                                                            BackgroundColor="#3caffb"
-                                                                                            HoverColor="#2a7aaf"
-                                                                                            onClick={() => {
-                                                                                                // handleShow();
+                                                                                            Sản phẩm biến thể
+                                                                                        </Typography>
+                                                                                        <Table
+                                                                                            size="medium"
+                                                                                            aria-label="purchases"
+                                                                                        >
+                                                                                            <TableHead>
+                                                                                                <TableRow>
+                                                                                                    <TableCell>
+                                                                                                        STT
+                                                                                                    </TableCell>
+                                                                                                    <TableCell align="center">
+                                                                                                        Tên sản phẩm
+                                                                                                    </TableCell>
+                                                                                                    <TableCell align="center">
+                                                                                                        Barcode
+                                                                                                    </TableCell>
+                                                                                                    <TableCell align="center">
+                                                                                                        Mô tả
+                                                                                                    </TableCell>
+                                                                                                    <TableCell align="center">
+                                                                                                        Số lượng
+                                                                                                    </TableCell>
+                                                                                                    <TableCell align="center">
+                                                                                                        Loại
+                                                                                                    </TableCell>
+                                                                                                    <TableCell align="center">
+                                                                                                        Đơn vị:Giá
+                                                                                                    </TableCell>
+                                                                                                    <TableCell align="center">
+                                                                                                        Ảnh
+                                                                                                    </TableCell>
+                                                                                                    <TableCell align="center">
+                                                                                                        Hành động
+                                                                                                    </TableCell>
+                                                                                                </TableRow>
+                                                                                            </TableHead>
+                                                                                            <TableBody>
+                                                                                                {item.variants !=
+                                                                                                    null &&
+                                                                                                    item.variants.map(
+                                                                                                        (
+                                                                                                            itemVariant,
+                                                                                                            index,
+                                                                                                        ) => (
+                                                                                                            <TableRow
+                                                                                                                key={
+                                                                                                                    index
+                                                                                                                }
+                                                                                                            >
+                                                                                                                <TableCell
+                                                                                                                    component="th"
+                                                                                                                    scope="row"
+                                                                                                                    align="center"
+                                                                                                                >
+                                                                                                                    {index +
+                                                                                                                        1}
+                                                                                                                </TableCell>
+                                                                                                                <TableCell
+                                                                                                                    component="th"
+                                                                                                                    scope="row"
+                                                                                                                    align="center"
+                                                                                                                >
+                                                                                                                    {
+                                                                                                                        itemVariant.name
+                                                                                                                    }
+                                                                                                                    {itemVariant.variantValues.map(
+                                                                                                                        (
+                                                                                                                            itemVariantValue,
+                                                                                                                        ) => {
+                                                                                                                            return (
+                                                                                                                                <>
+                                                                                                                                    {
+                                                                                                                                        '-'
+                                                                                                                                    }
+                                                                                                                                    <span className="badge-item badge-status m-1">
+                                                                                                                                        {
+                                                                                                                                            itemVariantValue.attributeValueName
+                                                                                                                                        }
+                                                                                                                                    </span>
+                                                                                                                                </>
+                                                                                                                            );
+                                                                                                                        },
+                                                                                                                    )}
+                                                                                                                </TableCell>
+                                                                                                                <TableCell
+                                                                                                                    component="th"
+                                                                                                                    scope="row"
+                                                                                                                    align="center"
+                                                                                                                >
+                                                                                                                    {
+                                                                                                                        itemVariant.barCode
+                                                                                                                    }
+                                                                                                                </TableCell>
+                                                                                                                <TableCell align="center">
+                                                                                                                    <ButtonCustome
+                                                                                                                        Title="Xem"
+                                                                                                                        BackgroundColor="#3caffb"
+                                                                                                                        HoverColor="#2a7aaf"
+                                                                                                                        onClick={() => {
+                                                                                                                            // handleShow();
+                                                                                                                            setDescribe(
+                                                                                                                                (
+                                                                                                                                    prev,
+                                                                                                                                ) => ({
+                                                                                                                                    ...prev,
+                                                                                                                                    isShow: true,
+                                                                                                                                    describe:
+                                                                                                                                        itemVariant.describe ||
+                                                                                                                                        'Chưa có gì',
+                                                                                                                                }),
+                                                                                                                            );
+                                                                                                                        }}
+                                                                                                                    />
+                                                                                                                </TableCell>
+                                                                                                                <TableCell
+                                                                                                                    component="th"
+                                                                                                                    scope="row"
+                                                                                                                    align="center"
+                                                                                                                >
+                                                                                                                    {
+                                                                                                                        itemVariant.mainQuantity
+                                                                                                                    }
+                                                                                                                </TableCell>
+                                                                                                                <TableCell
+                                                                                                                    component="th"
+                                                                                                                    scope="row"
+                                                                                                                    align="center"
+                                                                                                                >
+                                                                                                                    {itemVariant.categories?.map(
+                                                                                                                        (
+                                                                                                                            itemCategory: any,
+                                                                                                                            index: number,
+                                                                                                                        ) => {
+                                                                                                                            return (
+                                                                                                                                <span
+                                                                                                                                    key={
+                                                                                                                                        index
+                                                                                                                                    }
+                                                                                                                                    className="badge-item badge-status m-1"
+                                                                                                                                >
+                                                                                                                                    {
+                                                                                                                                        itemCategory.name
+                                                                                                                                    }
+                                                                                                                                </span>
+                                                                                                                            );
+                                                                                                                        },
+                                                                                                                    )}
+                                                                                                                </TableCell>
+                                                                                                                <TableCell
+                                                                                                                    component="th"
+                                                                                                                    scope="row"
+                                                                                                                    align="center"
+                                                                                                                >
+                                                                                                                    {itemVariant.productUnits?.map(
+                                                                                                                        (
+                                                                                                                            itemProductUnit: ProductUnit,
+                                                                                                                            index: number,
+                                                                                                                        ) => {
+                                                                                                                            return (
+                                                                                                                                <span
+                                                                                                                                    key={
+                                                                                                                                        index
+                                                                                                                                    }
+                                                                                                                                    className="badge-item badge-status m-1"
+                                                                                                                                >
+                                                                                                                                    {
+                                                                                                                                        itemProductUnit
+                                                                                                                                            .unit
+                                                                                                                                            .unitName
+                                                                                                                                    }
 
-                                                                                                setDescribe((prev) => ({
-                                                                                                    ...prev,
-                                                                                                    isShow: true,
-                                                                                                    describe:
-                                                                                                        itemVariant.describe ||
-                                                                                                        'Chưa có gì',
-                                                                                                }));
-                                                                                            }}
-                                                                                            Icon=" fa-regular fa-eye"
-                                                                                        />
-                                                                                    </td>
-                                                                                    <td>{itemVariant.mainQuantity}</td>
-                                                                                    <td>
-                                                                                        {itemVariant.price + ' VNĐ'}
-                                                                                    </td>
-                                                                                    <td>
-                                                                                        {itemVariant.categories?.map(
-                                                                                            (
-                                                                                                itemCategory: any,
-                                                                                                index: number,
-                                                                                            ) => {
-                                                                                                return (
-                                                                                                    <span
-                                                                                                        key={index}
-                                                                                                        className="badge-item badge-status m-1"
-                                                                                                    >
-                                                                                                        {
-                                                                                                            itemCategory.name
-                                                                                                        }
-                                                                                                    </span>
-                                                                                                );
-                                                                                            },
-                                                                                        )}
-                                                                                    </td>
-                                                                                    <td>{itemVariant.slug}</td>
-                                                                                    <td>
-                                                                                        {itemVariant.productUnits?.map(
-                                                                                            (
-                                                                                                itemProductUnit: ProductUnit,
-                                                                                                index: number,
-                                                                                            ) => {
-                                                                                                return (
-                                                                                                    <span
-                                                                                                        key={index}
-                                                                                                        className="badge-item badge-status m-1"
-                                                                                                    >
-                                                                                                        {
-                                                                                                            itemProductUnit
-                                                                                                                .unit
-                                                                                                                .unitName
-                                                                                                        }
-                                                                                                        {itemProductUnit.prices.map(
-                                                                                                            (p) =>
-                                                                                                                p.salePrice,
-                                                                                                        )}
-                                                                                                    </span>
-                                                                                                );
-                                                                                            },
-                                                                                        )}
-                                                                                    </td>
-                                                                                    <td>
-                                                                                        <img
-                                                                                            className="cate-img "
-                                                                                            src={`${IMG_URL}${itemVariant.image}`}
-                                                                                            alt=""
-                                                                                            style={{
-                                                                                                width: 50,
-                                                                                                height: 50,
-                                                                                            }}
-                                                                                        />
-                                                                                    </td>
-                                                                                    <td>
-                                                                                        <button
-                                                                                            className="btn btn-falcon-default btn-sm dropdown-toggle ms-2 dropdown-caret-none"
-                                                                                            type="button"
-                                                                                            data-bs-toggle="dropdown"
-                                                                                            aria-haspopup="true"
-                                                                                            aria-expanded="false"
-                                                                                        >
-                                                                                            <span className="fas fa-ellipsis-h"></span>
-                                                                                        </button>
-                                                                                        <div className="dropdown-menu">
-                                                                                            <Link
-                                                                                                className="dropdown-item"
-                                                                                                to={`${URL_APP.UpdateProduct}/${itemVariant.id}`}
-                                                                                            >
-                                                                                                Sửa biến thể
-                                                                                            </Link>
-                                                                                            <div className="dropdown-divider"></div>
-                                                                                            <a
-                                                                                                className="dropdown-item text-danger"
-                                                                                                onClick={() => {
-                                                                                                    handleDeleteCategory(
-                                                                                                        itemVariant.id,
-                                                                                                    );
-                                                                                                }}
-                                                                                            >
-                                                                                                Xoá biến thể
-                                                                                            </a>
-                                                                                        </div>
-                                                                                    </td>
-                                                                                </tr>
-                                                                            );
-                                                                        })}
-                                                                </>
-                                                            );
-                                                        },
-                                                    )}
-                                            </tbody>
-                                        </table>
+                                                                                                                                    :
+                                                                                                                                    {itemProductUnit.prices.map(
+                                                                                                                                        (
+                                                                                                                                            p,
+                                                                                                                                        ) =>
+                                                                                                                                            p.salePrice,
+                                                                                                                                    )}
+                                                                                                                                </span>
+                                                                                                                            );
+                                                                                                                        },
+                                                                                                                    )}
+                                                                                                                </TableCell>
+                                                                                                                <TableCell
+                                                                                                                    component="th"
+                                                                                                                    scope="row"
+                                                                                                                    align="center"
+                                                                                                                >
+                                                                                                                    <img
+                                                                                                                        className="cate-img "
+                                                                                                                        src={`${IMG_URL}${itemVariant.image}`}
+                                                                                                                        alt=""
+                                                                                                                        style={{
+                                                                                                                            width: 50,
+                                                                                                                            height: 50,
+                                                                                                                        }}
+                                                                                                                    />
+                                                                                                                </TableCell>
+                                                                                                                <TableCell
+                                                                                                                    component="th"
+                                                                                                                    scope="row"
+                                                                                                                    align="center"
+                                                                                                                >
+                                                                                                                    <button
+                                                                                                                        className="btn btn-falcon-default btn-sm dropdown-toggle ms-2 dropdown-caret-none"
+                                                                                                                        type="button"
+                                                                                                                        data-bs-toggle="dropdown"
+                                                                                                                        aria-haspopup="true"
+                                                                                                                        aria-expanded="false"
+                                                                                                                    >
+                                                                                                                        <span className="fas fa-ellipsis-h"></span>
+                                                                                                                    </button>
+                                                                                                                    <div className="dropdown-menu">
+                                                                                                                        <Link
+                                                                                                                            className="dropdown-item"
+                                                                                                                            to={`${URL_APP.UpdateCategory}/${itemVariant.id}`}
+                                                                                                                        >
+                                                                                                                            Edit
+                                                                                                                        </Link>
+                                                                                                                        <div className="dropdown-divider"></div>
+                                                                                                                        <a
+                                                                                                                            className="dropdown-item text-danger"
+                                                                                                                            onClick={() => {
+                                                                                                                                handleDeleteCategory(
+                                                                                                                                    itemVariant.id,
+                                                                                                                                );
+                                                                                                                            }}
+                                                                                                                        >
+                                                                                                                            Delete
+                                                                                                                            Category
+                                                                                                                        </a>
+                                                                                                                    </div>
+                                                                                                                </TableCell>
+                                                                                                            </TableRow>
+                                                                                                        ),
+                                                                                                    )}
+                                                                                            </TableBody>
+                                                                                        </Table>
+                                                                                    </Box>
+                                                                                </Collapse>
+                                                                            </TableCell>
+                                                                        </TableRow>
+                                                                    </>
+                                                                );
+                                                            },
+                                                        )}
+                                                </TableBody>
+                                            </Table>
+                                        </TableContainer>
                                     </div>
                                 </div>
                             </div>
