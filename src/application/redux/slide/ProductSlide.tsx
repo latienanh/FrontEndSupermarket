@@ -4,6 +4,8 @@ import { ResponseBase } from '~/application/model/modelResponse/ModelResponeseBa
 import { propsFetchPaging } from '~/application/model/modelRequest/FetchingPaging';
 
 import {
+    GetAllProductResponseFailure,
+    GetAllProductResponseSuccess,
     GetProductByIdResponseFailure,
     GetProductByIdResponseSuccess,
     GetProductsResponseFailure,
@@ -99,6 +101,10 @@ export interface GetProductByIdState {
     DataSuccess: GetProductByIdResponseSuccess | null;
     DataFailure: GetProductByIdResponseFailure | null;
 }
+export interface getAllProductsState {
+    DataSuccess: GetAllProductResponseSuccess | null;
+    DataFailure: GetAllProductResponseFailure | null;
+}
 const initialProductsState: getProductsState = {
     DataSuccess: null,
     DataFailure: null,
@@ -113,7 +119,7 @@ const initialProductState: GetProductByIdState = {
 };
 interface initialStateType {
     dataGetPagingProduct: getProductsState;
-    dataGetAll: getProductsState;
+    dataGetAll: getAllProductsState;
     dataGetProductById: GetProductByIdState;
     dataCreate: ResponseBase | null;
     dataDelete: ResponseBase | null;
@@ -157,14 +163,14 @@ export const ProductSlice = createSlice({
                 state.isError = false;
             })
             .addCase(ProductService.fetchGetAll.fulfilled, (state, action) => {
-                state.dataGetAll.DataSuccess = action.payload as unknown as GetProductsResponseSuccess;
+                state.dataGetAll.DataSuccess = action.payload as unknown as GetAllProductResponseSuccess;
                 state.isLoading = false;
                 state.isError = false;
             })
             .addCase(ProductService.fetchGetAll.rejected, (state, action) => {
                 state.isLoading = false;
                 state.isError = true;
-                state.dataGetAll.DataFailure = action.payload as GetProductsResponseFailure;
+                state.dataGetAll.DataFailure = action.payload as GetAllProductResponseFailure;
             })
             .addCase(ProductService.fetchCreate.pending, (state) => {
                 state.isLoading = true;

@@ -6,6 +6,10 @@ interface GetProductsResponseSuccess extends ResponseBase {
         totalPage: number;
     };
 }
+interface GetAllProductResponseSuccess extends ResponseBase {
+    listData: Product[];
+}
+interface GetAllProductResponseFailure extends ResponseBase {}
 
 interface GetProductByIdResponseSuccess extends ResponseBase {
     data: Product;
@@ -18,4 +22,6 @@ export {
     GetProductByIdResponseSuccess,
     GetProductsResponseSuccess,
     GetProductsResponseFailure,
+    GetAllProductResponseSuccess,
+    GetAllProductResponseFailure,
 };

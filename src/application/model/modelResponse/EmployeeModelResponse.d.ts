@@ -6,6 +6,10 @@ interface GetMultipleEmployeeResponseSuccess extends ResponseBase {
         totalPage: number;
     };
 }
+interface GetAllEmployeeResponseSuccess extends ResponseBase {
+    listData: Employee[];
+}
+interface GetAllEmployeeResponseFailure extends ResponseBase {}
 
 interface GetEmployeeByIdResponseSuccess extends ResponseBase {
     data: Employee;
@@ -18,4 +22,6 @@ export {
     GetEmployeeByIdResponseSuccess,
     GetMultipleEmployeeResponseFailure,
     GetMultipleEmployeeResponseSuccess,
+    GetAllEmployeeResponseSuccess,
+    GetAllEmployeeResponseFailure,
 };

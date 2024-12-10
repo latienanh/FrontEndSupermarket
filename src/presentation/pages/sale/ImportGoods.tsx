@@ -1,12 +1,19 @@
 import { Autocomplete, Box, Input, Stack, TableCell, TableRow, TextField } from '@mui/material';
+import Paper from '@mui/material/Paper';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableContainer from '@mui/material/TableContainer';
+import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
+import { TableComponents, TableVirtuoso } from 'react-virtuoso';
 import { ErrorStockInDetailView, ErrorStockInView } from '~/application/model/modelErrorRequest/ErrorEntity';
 import { StockInDetailView, StockInView } from '~/application/model/modelView/ImportGoodsModelView';
 import { AppDispatch, RootState } from '~/application/redux/rootState';
 import { EmployeeService } from '~/application/redux/slide/EmployeeSlide';
+import { ImportGoodsService } from '~/application/redux/slide/ImportGoodsSlide';
 import { ProductService } from '~/application/redux/slide/ProductSlide';
 import { SupplierService } from '~/application/redux/slide/SupplierSlide';
 import Employee from '~/domain/entities/supermarketEntities/Employee';
@@ -14,14 +21,6 @@ import { Product } from '~/domain/entities/supermarketEntities/Product';
 import Supplier from '~/domain/entities/supermarketEntities/Supplier';
 import { ButtonCustome } from '~/presentation/components/share';
 import { URL_APP } from '~/presentation/router/Link';
-import * as React from 'react';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableContainer from '@mui/material/TableContainer';
-import Paper from '@mui/material/Paper';
-import { TableVirtuoso, TableComponents } from 'react-virtuoso';
-import { ImportGoodsService } from '~/application/redux/slide/ImportGoodsSlide';
-import { error } from 'console';
 
 interface ColumnStockInDetail {
     dataKey: keyof StockInDetailView;
@@ -278,7 +277,7 @@ function ImportGoods() {
                     newStockInDetail.push({
                         productId: value.id,
                         name: value.name,
-                        quantityProduct: value.quantity,
+                        quantityProduct: value.mainQuantity,
                         price: value.price,
                         quantityReceived: 0,
                         unitPriceReceived: 0,
@@ -327,7 +326,7 @@ function ImportGoods() {
                                         <Autocomplete
                                             id="select-supplier"
                                             // sx={{ width: 200 }}
-                                            options={supplierState.dataGetAll.DataSuccess?.listData.data || []}
+                                            options={supplierState.dataGetAll.DataSuccess?.listData || []}
                                             autoHighlight
                                             getOptionLabel={(option) => option.name}
                                             onChange={handleChangeSupplier}
@@ -384,7 +383,7 @@ function ImportGoods() {
                                                 id="select-products"
                                                 // sx={{ width: 200 }}
                                                 multiple
-                                                options={productState.dataGetAll.DataSuccess?.listData.data || []}
+                                                options={productState.dataGetAll.DataSuccess?.listData || []}
                                                 autoHighlight
                                                 getOptionLabel={(option) => option.name}
                                                 onChange={handleChangeProduct}
@@ -411,10 +410,12 @@ function ImportGoods() {
                                                                 <div>
                                                                     <span
                                                                         className={
-                                                                            option.quantity < 10 ? `text-danger` : ''
+                                                                            option.mainQuantity < 10
+                                                                                ? `text-danger`
+                                                                                : ''
                                                                         }
                                                                     >
-                                                                        Số lượng: {option.quantity}
+                                                                        Số lượng: {option.mainQuantity}
                                                                     </span>
                                                                 </div>
                                                             </div>
@@ -555,7 +556,7 @@ function ImportGoods() {
                                         <Autocomplete
                                             id="select-employee"
                                             // sx={{ width: 200 }}
-                                            options={employeeState.dataGetAll.DataSuccess?.listData.data || []}
+                                            options={employeeState.dataGetAll.DataSuccess?.listData || []}
                                             autoHighlight
                                             getOptionLabel={(option) => option.fullName}
                                             onChange={handleChangeEmployee}

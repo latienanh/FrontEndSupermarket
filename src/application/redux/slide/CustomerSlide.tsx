@@ -5,6 +5,8 @@ import { apiCustomer } from '~/infrastructure/api/customerApi';
 import { propsFetchPaging } from '~/application/model/modelRequest/FetchingPaging';
 import { CustomerRequest } from '~/application/model/modelRequest/CustomerModelRequest';
 import {
+    GetAllCustomerResponseFailure,
+    GetAllCustomerResponseSuccess,
     GetCustomerByIdResponseFailure,
     GetCustomerByIdResponseSuccess,
     GetPagingCustomerResponseFailure,
@@ -98,7 +100,10 @@ export interface GetCustomerByIdState {
     DataSuccess: GetCustomerByIdResponseSuccess | null;
     DataFailure: GetCustomerByIdResponseFailure | null;
 }
-
+export interface getAllCustomersState {
+    DataSuccess: GetAllCustomerResponseSuccess | null;
+    DataFailure: GetAllCustomerResponseFailure | null;
+}
 const initialCustomersState: getPagingState = {
     DataSuccess: null,
     DataFailure: null,
@@ -112,7 +117,7 @@ const initialCustomerState: GetCustomerByIdState = {
     DataFailure: null,
 };
 interface initialStateType {
-    dataGetAll: getPagingState;
+    dataGetAll: getAllCustomersState;
     dataGetAllCustomers: getPagingState;
     dataGetCustomerById: GetCustomerByIdState;
     dataCreate: ResponseBase | null;
@@ -156,14 +161,14 @@ export const Customers = createSlice({
                 state.isError = false;
             })
             .addCase(CustomerService.fetchGetAll.fulfilled, (state, action) => {
-                state.dataGetAll.DataSuccess = action.payload as unknown as GetPagingCustomerResponseSuccess;
+                state.dataGetAll.DataSuccess = action.payload as unknown as GetAllCustomerResponseSuccess;
                 state.isLoading = false;
                 state.isError = false;
             })
             .addCase(CustomerService.fetchGetAll.rejected, (state, action) => {
                 state.isLoading = false;
                 state.isError = true;
-                state.dataGetAll.DataFailure = action.payload as GetPagingCustomerResponseFailure;
+                state.dataGetAll.DataFailure = action.payload as GetAllCustomerResponseFailure;
             })
             .addCase(CustomerService.fetchCreate.pending, (state) => {
                 state.isLoading = true;

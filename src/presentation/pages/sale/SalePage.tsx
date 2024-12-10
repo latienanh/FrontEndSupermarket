@@ -256,7 +256,7 @@ function SalePage() {
                     newInvoiceDetails.push({
                         productId: value.id,
                         name: value.name,
-                        quantityProduct: value.quantity,
+                        quantityProduct: value.mainQuantity,
                         price: value.price,
                         quantity: 0,
                         unitPrice: value.price,
@@ -305,7 +305,7 @@ function SalePage() {
                                         <Autocomplete
                                             id="select-customer"
                                             // sx={{ width: 200 }}
-                                            options={customerState.dataGetAll.DataSuccess?.listData.data || []}
+                                            options={customerState.dataGetAll.DataSuccess?.listData || []}
                                             autoHighlight
                                             getOptionLabel={(option) => option.fullName}
                                             onChange={handleChangeCustomer}
@@ -362,7 +362,7 @@ function SalePage() {
                                                 id="select-products"
                                                 // sx={{ width: 200 }}
                                                 multiple
-                                                options={productState.dataGetAll.DataSuccess?.listData.data || []}
+                                                options={productState.dataGetAll.DataSuccess?.listData || []}
                                                 autoHighlight
                                                 getOptionLabel={(option) => option.name}
                                                 onChange={handleChangeProduct}
@@ -389,10 +389,12 @@ function SalePage() {
                                                                 <div>
                                                                     <span
                                                                         className={
-                                                                            option.quantity < 10 ? `text-danger` : ''
+                                                                            option.mainQuantity < 10
+                                                                                ? `text-danger`
+                                                                                : ''
                                                                         }
                                                                     >
-                                                                        Số lượng: {option.quantity}
+                                                                        Số lượng: {option.mainQuantity}
                                                                     </span>
                                                                 </div>
                                                             </div>
@@ -497,7 +499,7 @@ function SalePage() {
                                         <Autocomplete
                                             id="select-employee"
                                             // sx={{ width: 200 }}
-                                            options={employeeState.dataGetAll.DataSuccess?.listData.data || []}
+                                            options={employeeState.dataGetAll.DataSuccess?.listData || []}
                                             autoHighlight
                                             getOptionLabel={(option) => option.fullName}
                                             onChange={handleChangeEmployee}

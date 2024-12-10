@@ -5,7 +5,7 @@ export interface Product {
     slug: string;
     image: string;
     describe: string;
-    quantity: number;
+    mainQuantity: number;
     price: number;
     categories: Category[];
     variants: Variant[];
@@ -18,7 +18,7 @@ export interface Variant {
     slug: string;
     image: string;
     describe: string;
-    quantity: number;
+    mainQuantity: number;
     price: number;
     categories: Category[];
     variantValues: VariantValue[];

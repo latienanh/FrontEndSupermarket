@@ -5,11 +5,14 @@ import { ResponseBase } from '~/application/model/modelResponse/ModelResponeseBa
 import { propsFetchPaging } from '~/application/model/modelRequest/FetchingPaging';
 import { apiSupplier } from '~/infrastructure/api/supplierApi';
 import {
+    GetAllSupplierResponseFailure,
+    GetAllSupplierResponseSuccess,
     GetMultipleSupplierResponseFailure,
     GetMultipleSupplierResponseSuccess,
     GetSupplierByIdResponseFailure,
     GetSupplierByIdResponseSuccess,
 } from '~/application/model/modelResponse/SupplierModelResponse';
+import { GetAllAttributesResponseSuccess } from '~/application/model/modelResponse/AttributeModelResponse';
 
 export const SupplierService = {
     fetchGetAll: createAsyncThunk('Supplier/fetchGetAll', async (_, thunkAPI) => {
@@ -94,6 +97,10 @@ export interface getSuppliersState {
     DataSuccess: GetMultipleSupplierResponseSuccess | null;
     DataFailure: GetMultipleSupplierResponseFailure | null;
 }
+export interface getAllSuppliersState {
+    DataSuccess: GetAllSupplierResponseSuccess | null;
+    DataFailure: GetAllSupplierResponseFailure | null;
+}
 export interface GetSupplierByIdState {
     DataSuccess: GetSupplierByIdResponseSuccess | null;
     DataFailure: GetSupplierByIdResponseFailure | null;
@@ -112,7 +119,7 @@ const initialSupplierState: GetSupplierByIdState = {
 };
 interface initialStateType {
     dataGetPagingSupplier: getSuppliersState;
-    dataGetAll: getSuppliersState;
+    dataGetAll: getAllSuppliersState;
     dataGetSupplierById: GetSupplierByIdState;
     dataCreate: ResponseBase | null;
     dataDelete: ResponseBase | null;
@@ -158,14 +165,14 @@ export const SupplierSlice = createSlice({
                 state.isError = false;
             })
             .addCase(SupplierService.fetchGetAll.fulfilled, (state, action) => {
-                state.dataGetAll.DataSuccess = action.payload as unknown as GetMultipleSupplierResponseSuccess;
+                state.dataGetAll.DataSuccess = action.payload as unknown as GetAllSupplierResponseSuccess;
                 state.isLoading = false;
                 state.isError = false;
             })
             .addCase(SupplierService.fetchGetAll.rejected, (state, action) => {
                 state.isLoading = false;
                 state.isError = true;
-                state.dataGetAll.DataFailure = action.payload as GetMultipleSupplierResponseFailure;
+                state.dataGetAll.DataFailure = action.payload as GetAllSupplierResponseFailure;
             })
             .addCase(SupplierService.fetchCreate.pending, (state) => {
                 state.isLoading = true;

@@ -6,7 +6,10 @@ interface GetPagingCustomerResponseSuccess extends ResponseBase {
         totalPage: number;
     };
 }
-
+interface GetAllCustomerResponseSuccess extends ResponseBase {
+    listData: Customer[];
+}
+interface GetAllCustomerResponseFailure extends ResponseBase {}
 interface GetCustomerByIdResponseSuccess extends ResponseBase {
     data: Customer;
 }
@@ -18,4 +21,6 @@ export {
     GetCustomerByIdResponseSuccess,
     GetPagingCustomerResponseFailure,
     GetPagingCustomerResponseSuccess,
+    GetAllCustomerResponseSuccess,
+    GetAllCustomerResponseFailure,
 };

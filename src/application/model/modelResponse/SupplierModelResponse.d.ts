@@ -6,9 +6,14 @@ interface GetMultipleSupplierResponseSuccess extends ResponseBase {
         totalPage: number;
     };
 }
+interface GetAllSupplierResponseSuccess extends ResponseBase {
+    listData: Supplier[];
+}
+interface GetAllSupplierResponseFailure extends ResponseBase {}
 interface GetSupplierByIdResponseSuccess extends ResponseBase {
     data: Supplier;
 }
+
 interface GetSupplierByIdResponseFailure extends ResponseBase {}
 interface GetMultipleSupplierResponseFailure extends ResponseBase {}
 
@@ -17,4 +22,6 @@ export {
     GetMultipleSupplierResponseSuccess,
     GetSupplierByIdResponseFailure,
     GetSupplierByIdResponseSuccess,
+    GetAllSupplierResponseFailure,
+    GetAllSupplierResponseSuccess,
 };

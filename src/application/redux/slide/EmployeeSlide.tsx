@@ -5,6 +5,8 @@ import { ResponseBase } from '~/application/model/modelResponse/ModelResponeseBa
 import { propsFetchPaging } from '~/application/model/modelRequest/FetchingPaging';
 import { apiEmployee } from '~/infrastructure/api/emplyeeApi';
 import {
+    GetAllEmployeeResponseFailure,
+    GetAllEmployeeResponseSuccess,
     GetEmployeeByIdResponseFailure,
     GetEmployeeByIdResponseSuccess,
     GetMultipleEmployeeResponseFailure,
@@ -98,6 +100,10 @@ export interface GetEmployeeByIdState {
     DataSuccess: GetEmployeeByIdResponseSuccess | null;
     DataFailure: GetEmployeeByIdResponseFailure | null;
 }
+export interface getAllEmployeesState {
+    DataSuccess: GetAllEmployeeResponseSuccess | null;
+    DataFailure: GetAllEmployeeResponseFailure | null;
+}
 const initialEmployeesState: getEmployeesState = {
     DataSuccess: null,
     DataFailure: null,
@@ -112,7 +118,7 @@ const initialEmployeeState: GetEmployeeByIdState = {
 };
 interface initialStateType {
     dataGetPagingEmployee: getEmployeesState;
-    dataGetAll: getEmployeesState;
+    dataGetAll: getAllEmployeesState;
     dataGetEmployeeById: GetEmployeeByIdState;
     dataCreate: ResponseBase | null;
     dataDelete: ResponseBase | null;
@@ -158,14 +164,14 @@ export const EmployeeSlice = createSlice({
                 state.isError = false;
             })
             .addCase(EmployeeService.fetchGetAll.fulfilled, (state, action) => {
-                state.dataGetAll.DataSuccess = action.payload as unknown as GetMultipleEmployeeResponseSuccess;
+                state.dataGetAll.DataSuccess = action.payload as unknown as GetAllEmployeeResponseSuccess;
                 state.isLoading = false;
                 state.isError = false;
             })
             .addCase(EmployeeService.fetchGetAll.rejected, (state, action) => {
                 state.isLoading = false;
                 state.isError = true;
-                state.dataGetAll.DataFailure = action.payload as GetMultipleEmployeeResponseFailure;
+                state.dataGetAll.DataFailure = action.payload as GetAllEmployeeResponseFailure;
             })
             .addCase(EmployeeService.fetchCreate.pending, (state) => {
                 state.isLoading = true;

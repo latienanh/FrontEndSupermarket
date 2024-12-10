@@ -209,7 +209,7 @@ function ProductPage() {
                                                                                 Icon=" fa-regular fa-eye"
                                                                             />
                                                                         </td>
-                                                                        <td>{item.quantity}</td>
+                                                                        <td>{item.mainQuantity}</td>
                                                                         <td>{item.price + ' VNĐ'}</td>
                                                                         <td>
                                                                             {item.categories?.map(
@@ -358,7 +358,7 @@ function ProductPage() {
                                                                                             Icon=" fa-regular fa-eye"
                                                                                         />
                                                                                     </td>
-                                                                                    <td>{itemVariant.quantity}</td>
+                                                                                    <td>{itemVariant.mainQuantity}</td>
                                                                                     <td>
                                                                                         {itemVariant.price + ' VNĐ'}
                                                                                     </td>
